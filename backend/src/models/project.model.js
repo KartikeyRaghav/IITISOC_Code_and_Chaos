@@ -1,0 +1,61 @@
+import mongoose, { Schema } from "mongoose";
+
+const projectSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: true,
+      index: true,
+    },
+    deploymentHistory: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    framework: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    customDomain: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    subdomain: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    isLive: {
+      type: Boolean,
+      default: false,
+    },
+    sslStatus: {
+      type: String,
+      enum: ["pending", "issued", "failed"],
+      default: "pending",
+    },
+    webhook: {
+      type: Schema.Types.ObjectId,
+      ref: "Webhook",
+      default: null,
+    },
+    repositoryUrl: {
+      type: String,
+      trim: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+export const Project = mongoose.model("Project", projectSchema);
