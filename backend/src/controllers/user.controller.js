@@ -13,7 +13,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "All fields are required");
   }
 
-  const existingUser = User.findOne({ $or: [{ username }, { email }] });
+  const existingUser = await User.findOne({ $or: [{ username }, { email }] });
 
   if (existingUser) {
     throw new ApiError(400, "Username or email already exists");
@@ -33,7 +33,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     }
   }
 
-  const user = User.create({
+  const user = await User.create({
     username: username.toLowerCase(),
     password,
     fullName,
@@ -41,7 +41,9 @@ export const registerUser = asyncHandler(async (req, res) => {
     profilePicture,
   });
 
-  const createdUser = User.findById(user._id).select("-password -refreshToken");
+  const createdUser = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
 
   if (!createdUser) {
     throw new ApiError(500, "Failed to create user");
@@ -50,4 +52,76 @@ export const registerUser = asyncHandler(async (req, res) => {
   res
     .status(201)
     .json(new ApiResponse(201, "User registered successfully", createdUser));
+});
+
+export const loginUser = asyncHandler(async (req, res) => {
+  const { username, email, password } = req.body;
+
+  if ((!username && !email) || !password) {
+    throw new ApiError(400, "Username/Email and password are required");
+  }
+
+  const user = await User.findOne({
+    $or: [{ username: username.toLowerCase() }, { email: email.toLowerCase() }],
+  });
+
+  if (!user || !(await user.isPasswordCorrect(password))) {
+    throw new ApiError(401, "Invalid username or password");
+  }
+
+  const accessToken = await user.generateAccessToken();
+  if (!accessToken) {
+    throw new ApiError(500, "Failed to generate access token");
+  }
+
+  user.refreshToken = await user.generateRefreshToken();
+  await user.save({ validateBeforeSave: false });
+
+  const userData = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
+  if (!userData) {
+    throw new ApiError(500, "Failed to retrieve user data");
+  }
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", user.refreshToken, options)
+    .json(
+      new ApiResponse(200, "User logged in successfully", {
+        user: userData,
+        token: accessToken,
+      })
+    );
+});
+
+export const logoutUser = asyncHandler(async (req, res) => {
+  const user = req.user;
+
+  if (!user) {
+    throw new ApiError(401, "User not authenticated");
+  }
+
+  user.refreshToken = null;
+  await user.save({ validateBeforeSave: false });
+
+  res
+    .status(200)
+    .cookie("accessToken", "", {
+      httpOnly: true,
+      secure: true,
+      expires: new Date(0),
+    })
+    .cookie("refreshToken", "", {
+      httpOnly: true,
+      secure: true,
+      expires: new Date(0),
+    })
+    .json(new ApiResponse(200, "User logged out successfully"));
 });
