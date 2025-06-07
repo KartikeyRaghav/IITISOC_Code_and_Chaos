@@ -32,11 +32,6 @@ const userSchema = new Schema(
       required: true,
       minlength: 6,
     },
-    role: {
-      type: String,
-      enum: ["developer", "admin", "tester"],
-      default: "admin",
-    },
     profilePicture: {
       type: String,
       default: null,
