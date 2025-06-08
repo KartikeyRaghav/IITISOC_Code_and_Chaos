@@ -8,7 +8,7 @@ cloudinary.config({
   secure: true,
 });
 
-const uploadOnCloudinary = async (filePath) => {
+export const uploadOnCloudinary = async (filePath) => {
   try {
     if (!filePath) {
       throw new Error("File path is required for upload");
