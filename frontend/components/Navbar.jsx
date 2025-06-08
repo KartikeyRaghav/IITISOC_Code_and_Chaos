@@ -29,22 +29,23 @@ const Navbar = () => {
 
     return (
         <div
-            className={`fixed left-0 w-full z-50 px-4 py-3 border-b border-white lg:bg-black lg:backdrop-blur-sm ${
+            className={`sticky top-0 z-40 w-full transition-all duration-300 border-b border-gray-700 backdrop-blur-md shadow-sm bg-black/60 ${
                 openNavigation ? "bg-n-8" : "bg-black backdrop-blur-sm"
             }`}
         >
 
-            <div className='flex items-center justify-between'>
 
-                <nav className='hidden lg:flex justify-between w-full'>
+            <div className='max-w-screen-xl mx-auto flex items-center justify-between py-4 px-6'>
+
+                <nav className='hidden lg:flex gap-10'>
                     {navigation.map((item) => (
                         <a
                             key={item.id}
                             href={item.url}
-                            className={`text-sm font-semibold transition-colors ${
+                            className={`text-base font-semibold transition-colors ${
                                 pathname === item.url
-                                ? 'text-white'
-                                : 'text-white hover:text-[#003D5C]'
+                                ? 'text-white underline underline-offset-4'
+                                : 'text-white hover:text-[#003D5C] hover:drop-shadow-md'
                             }`}
                         >
                             {item.title}
@@ -54,26 +55,28 @@ const Navbar = () => {
 
                     <button
                         onClick={toggleNavigation}
-                        className="p-2 ml-auto text-white border-none outline-none bg-transparent lg:hidden"
+                        className="p-3 ml-auto text-white border-none outline-none bg-transparent lg:hidden text-2xl"
                     >
                         {openNavigation ? '✖' : '☰'}
                     </button>
             </div>
                 {openNavigation && (
-                    <nav className="flex flex-col items-center mt-4 space-y-4 lg:hidden bg-black py-4">
+                    <nav className="flex flex-col items-center mt-6 space-y-6 lg:hidden bg-black py-6">
                         {navigation.map((item) => (
                             <a
                                 key={item.id}
                                 href={item.url}
                                 onClick={handleClick}
-                                className="text-white text-xl hover:text-[#003D5C]"
+                                className="block text-white text-2xl font-semibold hover:text-[#003D5C]"
                             >
                                 {item.title}
                             </a>
                         ))}
                     </nav>
+                    
                 )}
         </div>
+        
     )
 }
 
