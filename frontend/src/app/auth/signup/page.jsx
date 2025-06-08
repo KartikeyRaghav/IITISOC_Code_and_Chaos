@@ -1,6 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import ProfileUpload from '../../../../components/ProfileUpload';
 
 export default function SignupPage() {
     const router = useRouter();
@@ -41,7 +42,9 @@ export default function SignupPage() {
                     className="w-full px-4 py-2 border rounded-xl"
                 />
 
-                <button className="w-full py-2 bg-gradient-to-r to-[#00628d] from-[#003047] rounded-lg">
+                <ProfileUpload />
+
+                <button className="w-full py-2 bg-gradient-to-r to-[#00628d] from-[#003047] rounded-lg cursor-pointer">
                     Signup
                 </button>
 

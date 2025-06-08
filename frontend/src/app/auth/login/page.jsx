@@ -35,7 +35,7 @@ export default function LoginPage() {
             Forgot password?
         </p>
 
-        <button className="w-full py-2 bg-gradient-to-r from-[#00628d] to-[#003047] text-white rounded-lg">
+        <button className="w-full py-2 bg-gradient-to-r from-[#00628d] to-[#003047] text-white rounded-lg cursor-pointer">
             Login
         </button>
 
