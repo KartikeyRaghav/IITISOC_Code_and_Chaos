@@ -13,7 +13,7 @@ const Header = () => {
   const router = useRouter()
 
   return (
-    <header className='w-full bg-black border-b border-gray-200 shadow-sm px-6 py-4'>
+    <header className='w-full bg-black shadow-sm px-6 py-4'>
       <div className='max-w-screen-xl mx-auto flex items-center justify-between'>
       <div className={`
         text-4xl tracking-tight text-white bg-clip-text ${
