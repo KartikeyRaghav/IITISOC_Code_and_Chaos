@@ -39,9 +39,12 @@ const userSchema = new Schema(
         last_updateAt: Date,
       },
     ],
-    hasGithubPermission: Boolean,
-    profilePicture: String,
-    refreshToken: String,
+    hasGithubPermission: {
+      type: Boolean,
+      default: false,
+    },
+    profilePicture: { type: String, default: null },
+    refreshToken: { type: String, default: null },
   },
   {
     timestamps: true,

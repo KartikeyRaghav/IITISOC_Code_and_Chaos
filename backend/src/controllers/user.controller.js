@@ -29,7 +29,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   const existingUser = await User.findOne({ email });
 
   if (existingUser) {
-    throw new ApiError(400, "Username or email already exists");
+    throw new ApiError(400, "Email already in use");
   }
 
   const localProfilePicture = req.files?.profilePicture[0].path;
@@ -69,7 +69,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 export const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  if ((!username && !email) || !password) {
+  if (!email || !password) {
     throw new ApiError(400, "Email and password are required");
   }
 
@@ -209,14 +209,15 @@ export const handleGithubCallback = asyncHandler(async (req, res) => {
   const tokenData = await tokenResponse.json();
   const accessToken = tokenData.access_token;
 
-  const repoResponse = await fetch("https://api.github.com/user/repos", {
+  const userResponse = await fetch("https://api.github.com/user", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: "application/vnd.github+json",
     },
   });
 
-  const repos = await repoResponse.json();
+  const githubUser = await userResponse.json();
+  const username = githubUser.login;
 
-  res.json({ repos });
+  await User.findByIdAndUpdate(req.user._id, { githubUsername: username });
 });
