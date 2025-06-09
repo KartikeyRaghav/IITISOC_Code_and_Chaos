@@ -1,9 +1,12 @@
+"use client"
 import React from "react";
 import { GridBackground } from "./ui/GridBackground";
 import { Spotlight } from "./ui/Spotlight";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const Hero = () => {
+  const router = useRouter();
   return (
     <section className="relative w-full min-h-screen flex items-center justify-center px-6 text-center overflow-hidden">
       
@@ -44,6 +47,15 @@ const Hero = () => {
         <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-xl -translate-y-70">
           Ignite Your Web Presence.
         </p>
+        <button 
+          className="px-8 py-3 rounded-full font-semibold text-lg shadow-lg bg-gradient-to-r from-[#003047] via-[#00aaff] to-[#9a00ff] text-white transition duration-200 hover:scale-105 hover:shadow-xl hover:from-[#003d5c] hover:via-[#14b3ff] hover:to-[#8a00e6] focus:outline-none focus:ring-4 focus:ring-[#00aaff]/40 -translate-y-65"
+          onClick={() => {
+            router.push("auth/signup");
+          }}
+        >
+          Get Started
+        </button>
+
       </div>
     </section>
   );

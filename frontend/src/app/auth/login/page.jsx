@@ -46,7 +46,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#001b29] to-[#000E14] p-4">
       <form
         onSubmit={handleLogin}
-        className="space-y-4 p-8 rounded-lg shadow-lg w-full max-w-md"
+        className="space-y-4 p-8 rounded-lg shadow-lg w-full max-w-md bg-black"
       >
         <h2 className="text-2xl font-bold text-center">Login Form</h2>
 

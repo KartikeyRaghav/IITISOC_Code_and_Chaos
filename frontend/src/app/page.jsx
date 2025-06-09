@@ -7,8 +7,8 @@ export default function Home() {
   return (
     <div className="pt-[1rem] overflow-hidden min-h-screen bg-black text-white">
       <Header />
-      <Navbar />
-      <div className="h-1 w-full bg-gradient-to-r from-[#002233] via-[#003047] to-[#002233]" />
+      
+      <div className="h-1 w-full bg-gradient-to-r from-[#005b83] via-[#0077ab] to-purple-500" />
       <main className="px-4 py-8">
         <Hero2 />
       </main>

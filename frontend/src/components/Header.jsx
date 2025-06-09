@@ -22,7 +22,7 @@ const Header = () => {
         </div>
 
         <button
-          className="px-3 py-1.5 text-xs sm:text-sm md:text-base bg-[#002233] text-white rounded-full hover:bg-[#003047] hover:scale-105 active:scale-95 transition duration-300 cursor-pointer"
+          className="px-3 py-1.5 text-xs sm:text-sm md:text-base bg-gradient-to-r from-[#003047] via-[#00aaff] to-[#9a00ff] text-white rounded-full transition duration-200 hover:shadow-xl hover:from-[#003d5c] hover:via-[#14b3ff] hover:to-[#8a00e6] focus:outline-none focus:ring-4 focus:ring-[#00aaff]/40 cursor-pointer"
           onClick={() => {
             router.push("/auth/login");
           }}
