@@ -24,11 +24,6 @@ export default function SignupPage() {
         </div>
 
         <input
-          type="username"
-          placeholder="Username"
-          className="w-full px-4 py-2 border rounded-xl"
-        />
-        <input
           type="text"
           placeholder="Full Name"
           className="w-full px-4 py-2 border rounded-xl"

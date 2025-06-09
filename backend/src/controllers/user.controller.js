@@ -20,15 +20,13 @@ const generateAccessandRefreshTokens = async (user) => {
 };
 
 export const registerUser = asyncHandler(async (req, res) => {
-  const { username, password, fullName, email } = req.body;
+  const { password, fullName, email } = req.body;
 
-  if (
-    [fullName, username, email, password].some((field) => field?.trim() === "")
-  ) {
+  if ([fullName, email, password].some((field) => field?.trim() === "")) {
     throw new ApiError(400, "All fields are required");
   }
 
-  const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+  const existingUser = await User.findOne({ email });
 
   if (existingUser) {
     throw new ApiError(400, "Username or email already exists");
@@ -49,7 +47,6 @@ export const registerUser = asyncHandler(async (req, res) => {
   }
 
   const user = await User.create({
-    username: username.toLowerCase(),
     password,
     fullName,
     email,
@@ -70,18 +67,18 @@ export const registerUser = asyncHandler(async (req, res) => {
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  const { email, password } = req.body;
 
   if ((!username && !email) || !password) {
-    throw new ApiError(400, "Username/Email and password are required");
+    throw new ApiError(400, "Email and password are required");
   }
 
   const user = await User.findOne({
-    $or: [{ username: username.toLowerCase() }, { email: email.toLowerCase() }],
+    email: email.toLowerCase(),
   });
 
   if (!user || !(await user.isPasswordCorrect(password))) {
-    throw new ApiError(401, "Invalid username or password");
+    throw new ApiError(401, "Invalid email or password");
   }
 
   const { accessToken, refreshToken } =
@@ -221,5 +218,5 @@ export const handleGithubCallback = asyncHandler(async (req, res) => {
 
   const repos = await repoResponse.json();
 
-  res.redirect("http://localhost:4000");
+  res.json({ repos });
 });

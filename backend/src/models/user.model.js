@@ -4,9 +4,8 @@ import bcrypt from "bcrypt";
 
 const userSchema = new Schema(
   {
-    username: {
+    githubUsername: {
       type: String,
-      required: true,
       trim: true,
       lowercase: true,
       unique: true,
@@ -32,14 +31,17 @@ const userSchema = new Schema(
       required: true,
       minlength: 6,
     },
-    profilePicture: {
-      type: String,
-      default: null,
-    },
-    refreshToken: {
-      type: String,
-      default: null,
-    },
+    repos: [
+      {
+        name: String,
+        html_url: String,
+        clone_url: String,
+        last_updateAt: Date,
+      },
+    ],
+    hasGithubPermission: Boolean,
+    profilePicture: String,
+    refreshToken: String,
   },
   {
     timestamps: true,

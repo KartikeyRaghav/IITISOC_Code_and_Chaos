@@ -5,7 +5,7 @@ import React, { useState } from "react";
 export default function LoginPage() {
   const router = useRouter();
 
-  const [usernameOrEmail, setUsernameOrEmail] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(""); //stored the error message to be shown
 
@@ -23,7 +23,7 @@ export default function LoginPage() {
         },
         body: JSON.stringify({
           //sends login data as JSON string
-          usernameOrEmail,
+          usernameOrEmail: email,
           password,
         }),
       });
@@ -67,10 +67,10 @@ export default function LoginPage() {
 
         <input
           type="text"
-          placeholder="Username or Email"
-          value={usernameOrEmail}
+          placeholder="Email"
+          value={email}
           className="w-full px-4 py-2 border rounded-xl"
-          onChange={(e) => setUsernameOrEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
         <input
