@@ -27,20 +27,20 @@ const Navbar = () => {
 
   return (
     <div
-      className={`sticky top-0 z-40 w-full transition-all duration-300 border-b border-gray-700 backdrop-blur-md shadow-sm bg-black/60 ${
-        openNavigation ? "bg-n-8" : "bg-black backdrop-blur-sm"
+      className={`sticky top-0 z-40 w-full transition-all duration-300 border-b border-gray-700 backdrop-blur-md shadow-sm ${
+        openNavigation ? "bg-black" : "bg-black/70 backdrop-blur-sm"
       }`}
     >
-      <div className="mx-auto flex items-center justify-between py-4 px-6">
-        <nav className="hidden mx-auto lg:flex gap-10">
+      <div className="max-w-screen-xl mx-auto flex items-center justify-between py-2 sm:py-3 px-4 sm:px-6">
+        <nav className="hidden sm:gap-10 lg:flex gap-10">
           {navLinks.map((item) => (
             <a
               key={item.id}
               href={item.url}
-              className={`text-base font-semibold transition-colors ${
+              className={`text-sm sm:text-base font-medium transition transform duration-200 ease-in-out ${
                 pathname === item.url
                   ? "text-white underline underline-offset-4"
-                  : "text-white hover:text-[#003D5C] hover:drop-shadow-md"
+                  : "text-white hover:text-[#003D5C] hover:scale-105 hover:-translate-y[2px] hover:drop-shadow"
               }`}
             >
               {item.title}
@@ -50,19 +50,19 @@ const Navbar = () => {
 
         <button
           onClick={toggleNavigation}
-          className="p-3 ml-auto text-white border-none outline-none bg-transparent lg:hidden text-2xl"
+          className="p-2 sm:p-3 ml-auto text-white border-none outline-none bg-transparent lg:hidden text-xl"
         >
           {openNavigation ? "✖" : "☰"}
         </button>
       </div>
       {openNavigation && (
-        <nav className="flex flex-col items-center mt-6 space-y-6 lg:hidden bg-black py-6">
+        <nav className="flex flex-col items-center space-y-6 lg:hidden bg-black px-4 py-6 h-[calc(100vh-64px)] overflow-y-auto scrollbar-thin scrollbar-thumb-[#003D5C] scrollbar-track-transparent">
           {navLinks.map((item) => (
             <a
               key={item.id}
               href={item.url}
               onClick={handleClick}
-              className="block text-white text-2xl font-semibold hover:text-[#003D5C]"
+              className="block text-white text-lg font-medium transition transform duration-200 ease-in-out hover:text-[#003D5C] hover:scale-105 hover:-translate-y-[2px] hover:drop-shadow"
             >
               {item.title}
             </a>
@@ -72,5 +72,4 @@ const Navbar = () => {
     </div>
   );
 };
-
 export default Navbar;
