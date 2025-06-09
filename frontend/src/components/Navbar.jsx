@@ -31,8 +31,8 @@ const Navbar = () => {
         openNavigation ? "bg-n-8" : "bg-black backdrop-blur-sm"
       }`}
     >
-      <div className="max-w-screen-xl mx-auto flex items-center justify-between py-4 px-6">
-        <nav className="hidden lg:flex gap-10">
+      <div className="mx-auto flex items-center justify-between py-4 px-6">
+        <nav className="hidden mx-auto lg:flex gap-10">
           {navLinks.map((item) => (
             <a
               key={item.id}
