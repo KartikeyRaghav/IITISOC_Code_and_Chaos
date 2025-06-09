@@ -43,7 +43,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#001b29] to-[#000E14] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-custom-blue-600 to-custom-blue-950 p-4">
       <form
         onSubmit={handleLogin}
         className="space-y-4 p-8 rounded-lg shadow-lg w-full max-w-md bg-black"
@@ -53,7 +53,7 @@ export default function LoginPage() {
         <div className="flex justify-between bg-gray-100 rounded-full overflow-hidden">
           <button
             type="button"
-            className="w-1/2 bg-gradient-to-r from-[#00628d] to-[#003047] text-white py-2"
+            className="w-1/2 bg-gradient-to-r from-custom-blue-50 to-custom-blue-300 text-white py-2"
           >
             Login
           </button>
@@ -84,13 +84,13 @@ export default function LoginPage() {
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
-        <p className="text-right text-sm text-[#003D5C] cursor-pointer">
+        <p className="text-right text-sm text-custom-blue-50 font-bold cursor-pointer">
           Forgot password?
         </p>
 
         <button
           type="submit"
-          className="w-full py-2 bg-gradient-to-r from-[#00628d] to-[#003047] text-white rounded-lg cursor-pointer"
+          className="w-full py-2 bg-gradient-to-r from-custom-blue-50 to-custom-blue-300 text-white rounded-lg cursor-pointer"
         >
           Login
         </button>
@@ -99,7 +99,7 @@ export default function LoginPage() {
           Not a member?{" "}
           <span
             onClick={() => router.push("/auth/signup")}
-            className="text-[#003D5C] cursor-pointer"
+            className="text-custom-blue-50 font-bold cursor-pointer"
           >
             Signup now
           </span>

@@ -7,7 +7,7 @@ export default function SignupPage() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r to-[#001b29] from-[#000E14] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r to-custom-blue-600 from-custom-blue-950 p-4">
       <div className="bg-black p-8 rounded-2xl shadow-md w-full max-w-sm space-y-4">
         <h2 className="text-2xl font-bold text-center">Signup Form</h2>
 
@@ -18,7 +18,7 @@ export default function SignupPage() {
           >
             Login
           </button>
-          <button className="w-1/2 bg-gradient-to-r to-[#00628d] from-[#003047] text-white py-2">
+          <button className="w-1/2 bg-gradient-to-r to-custom-blue-50 from-custom-blue-300 text-white py-2">
             Signup
           </button>
         </div>
@@ -46,7 +46,7 @@ export default function SignupPage() {
 
         <ProfileUpload />
 
-        <button className="w-full py-2 bg-gradient-to-r to-[#00628d] from-[#003047] rounded-lg cursor-pointer">
+        <button className="w-full py-2 bg-gradient-to-r to-custom-blue-50 from-custom-blue-300 rounded-lg cursor-pointer">
           Signup
         </button>
 
@@ -54,7 +54,7 @@ export default function SignupPage() {
           Already a member?{" "}
           <span
             onClick={() => router.push("/auth/login")}
-            className="text-[#003D5C] cursor-pointer"
+            className="text-custom-blue-50 font-bold cursor-pointer"
           >
             Login now
           </span>

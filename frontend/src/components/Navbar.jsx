@@ -40,7 +40,7 @@ const Navbar = () => {
               className={`text-sm sm:text-base font-medium transition transform duration-200 ease-in-out ${
                 pathname === item.url
                   ? "text-white underline underline-offset-4"
-                  : "text-white hover:text-[#003D5C] hover:scale-105 hover:-translate-y[2px] hover:drop-shadow"
+                  : "text-white hover:text-custom-blue-100 hover:scale-105 hover:-translate-y[2px] hover:drop-shadow"
               }`}
             >
               {item.title}
@@ -56,13 +56,13 @@ const Navbar = () => {
         </button>
       </div>
       {openNavigation && (
-        <nav className="flex flex-col items-center space-y-6 lg:hidden bg-black px-4 py-6 h-[calc(100vh-64px)] overflow-y-auto scrollbar-thin scrollbar-thumb-[#003D5C] scrollbar-track-transparent">
+        <nav className="flex flex-col items-center space-y-6 lg:hidden bg-black px-4 py-6 h-[calc(100vh-64px)] overflow-y-auto scrollbar-thin scrollbar-thumb-custom-blue-100 scrollbar-track-transparent">
           {navLinks.map((item) => (
             <a
               key={item.id}
               href={item.url}
               onClick={handleClick}
-              className="block text-white text-lg font-medium transition transform duration-200 ease-in-out hover:text-[#003D5C] hover:scale-105 hover:-translate-y-[2px] hover:drop-shadow"
+              className="block text-white text-lg font-medium transition transform duration-200 ease-in-out hover:text-custom-blue-100 hover:scale-105 hover:-translate-y-[2px] hover:drop-shadow"
             >
               {item.title}
             </a>
