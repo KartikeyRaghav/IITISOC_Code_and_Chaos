@@ -181,7 +181,7 @@ export const githubOAuthConsent = asyncHandler(async (req, res) => {
   const scope = "read:user repo";
 
   const githubAuthURL = `https://github.com/login/oauth/authorize?client_id=${clientID}&redirect_uri=${redirectURI}&scope=${scope}`;
-
+  console.log("redirecting");
   res.redirect(githubAuthURL);
 });
 
@@ -189,7 +189,7 @@ export const handleGithubCallback = asyncHandler(async (req, res) => {
   const code = req.query.code;
   const clientID = process.env.GITHUB_CLIENT_ID;
   const clientSecret = process.env.GITHUB_CLIENT_SECRET;
-
+  console.log("fetching access token");
   const tokenResponse = await fetch(
     `https://github.com/login/oauth/access_token`,
     {
@@ -202,7 +202,7 @@ export const handleGithubCallback = asyncHandler(async (req, res) => {
       }),
     }
   );
-
+  console.log("token fetched");
   const tokenData = await tokenResponse.json();
   const accessToken = tokenData.access_token;
 
@@ -212,9 +212,11 @@ export const handleGithubCallback = asyncHandler(async (req, res) => {
       Accept: "application/vnd.github+json",
     },
   });
-
   const githubUser = await userResponse.json();
   const username = githubUser.login;
 
-  await User.findByIdAndUpdate(req.user._id, { githubUsername: username });
+  const user = await User.findByIdAndUpdate(req.user._id, {
+    githubUsername: username,
+  });
+  res.json({ user });
 });
