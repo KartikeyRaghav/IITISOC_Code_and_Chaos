@@ -20,7 +20,7 @@ export default function SignupPage() {
   const handleSignup = async (e) => {
     e.preventDefault();
     setError("");
-    
+
     try {
       const response = await fetch(
         "http://localhost:3000/api/v1/users/register",
@@ -34,6 +34,7 @@ export default function SignupPage() {
             password: formData.password,
             fullName: formData.fullName,
           }),
+          credentials: "include",
         }
       );
 

@@ -1,11 +1,15 @@
 import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const userSchema = new Schema(
   {
     githubUsername: {
       type: String,
+      default: null,
       trim: true,
       lowercase: true,
       unique: true,
@@ -72,16 +76,16 @@ userSchema.methods.generateAccessToken = function () {
       email: this.email,
     },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: ACCESS_TOKEN_EXPIRATION }
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRATION }
   );
   return token;
 };
 
 userSchema.methods.generateRefreshToken = function () {
   const token = jwt.sign({ _id: this._id }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: REFRESH_TOKEN_EXPIRATION,
+    expiresIn: process.env.REFRESH_TOKEN_EXPIRATION,
   });
-  // this.refreshToken = token;
+  this.refreshToken = token;
   return token;
 };
 

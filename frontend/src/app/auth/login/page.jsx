@@ -30,6 +30,7 @@ export default function LoginPage() {
           email: formData.email,
           password: formData.password,
         }),
+        credentials: "include",
       });
 
       const data = await response.json(); //waits for server response
