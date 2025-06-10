@@ -54,7 +54,7 @@ export default function SignupPage() {
           Already a member?{" "}
           <span
             onClick={() => router.push("/auth/login")}
-            className="text-[#003D5C] cursor-pointer"
+            className="text-[#006997] cursor-pointer"
           >
             Login now
           </span>

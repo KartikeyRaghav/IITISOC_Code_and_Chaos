@@ -84,7 +84,7 @@ export default function LoginPage() {
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
-        <p className="text-right text-sm text-[#003D5C] cursor-pointer">
+        <p className="text-right text-sm text-[#006997] cursor-pointer">
           Forgot password?
         </p>
 
@@ -99,7 +99,7 @@ export default function LoginPage() {
           Not a member?{" "}
           <span
             onClick={() => router.push("/auth/signup")}
-            className="text-[#003D5C] cursor-pointer"
+            className="text-[#006997] cursor-pointer"
           >
             Signup now
           </span>
