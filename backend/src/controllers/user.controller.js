@@ -176,12 +176,16 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 export const githubOAuthConsent = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  if (user.hasGithubPermission === true) {
+    res.redirect(`http://localhost:3000/api/v1/users/github/getUserRepos`);
+  }
   const clientID = process.env.GITHUB_CLIENT_ID;
   const redirectURI = "http://localhost:3000/api/v1/users/github/callback";
   const scope = "read:user repo";
 
   const githubAuthURL = `https://github.com/login/oauth/authorize?client_id=${clientID}&redirect_uri=${redirectURI}&scope=${scope}`;
-  console.log("redirecting");
+
   res.redirect(githubAuthURL);
 });
 
@@ -189,7 +193,7 @@ export const handleGithubCallback = asyncHandler(async (req, res) => {
   const code = req.query.code;
   const clientID = process.env.GITHUB_CLIENT_ID;
   const clientSecret = process.env.GITHUB_CLIENT_SECRET;
-  console.log("fetching access token");
+
   const tokenResponse = await fetch(
     `https://github.com/login/oauth/access_token`,
     {
@@ -202,7 +206,7 @@ export const handleGithubCallback = asyncHandler(async (req, res) => {
       }),
     }
   );
-  console.log("token fetched");
+
   const tokenData = await tokenResponse.json();
   const accessToken = tokenData.access_token;
 
@@ -218,5 +222,31 @@ export const handleGithubCallback = asyncHandler(async (req, res) => {
   const user = await User.findByIdAndUpdate(req.user._id, {
     githubUsername: username,
   });
-  res.json({ user });
+  res.redirect(`http://localhost:3000/api/v1/users/github/getUserRepos`);
+});
+
+export const getUserRepos = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  const username = user.githubUsername;
+
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const isoDate = sixMonthsAgo.toISOString().split("T")[0];
+
+  try {
+    const response = await fetch(
+      `https://api.github.com/search/repositories?q=user:${username}+pushed:>${isoDate}&per_page=100`,
+      {
+        headers: {
+          // Authorization: `Bearer ${accessToken}`,
+          Accept: "application/vnd.github+json",
+        },
+      }
+    );
+    const data = await response.json();
+    console.log(data);
+    res.json({ data });
+  } catch (error) {
+    res.json({ erro: "Error" });
+  }
 });
