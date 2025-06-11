@@ -2,10 +2,11 @@ import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 import jwt from "jsonwebtoken";
 
-export const verifyJWT = asyncHandler(async (req, _, next) => {
+export const verifyJWT = asyncHandler(async (req, res, next) => {
   try {
     const token =
       req.cookies?.accessToken || req.headers.authorization?.split(" ")[1];
+    console.log(token);
     if (!token) {
       return res.status(401).json({ message: "Unauthorized access" });
     }

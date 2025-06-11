@@ -1,12 +1,17 @@
+"use client";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 
 export default function Home() {
   const getGithub = async () => {
     try {
-      const response = await fetch('');
+      const response = await fetch("http://localhost:3000/api/v1/github", {
+        credentials: "include",
+      });
+      const data = await response.json();
+      console.log(data);
     } catch (error) {
-      
+      console.log(error);
     }
   };
   return (
@@ -15,7 +20,7 @@ export default function Home() {
       <div className="h-1 w-full bg-gradient-to-r from-[#005b83] via-[#0077ab] to-purple-500" />
       <main className="px-4 py-8">
         <Hero />
-        <button>Get github</button>
+        <button onClick={() => getGithub()}>Get github</button>
       </main>
     </div>
   );
