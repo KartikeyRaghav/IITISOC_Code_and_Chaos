@@ -36,7 +36,7 @@ export default function LoginPage() {
       const data = await response.json(); //waits for server response
 
       if (response.ok) {
-        router.replace("/"); //upon successful login, redirects
+        router.replace("/dashboard"); //upon successful login, redirects
       } else {
         setError(data?.message || "Login failed. Please try again.");
       }

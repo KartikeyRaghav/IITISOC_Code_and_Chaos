@@ -47,8 +47,27 @@ export const handleGithubCallback = asyncHandler(async (req, res) => {
 
   const user = await User.findByIdAndUpdate(req.user._id, {
     githubUsername: username,
+    hasGithubPermission: true,
   });
-  res.redirect(`http://localhost:3000/api/v1/github/getUserRepos`);
+  res.send(`
+  <html>
+    <body>
+      <script>
+        // Send user data to opener window
+        window.opener.postMessage({
+          status: "success",
+          user: {
+            username: "${user.login}",
+            email: "${user.email}",
+            avatar: "${user.avatar_url}"
+          }
+        }, "http://localhost:4000");
+
+        window.close();
+      </script>
+    </body>
+  </html>
+`);
 });
 
 export const getUserRepos = asyncHandler(async (req, res) => {

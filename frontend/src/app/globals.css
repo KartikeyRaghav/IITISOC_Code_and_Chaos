@@ -56,3 +56,13 @@ body {
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #005f89, #007ba7);
 }
+
+.custom-toast {
+  background-color: #00628d !important;
+  color: #000e14 !important;
+  font-family: inherit;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}

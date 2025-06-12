@@ -183,3 +183,13 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
       })
     );
 });
+
+export const getUserProfile = asyncHandler(async (req, res) => {
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({ message: "User not authenticated" });
+  }
+
+  res.json({ user });
+});
