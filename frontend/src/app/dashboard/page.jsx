@@ -7,8 +7,10 @@ import { checkAuth } from "@/utils/checkAuth";
 const Dashboard = () => {
   useEffect(() => {
     const verifyAuth = async () => {
-      const response = await checkAuth();
-      console.log(response);
+      const data = await checkAuth();
+      if (data.status === 400) {
+        router.replace("/auth/login");
+      }
     };
     verifyAuth();
   }, []);
@@ -22,19 +24,18 @@ const Dashboard = () => {
     window.close();
   };
 
-  const getGithub = async () => {
+  const getRepos = async () => {
     try {
-      if (localStorage.getItem("hasGithubPermission") === false) {
+      if (localStorage.getItem("hasGithubPermission") === "false") {
         getOAuthConsent();
       }
       const response = await fetch(
-        "http://localhost:3000/api/v1/github/getUserRepos",
+        "http://localhost:3000/api/v1/github/getGithubRepos",
         {
           credentials: "include",
         }
       );
       const data = await response.json();
-      console.log(data);
     } catch (error) {
       console.log(error);
       CustomToast("Error while getting your repositories");
@@ -43,7 +44,7 @@ const Dashboard = () => {
   return (
     <div>
       <ToastContainer />
-      <button onClick={() => getGithub()}>Get github</button>
+      <button onClick={() => getRepos()}>Get github</button>
     </div>
   );
 };

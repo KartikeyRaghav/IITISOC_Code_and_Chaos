@@ -1,7 +1,8 @@
 "use client";
 import ProfileUpload from "@/components/ProfileUpload";
+import { checkAuth } from "@/utils/checkAuth";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -12,6 +13,16 @@ export default function SignupPage() {
     confirmPassword: "",
   });
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const verifyAuth = async () => {
+      const data = await checkAuth();
+      if (data.status === 200) {
+        router.replace("/dashboard");
+      }
+    };
+    verifyAuth();
+  }, []);
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });

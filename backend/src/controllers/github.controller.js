@@ -16,7 +16,28 @@ export const githubOAuthConsent = asyncHandler(async (req, res) => {
 });
 
 export const handleGithubCallback = asyncHandler(async (req, res) => {
-  const code = req.query.code;
+  const { code, error } = req.query;
+
+  if (error === "access_denied") {
+    return res.send(`
+      <html>
+        <body>
+          <script>
+            window.opener.postMessage({
+              status: "error",
+              message: "User denied GitHub permission"
+            }, "http://localhost:4000");
+            window.close();
+          </script>
+        </body>
+      </html>
+    `);
+  }
+
+  if (!code) {
+    return res.status(400).send("Missing code parameter.");
+  }
+
   const clientID = process.env.GITHUB_CLIENT_ID;
   const clientSecret = process.env.GITHUB_CLIENT_SECRET;
 
@@ -70,7 +91,7 @@ export const handleGithubCallback = asyncHandler(async (req, res) => {
 `);
 });
 
-export const getUserRepos = asyncHandler(async (req, res) => {
+export const getGithubRepos = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
   const username = user.githubUsername;
 
@@ -88,6 +109,9 @@ export const getUserRepos = asyncHandler(async (req, res) => {
       }
     );
     const data = await response.json();
+
+    let filteredRepoData = [];
+    
     res.json({ data });
   } catch (error) {
     res.json({ erro: "Error" });

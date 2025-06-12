@@ -1,6 +1,7 @@
 "use client";
+import { checkAuth } from "@/utils/checkAuth";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -10,6 +11,16 @@ export default function LoginPage() {
     password: "",
   });
   const [error, setError] = useState(""); //stored the error message to be shown
+
+  useEffect(() => {
+    const verifyAuth = async () => {
+      const data = await checkAuth();
+      if (data.status === 200) {
+        router.replace("/dashboard");
+      }
+    };
+    verifyAuth();
+  }, []);
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
