@@ -191,11 +191,15 @@ export const getUserProfile = asyncHandler(async (req, res) => {
     return res.status(401).json({ message: "User not authenticated" });
   }
 
-  res.json({ user });
+  res.status(200).json({ user });
 });
 
 export const getUserRepos = asyncHandler(async (req, res) => {
-  const user = req.user;
+  const user = await User.findById(req.user._id);
 
-  
+  if (!user) {
+    return res.status(401).json({ message: "User not authenticated" });
+  }
+
+  res.status(200).json(user.repos);
 });

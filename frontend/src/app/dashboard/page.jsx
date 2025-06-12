@@ -47,6 +47,22 @@ const Dashboard = () => {
     }
   };
 
+  const getUserRepos = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/v1/users/getUserRepos",
+        {
+          credentials: "include",
+        }
+      );
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+      CustomToast("Error while getting your repositories");
+    }
+  };
+
   if (isAuthenticated === null) {
     return <CustomLoader />;
   }
@@ -55,6 +71,7 @@ const Dashboard = () => {
     <div>
       <ToastContainer />
       <button onClick={() => getRepos()}>Get github</button>
+      <button onClick={() => getUserRepos()}>Get user repos</button>
     </div>
   );
 };
