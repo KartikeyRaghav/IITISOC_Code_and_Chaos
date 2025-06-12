@@ -12,12 +12,12 @@ export const checkAuth = async () => {
     localStorage.setItem("fullName", data.user.fullName);
 
     if (response.ok) {
-      return data;
+      return { data: data, status: 200 };
     } else {
-      return { message: "User logged out" };
+      return { status: 400, message: "User logged out" };
     }
   } catch (error) {
     console.log("Error");
-    return { message: "User logged out" };
+    return { status: 400, message: "User logged out" };
   }
 };
