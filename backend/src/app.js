@@ -19,9 +19,11 @@ app.use(cookieParser());
 // Import routes
 import userRouter from "./routes/user.route.js";
 import githubRouter from "./routes/github.route.js";
+import buildRouter from "./routes/build.route.js";
 
 // Use routes
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/github", githubRouter);
+app.use("/api/v1/build", buildRouter);
 
 export { app };

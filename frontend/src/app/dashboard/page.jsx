@@ -7,13 +7,17 @@ import CustomLoader from "@/components/CustomLoader";
 
 const Dashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [repos, setRepos] = useState([]);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const verifyAuth = async () => {
       const data = await checkAuth();
       if (data.status === 400) {
         router.replace("/auth/login");
+        return;
       }
+      setUser(data.data.user);
     };
     verifyAuth();
     setIsAuthenticated(true);
@@ -56,10 +60,35 @@ const Dashboard = () => {
         }
       );
       const data = await response.json();
-      console.log(data);
+      setRepos(data);
     } catch (error) {
       console.log(error);
       CustomToast("Error while getting your repositories");
+    }
+  };
+
+  const cloneRepo = async (repo) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/v1/build/cloneRepo`,
+        {
+          credentials: "include",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            repoName: repo.name,
+            cloneUrl: repo.clone_url,
+          }),
+        }
+      );
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+      CustomToast("Error while cloning");
     }
   };
 
@@ -72,6 +101,11 @@ const Dashboard = () => {
       <ToastContainer />
       <button onClick={() => getRepos()}>Get github</button>
       <button onClick={() => getUserRepos()}>Get user repos</button>
+      {repos.map((repo, i) => (
+        <button key={i} onClick={() => cloneRepo(repo)}>
+          {repo.name}
+        </button>
+      ))}
     </div>
   );
 };
