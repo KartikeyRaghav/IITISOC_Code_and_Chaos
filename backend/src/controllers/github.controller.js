@@ -109,9 +109,20 @@ export const getGithubRepos = asyncHandler(async (req, res) => {
       }
     );
     const data = await response.json();
+    user.repos = [];
+    data.items.map(async (item) => {
+      user.repos = [
+        ...user.repos,
+        {
+          name: item.name,
+          html_url: item.html_url,
+          clone_url: item.clone_url,
+          last_updateAt: new Date(),
+        },
+      ];
+    });
+    user.save({ validateBeforeSave: false });
 
-    let filteredRepoData = [];
-    
     res.json({ data });
   } catch (error) {
     res.json({ erro: "Error" });

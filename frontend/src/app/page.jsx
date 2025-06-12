@@ -1,12 +1,14 @@
 "use client";
+import CustomLoader from "@/components/CustomLoader";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import { checkAuth } from "@/utils/checkAuth";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -16,7 +18,12 @@ export default function Home() {
       }
     };
     verifyAuth();
+    setIsAuthenticated(true);
   }, []);
+
+  if (isAuthenticated === null) {
+    return <CustomLoader />;
+  }
 
   return (
     <div className="overflow-hidden min-h-screen bg-black text-white">

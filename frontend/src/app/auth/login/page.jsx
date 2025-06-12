@@ -1,10 +1,12 @@
 "use client";
+import CustomLoader from "@/components/CustomLoader";
 import { checkAuth } from "@/utils/checkAuth";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -20,6 +22,7 @@ export default function LoginPage() {
       }
     };
     verifyAuth();
+    setIsAuthenticated(true);
   }, []);
 
   function handleChange(e) {
@@ -57,6 +60,10 @@ export default function LoginPage() {
       setError("Something went wrong. Please try again.");
     }
   };
+
+  if (isAuthenticated === null) {
+    return <CustomLoader />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-custom-blue-600 to-custom-blue-950 p-4">

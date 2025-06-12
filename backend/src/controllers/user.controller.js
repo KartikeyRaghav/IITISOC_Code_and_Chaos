@@ -193,3 +193,9 @@ export const getUserProfile = asyncHandler(async (req, res) => {
 
   res.json({ user });
 });
+
+export const getUserRepos = asyncHandler(async (req, res) => {
+  const user = req.user;
+
+  
+});

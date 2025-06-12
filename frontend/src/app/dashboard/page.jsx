@@ -1,10 +1,13 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import CustomToast from "@/components/CustomToast";
 import { checkAuth } from "@/utils/checkAuth";
+import CustomLoader from "@/components/CustomLoader";
 
 const Dashboard = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+
   useEffect(() => {
     const verifyAuth = async () => {
       const data = await checkAuth();
@@ -13,6 +16,7 @@ const Dashboard = () => {
       }
     };
     verifyAuth();
+    setIsAuthenticated(true);
   }, []);
 
   const getOAuthConsent = () => {
@@ -36,11 +40,17 @@ const Dashboard = () => {
         }
       );
       const data = await response.json();
+      // console.log(data.data.items[0]);
     } catch (error) {
       console.log(error);
       CustomToast("Error while getting your repositories");
     }
   };
+
+  if (isAuthenticated === null) {
+    return <CustomLoader />;
+  }
+
   return (
     <div>
       <ToastContainer />
