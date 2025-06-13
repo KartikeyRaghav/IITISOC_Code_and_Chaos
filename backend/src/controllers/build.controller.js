@@ -3,6 +3,7 @@ import { exec } from "child_process";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import { runShellCommand } from "../utils/shellCommand.util.js";
 
 export const cloneRepo = asyncHandler(async (req, res) => {
   const { repoName, cloneUrl } = req.body;
@@ -12,7 +13,11 @@ export const cloneRepo = asyncHandler(async (req, res) => {
 
   const targetDir = path.join(__dirname, "../../public/repo_temp", repoName);
 
-  exec(`git clone ${cloneUrl} "${targetDir}"`, (err, stdout, stderr) => {
+  // const shellCommand = await runShellCommand(
+  //   `git clone ${cloneUrl} "${targetDir}"`
+  // );
+
+  exec(`git clone ${cloneUrl} "${targetDir}"`, async (err, stdout, stderr) => {
     if (err) {
       console.error(`Clone failed:`, err);
       return res.status(500).json({ message: "Error cloning repository" });
@@ -23,10 +28,6 @@ export const cloneRepo = asyncHandler(async (req, res) => {
       location: `${targetDir}`,
     });
   });
-
-  res.redirect(
-    `http://localhost:3000/api/v1/build/dockerFile?clonedPath=${targetDir}`
-  );
 });
 
 function detectTechStack(projectPath) {
@@ -110,7 +111,7 @@ CMD ["nginx", "-g", "daemon off;"]`;
 
 export const generateDockerFile = asyncHandler(async (req, res) => {
   try {
-    const { clonedPath } = req.query;
+    const { clonedPath } = req.body;
 
     if (!clonedPath || !fs.existsSync(clonedPath)) {
       return res.status(400).json({ message: "Invalid or missing clonedPath" });

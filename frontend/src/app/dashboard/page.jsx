@@ -67,6 +67,30 @@ const Dashboard = () => {
     }
   };
 
+  const generateDockerfile = async (clonedPath) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/v1/build/dockerFile`,
+        {
+          credentials: "include",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            clonedPath,
+          }),
+        }
+      );
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+      CustomToast("Error while cloning");
+    }
+  };
+
   const cloneRepo = async (repo) => {
     try {
       const response = await fetch(
@@ -86,6 +110,7 @@ const Dashboard = () => {
       );
       const data = await response.json();
       console.log(data);
+      generateDockerfile(data.location);
     } catch (error) {
       console.log(error);
       CustomToast("Error while cloning");
