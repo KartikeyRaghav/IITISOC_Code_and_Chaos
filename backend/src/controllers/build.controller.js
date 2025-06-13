@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.util.js";
 import { exec } from "child_process";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 
 export const cloneRepo = asyncHandler(async (req, res) => {
   const { repoName, cloneUrl } = req.body;
@@ -22,4 +23,112 @@ export const cloneRepo = asyncHandler(async (req, res) => {
       location: `${targetDir}`,
     });
   });
+
+  res.redirect(
+    `http://localhost:3000/api/v1/build/dockerFile?clonedPath=${targetDir}`
+  );
+});
+
+function detectTechStack(projectPath) {
+  const packagePath = path.join(projectPath, "package.json");
+  if (fs.existsSync(packagePath)) {
+    const pkg = JSON.parse(fs.readFileSync(packagePath, "utf-8"));
+
+    if (pkg.dependencies?.next) return "next";
+    if (pkg.dependencies?.react) return "react";
+    if (pkg.dependencies?.vue) return "vue";
+    if (pkg.dependencies?.["@angular/core"]) return "angular";
+    if (pkg.dependencies?.svelte) return "svelte";
+    if (pkg.dependencies?.express || pkg.dependencies?.koa) return "node-api";
+  }
+
+  const files = fs.readdirSync(projectPath);
+  if (files.some((f) => f.endsWith(".html"))) return "static";
+
+  return "unknown";
+}
+
+// Helper function to generate Dockerfile content based on tech stack
+function generateDockerfileContent(stack) {
+  switch (stack) {
+    case "react":
+    case "vue":
+    case "svelte":
+      return `# Dockerfile for ${stack}
+FROM node:18 AS builder
+WORKDIR /app
+COPY . .
+RUN npm install && npm run build
+
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]`;
+
+    case "next":
+      return `# Dockerfile for Next.js
+FROM node:18
+WORKDIR /app
+COPY . .
+RUN npm install && npm run build
+EXPOSE 3000
+CMD ["npm", "start"]`;
+
+    case "angular":
+      return `# Dockerfile for Angular
+FROM node:18 AS builder
+WORKDIR /app
+COPY . .
+RUN npm install && npm run build --prod
+
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]`;
+
+    case "node-api":
+      return `# Dockerfile for Node.js API
+FROM node:18
+WORKDIR /app
+COPY . .
+RUN npm install
+EXPOSE 3000
+CMD ["node", "index.js"]`;
+
+    case "static":
+      return `# Dockerfile for static HTML/CSS
+FROM nginx:alpine
+COPY . /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]`;
+
+    default:
+      return `# Unknown stack
+# Manual Dockerfile creation required.`;
+  }
+}
+
+export const generateDockerFile = asyncHandler(async (req, res) => {
+  try {
+    const { clonedPath } = req.query;
+
+    if (!clonedPath || !fs.existsSync(clonedPath)) {
+      return res.status(400).json({ message: "Invalid or missing clonedPath" });
+    }
+
+    const techStack = detectTechStack(clonedPath);
+    const dockerfileContent = generateDockerfileContent(techStack);
+
+    const dockerfilePath = path.join(clonedPath, "Dockerfile");
+    fs.writeFileSync(dockerfilePath, dockerfileContent);
+
+    res.status(200).json({
+      message: "Dockerfile generated successfully",
+      stack: techStack,
+      dockerfilePath,
+    });
+  } catch (error) {
+    console.error("Error generating Dockerfile:", error);
+    res.status(500).json({ message: "Failed to generate Dockerfile" });
+  }
 });
