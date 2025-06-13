@@ -4,11 +4,13 @@ import { ToastContainer } from "react-toastify";
 import CustomToast from "@/components/CustomToast";
 import { checkAuth } from "@/utils/checkAuth";
 import CustomLoader from "@/components/CustomLoader";
+import { useRouter } from "next/navigation";
 
 const Dashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [repos, setRepos] = useState([]);
   const [user, setUser] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -67,6 +69,31 @@ const Dashboard = () => {
     }
   };
 
+  const hostApp = async (clonedPath) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/v1/build/hostApp`,
+        {
+          credentials: "include",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            clonedPath,
+            port: 8080,
+          }),
+        }
+      );
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+      CustomToast("Error while cloning");
+    }
+  };
+
   const generateDockerfile = async (clonedPath) => {
     try {
       const response = await fetch(
@@ -85,6 +112,7 @@ const Dashboard = () => {
       );
       const data = await response.json();
       console.log(data);
+      hostApp(clonedPath);
     } catch (error) {
       console.log(error);
       CustomToast("Error while cloning");

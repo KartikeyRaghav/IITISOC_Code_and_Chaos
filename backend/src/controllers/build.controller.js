@@ -133,3 +133,34 @@ export const generateDockerFile = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Failed to generate Dockerfile" });
   }
 });
+
+export const buildAndRunDocker = asyncHandler(async (req, res) => {
+  const { clonedPath, port } = req.body;
+
+  if (!clonedPath) {
+    return res.status(400).json({ error: "Missing 'clonedPath'" });
+  }
+
+  const repoName = clonedPath.split("\\")[6];
+  const imageName = `app-${repoName.toLowerCase()}-${Date.now()}`;
+  const containerName = `container-${repoName.toLowerCase()}-${Date.now()}`;
+
+  try {
+    const buildCmd = `docker build -t ${imageName} ${clonedPath}`;
+    await runShellCommand(buildCmd);
+
+    const runCmd = `docker run -d -p ${port}:80 --name ${containerName} ${imageName}`;
+    const containerId = await runShellCommand(runCmd);
+
+    res.status(200).json({
+      message: "App deployed successfully",
+      imageName,
+      containerName,
+      containerId: containerId.trim(),
+      url: `http://localhost:${port}`,
+    });
+  } catch (err) {
+    console.error("Docker error:", err);
+    res.status(500).json({ error: "Docker build or run failed", details: err });
+  }
+});
