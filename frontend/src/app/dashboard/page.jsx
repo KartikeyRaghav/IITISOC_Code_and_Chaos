@@ -10,6 +10,7 @@ const Dashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [repos, setRepos] = useState([]);
   const [user, setUser] = useState(null);
+  const [url, setUrl] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -69,10 +70,10 @@ const Dashboard = () => {
     }
   };
 
-  const hostApp = async (clonedPath) => {
+  const runDockerContainer = async (repo, imageName) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/v1/build/hostApp`,
+        `http://localhost:3000/api/v1/build/dockerContainer`,
         {
           credentials: "include",
           method: "POST",
@@ -81,20 +82,46 @@ const Dashboard = () => {
             Accept: "application/json",
           },
           body: JSON.stringify({
-            clonedPath,
+            repoName: repo.name,
+            imageName,
             port: 8080,
           }),
         }
       );
       const data = await response.json();
-      console.log(data);
+      setUrl(data.url);
     } catch (error) {
       console.log(error);
-      CustomToast("Error while cloning");
+      CustomToast("Error while running docker container");
     }
   };
 
-  const generateDockerfile = async (clonedPath) => {
+  const generateDockerImage = async (repo, clonedPath) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/v1/build/dockerImage`,
+        {
+          credentials: "include",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            repoName: repo.name,
+            clonedPath,
+          }),
+        }
+      );
+      const data = await response.json();
+      runDockerContainer(repo, data.imageName);
+    } catch (error) {
+      console.log(error);
+      CustomToast("Error while building dockerimage");
+    }
+  };
+
+  const generateDockerfile = async (repo, clonedPath, techStack) => {
     try {
       const response = await fetch(
         `http://localhost:3000/api/v1/build/dockerFile`,
@@ -107,15 +134,39 @@ const Dashboard = () => {
           },
           body: JSON.stringify({
             clonedPath,
+            techStack,
           }),
         }
       );
       const data = await response.json();
-      console.log(data);
-      hostApp(clonedPath);
+      generateDockerImage(repo, clonedPath);
     } catch (error) {
       console.log(error);
-      CustomToast("Error while cloning");
+      CustomToast("Error while generating dockerfile");
+    }
+  };
+
+  const detectTechStack = async (repo, clonedPath) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/v1/build/detectTechStack`,
+        {
+          credentials: "include",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            clonedPath,
+          }),
+        }
+      );
+      const data = await response.json();
+      generateDockerfile(repo, clonedPath, data.stack);
+    } catch (error) {
+      console.log(error);
+      CustomToast("Error while detecting tech stack");
     }
   };
 
@@ -137,8 +188,7 @@ const Dashboard = () => {
         }
       );
       const data = await response.json();
-      console.log(data);
-      generateDockerfile(data.location);
+      detectTechStack(repo, data.location);
     } catch (error) {
       console.log(error);
       CustomToast("Error while cloning");
@@ -155,10 +205,11 @@ const Dashboard = () => {
       <button onClick={() => getRepos()}>Get github</button>
       <button onClick={() => getUserRepos()}>Get user repos</button>
       {repos.map((repo, i) => (
-        <button key={i} onClick={() => cloneRepo(repo)}>
+        <div key={i} onClick={() => cloneRepo(repo)}>
           {repo.name}
-        </button>
+        </div>
       ))}
+      {url}
     </div>
   );
 };
