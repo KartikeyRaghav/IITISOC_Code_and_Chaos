@@ -5,12 +5,14 @@ import CustomToast from "@/components/CustomToast";
 import { checkAuth } from "@/utils/checkAuth";
 import CustomLoader from "@/components/CustomLoader";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const Dashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [repos, setRepos] = useState([]);
   const [user, setUser] = useState(null);
   const [url, setUrl] = useState(null);
+  const [logs, setLogs] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -84,7 +86,7 @@ const Dashboard = () => {
           body: JSON.stringify({
             repoName: repo.name,
             imageName,
-            port: 8080,
+            port: 8081,
           }),
         }
       );
@@ -172,23 +174,45 @@ const Dashboard = () => {
 
   const cloneRepo = async (repo) => {
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/v1/build/cloneRepo`,
-        {
-          credentials: "include",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            repoName: repo.name,
-            cloneUrl: repo.clone_url,
-          }),
-        }
-      );
-      const data = await response.json();
-      detectTechStack(repo, data.location);
+      const controller = new AbortController();
+
+      fetch(`http://localhost:3000/api/v1/build/cloneRepo`, {
+        method: "POST",
+        credentials: "include",
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          repoName: repo.name,
+          cloneUrl: repo.clone_url,
+        }),
+      })
+        .then((response) => {
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+
+          const readChunk = () => {
+            reader.read().then(({ done, value }) => {
+              if (done) return;
+              const text = decoder.decode(value);
+              setLogs((prev) => [...prev, text]);
+
+              const match = text.match(/\[CLONE_COMPLETE\] (.*)/);
+              if (match) {
+                let fullTargetDir = match[1];
+                console.log("Clone complete. Target Dir:", fullTargetDir);
+              }
+
+              readChunk();
+            });
+          };
+
+          readChunk();
+        })
+        .catch((err) => console.error("Streaming error:", err));
+
+      return () => controller.abort();
     } catch (error) {
       console.log(error);
       CustomToast("Error while cloning");
@@ -209,7 +233,10 @@ const Dashboard = () => {
           {repo.name}
         </div>
       ))}
-      {url}
+      {url && <Link href={url}>{url}</Link>}
+      {logs.map((log, i) => (
+        <div key={i}>{log}</div>
+      ))}
     </div>
   );
 };
