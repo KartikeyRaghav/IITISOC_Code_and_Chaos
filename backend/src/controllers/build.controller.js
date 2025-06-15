@@ -10,6 +10,15 @@ const __dirname = dirname(__filename);
 
 const TEMP_DIR = path.join(__dirname, "../../temp/repo_temp");
 
+const checkCloneExists = async (pathName) => {
+  try {
+    const result = fs.existsSync(pathName);
+    return result;
+  } catch {
+    return false;
+  }
+};
+
 export const cloneRepo = asyncHandler(async (req, res) => {
   const { repoName, cloneUrl } = req.body;
 
@@ -24,19 +33,27 @@ export const cloneRepo = asyncHandler(async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "http://localhost:4000");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
-  const clone = spawn("git", ["clone", cloneUrl, targetDir]);
+  let clone = null;
+  const cloneExists = await checkCloneExists(targetDir);
+  if (cloneExists) {
+    console.log("clone exists");
+    clone = spawn("git", ["-C", targetDir, "pull"]);
+  } else {
+    console.log("clone doesn't exist");
+    clone = spawn("git", ["clone", cloneUrl, targetDir]);
+  }
 
   clone.stdout.on("data", (data) => {
-    res.write(`data: ${data.toString()}\n\n`);
+    res.write(`${data.toString()}\n\n`);
   });
 
   clone.stderr.on("data", (data) => {
-    res.write(`data: ${data.toString()}\n\n`);
+    res.write(`${data.toString()}\n\n`);
   });
 
   clone.on("close", (code) => {
-    res.write(`data: Git clone exited with code ${code}\n\n`);
-    res.write(`data: [CLONE_COMPLETE] ${targetDir}\n\n`);
+    res.write(`Git clone exited with code ${code}\n\n`);
+    res.write(`[CLONE_COMPLETE] ${targetDir}\n\n`);
     res.end();
   });
 
@@ -47,6 +64,10 @@ export const cloneRepo = asyncHandler(async (req, res) => {
 
 export const detectTechStack = asyncHandler(async (req, res) => {
   const { clonedPath } = req.body;
+
+  if (!clonedPath || !fs.existsSync(clonedPath)) {
+    return res.status(400).json({ message: "Invalid cloned path" });
+  }
 
   const packagePath = path.join(clonedPath, "package.json");
   if (fs.existsSync(packagePath)) {
@@ -143,43 +164,45 @@ export const generateDockerFile = asyncHandler(async (req, res) => {
   });
 });
 
-const checkImageExists = async (imageName) => {
-  try {
-    const result = await runShellCommand(`docker images -q ${imageName}`);
-    return result.trim().length > 0;
-  } catch {
-    return false;
-  }
-};
-
 export const generateDockerImage = asyncHandler(async (req, res) => {
   const { repoName, clonedPath } = req.body;
 
   if (!repoName || !clonedPath) {
-    return res.status(400).json({ error: "Missing repo name or cloned path" });
+    return res
+      .status(400)
+      .json({ message: "Missing repo name or cloned path" });
   }
 
   const imageName = `app-${repoName.toLowerCase()}-${Date.now()}`;
 
   try {
-    const exists = await checkImageExists(imageName);
-    if (exists) {
-      return res
-        .status(200)
-        .json({ message: "Image already exists", imageName });
-    }
+    res.setHeader("Content-Type", "text/plain");
+    res.setHeader("Transfer-Encoding", "chunked");
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:4000");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
 
-    await runShellCommand(`docker build -t ${imageName} ${clonedPath}`);
+    const build = spawn("docker", ["build", "-t", imageName, clonedPath]);
 
-    fs.rmSync(clonedPath, { recursive: true, force: true });
+    build.stdout.on("data", (data) => {
+      res.write(`${data.toString()}\n\n`);
+    });
 
-    res.status(200).json({
-      message: "Image built successfully",
-      imageName,
+    build.stderr.on("data", (data) => {
+      res.write(`${data.toString()}\n\n`);
+    });
+
+    build.on("close", (code) => {
+      res.write(`Docker image build exited with code ${code}\n\n`);
+      res.write(`[BUILD_COMPLETE] ${imageName}\n\n`);
+      res.end();
+    });
+
+    req.on("close", () => {
+      build.kill();
     });
   } catch (err) {
     console.error("Docker error:", err);
-    res.status(500).json({ error: "Docker build failed", details: err });
+    res.status(500).json({ message: "Docker build failed", details: err });
   }
 });
 
@@ -189,15 +212,36 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
   const containerName = `container-${repoName.toLowerCase()}-${Date.now()}`;
 
   try {
-    const runCmd = `docker run -d -p ${port}:80 --name ${containerName} ${imageName}`;
-    const containerId = await runShellCommand(runCmd);
+    res.setHeader("Content-Type", "text/plain");
+    res.setHeader("Transfer-Encoding", "chunked");
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:4000");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
 
-    res.status(200).json({
-      message: "App deployed successfully",
-      imageName,
+    const run = spawn("docker", [
+      "run",
+      "-p",
+      port + ":80",
+      "--name",
       containerName,
-      containerId: containerId.trim(),
-      url: `http://localhost:${port}`,
+      imageName,
+    ]);
+
+    run.stdout.on("data", (data) => {
+      res.write(`${data.toString()}\n\n`);
+    });
+
+    run.stderr.on("data", (data) => {
+      res.write(`${data.toString()}\n\n`);
+    });
+
+    run.on("close", (code) => {
+      res.write(`Docker container run exited with code ${code}\n\n`);
+      res.write(`[RUN_COMPLETE] http://localhost:${port}\n\n`);
+      res.end();
+    });
+
+    req.on("close", () => {
+      run.kill();
     });
   } catch (err) {
     console.error("Docker run error:", err);

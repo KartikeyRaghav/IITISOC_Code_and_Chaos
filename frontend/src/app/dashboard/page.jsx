@@ -74,57 +74,108 @@ const Dashboard = () => {
 
   const runDockerContainer = async (repo, imageName) => {
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/v1/build/dockerContainer`,
-        {
-          credentials: "include",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            repoName: repo.name,
-            imageName,
-            port: 8081,
-          }),
-        }
-      );
-      const data = await response.json();
-      setUrl(data.url);
+      setLogs((prev) => [...prev, "Starting docker container run"]);
+      const controller = new AbortController();
+
+      fetch(`http://localhost:3000/api/v1/build/dockerContainer`, {
+        method: "POST",
+        credentials: "include",
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          repoName: repo.name,
+          imageName,
+          port: 8081,
+        }),
+      })
+        .then((response) => {
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          const readChunk = () => {
+            reader.read().then(({ done, value }) => {
+              if (done) return;
+              const text = decoder.decode(value);
+              setLogs((prev) => [...prev, text]);
+
+              const match = text.match(/\[RUN_COMPLETE\] (.*)/);
+              if (match) {
+                let url = match[1];
+                console.log("Run complete. url:", url);
+                setLogs((prev) => [...prev, "Run complete"]);
+                setUrl(url);
+              }
+
+              readChunk();
+            });
+          };
+
+          readChunk();
+        })
+        .catch((err) => console.error("Streaming error:", err));
+
+      () => controller.abort();
     } catch (error) {
       console.log(error);
       CustomToast("Error while running docker container");
+      setLogs((prev) => [...prev, "Error while running docker container"]);
     }
   };
 
   const generateDockerImage = async (repo, clonedPath) => {
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/v1/build/dockerImage`,
-        {
-          credentials: "include",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            repoName: repo.name,
-            clonedPath,
-          }),
-        }
-      );
-      const data = await response.json();
-      runDockerContainer(repo, data.imageName);
+      setLogs((prev) => [...prev, "Starting docker image build"]);
+      const controller = new AbortController();
+
+      fetch(`http://localhost:3000/api/v1/build/dockerImage`, {
+        method: "POST",
+        credentials: "include",
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          repoName: repo.name,
+          clonedPath,
+        }),
+      })
+        .then((response) => {
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          const readChunk = () => {
+            reader.read().then(({ done, value }) => {
+              if (done) return;
+              const text = decoder.decode(value);
+              setLogs((prev) => [...prev, text]);
+
+              const match = text.match(/\[BUILD_COMPLETE\] (.*)/);
+              if (match) {
+                let fullImageName = match[1];
+                console.log("Build complete. Image name:", fullImageName);
+                setLogs((prev) => [...prev, "Build complete"]);
+                runDockerContainer(repo, fullImageName);
+              }
+
+              readChunk();
+            });
+          };
+
+          readChunk();
+        })
+        .catch((err) => console.error("Streaming error:", err));
+
+      () => controller.abort();
     } catch (error) {
       console.log(error);
       CustomToast("Error while building dockerimage");
+      setLogs((prev) => [...prev, "Error while building docker image"]);
     }
   };
 
   const generateDockerfile = async (repo, clonedPath, techStack) => {
     try {
+      setLogs((prev) => [...prev, "Generating dockerfile"]);
       const response = await fetch(
         `http://localhost:3000/api/v1/build/dockerFile`,
         {
@@ -141,15 +192,18 @@ const Dashboard = () => {
         }
       );
       const data = await response.json();
+      setLogs((prev) => [...prev, "Dockerfile generated"]);
       generateDockerImage(repo, clonedPath);
     } catch (error) {
       console.log(error);
       CustomToast("Error while generating dockerfile");
+      setLogs((prev) => [...prev, "Error while generating dockerfile"]);
     }
   };
 
   const detectTechStack = async (repo, clonedPath) => {
     try {
+      setLogs((prev) => [...prev, "Detecting tech stack"]);
       const response = await fetch(
         `http://localhost:3000/api/v1/build/detectTechStack`,
         {
@@ -165,10 +219,12 @@ const Dashboard = () => {
         }
       );
       const data = await response.json();
+      setLogs((prev) => [...prev, "Tech stack detected " + data.stack]);
       generateDockerfile(repo, clonedPath, data.stack);
     } catch (error) {
       console.log(error);
       CustomToast("Error while detecting tech stack");
+      setLogs((prev) => [...prev, "Error while detecting tech stack"]);
     }
   };
 
@@ -191,7 +247,7 @@ const Dashboard = () => {
         .then((response) => {
           const reader = response.body.getReader();
           const decoder = new TextDecoder();
-
+          setLogs((prev) => [...prev, "Starting to clone the repository"]);
           const readChunk = () => {
             reader.read().then(({ done, value }) => {
               if (done) return;
@@ -202,6 +258,8 @@ const Dashboard = () => {
               if (match) {
                 let fullTargetDir = match[1];
                 console.log("Clone complete. Target Dir:", fullTargetDir);
+                setLogs((prev) => [...prev, "Cloning complete"]);
+                detectTechStack(repo, fullTargetDir);
               }
 
               readChunk();
@@ -216,6 +274,7 @@ const Dashboard = () => {
     } catch (error) {
       console.log(error);
       CustomToast("Error while cloning");
+      setLogs((prev) => [...prev, "Error while cloning the repo"]);
     }
   };
 
