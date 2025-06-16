@@ -1,12 +1,15 @@
 import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const userSchema = new Schema(
   {
-    username: {
+    githubUsername: {
       type: String,
-      required: true,
+      default: null,
       trim: true,
       lowercase: true,
       unique: true,
@@ -32,14 +35,20 @@ const userSchema = new Schema(
       required: true,
       minlength: 6,
     },
-    profilePicture: {
-      type: String,
-      default: null,
+    repos: [
+      {
+        name: String,
+        html_url: String,
+        clone_url: String,
+        last_updateAt: Date,
+      },
+    ],
+    hasGithubPermission: {
+      type: Boolean,
+      default: false,
     },
-    refreshToken: {
-      type: String,
-      default: null,
-    },
+    profilePicture: { type: String, default: null },
+    refreshToken: { type: String, default: null },
   },
   {
     timestamps: true,
@@ -67,16 +76,16 @@ userSchema.methods.generateAccessToken = function () {
       email: this.email,
     },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: ACCESS_TOKEN_EXPIRATION }
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRATION }
   );
   return token;
 };
 
 userSchema.methods.generateRefreshToken = function () {
   const token = jwt.sign({ _id: this._id }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: REFRESH_TOKEN_EXPIRATION,
+    expiresIn: process.env.REFRESH_TOKEN_EXPIRATION,
   });
-  // this.refreshToken = token;
+  this.refreshToken = token;
   return token;
 };
 

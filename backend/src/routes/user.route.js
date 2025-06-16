@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getUserRepos,
   githubOAuthConsent,
   handleGithubCallback,
   loginUser,
@@ -19,8 +20,9 @@ userRouter
 userRouter.route("/login").post(loginUser);
 
 // Secured routes
-userRouter.route("/github").get(githubOAuthConsent);
-userRouter.route("/github/callback").get(handleGithubCallback);
+userRouter.route("/github").get(verifyJWT, githubOAuthConsent);
+userRouter.route("/github/callback").get(verifyJWT, handleGithubCallback);
+userRouter.route("/github/getUserRepos").get(verifyJWT, getUserRepos);
 userRouter.route("/refreshToken").post(refreshAccessToken);
 userRouter.route("/logout").post(verifyJWT, logoutUser);
 
