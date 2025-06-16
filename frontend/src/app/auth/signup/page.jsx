@@ -1,7 +1,9 @@
 "use client";
+import CustomLoader from "@/components/CustomLoader";
 import ProfileUpload from "@/components/ProfileUpload";
+import { checkAuth } from "@/utils/checkAuth";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -12,6 +14,18 @@ export default function SignupPage() {
     confirmPassword: "",
   });
   const [error, setError] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+
+  useEffect(() => {
+    const verifyAuth = async () => {
+      const data = await checkAuth();
+      if (data.status === 200) {
+        router.replace("/dashboard");
+      }
+    };
+    verifyAuth();
+    setIsAuthenticated(true);
+  }, []);
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -50,6 +64,10 @@ export default function SignupPage() {
       setError("Something went wrong. Please try again.");
     }
   };
+
+  if (isAuthenticated === null) {
+    return <CustomLoader />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r to-custom-blue-600 from-custom-blue-950 p-4">

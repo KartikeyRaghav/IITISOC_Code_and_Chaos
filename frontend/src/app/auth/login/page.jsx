@@ -1,15 +1,29 @@
 "use client";
+import CustomLoader from "@/components/CustomLoader";
+import { checkAuth } from "@/utils/checkAuth";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [error, setError] = useState(""); //stored the error message to be shown
+
+  useEffect(() => {
+    const verifyAuth = async () => {
+      const data = await checkAuth();
+      if (data.status === 200) {
+        router.replace("/dashboard");
+      }
+    };
+    verifyAuth();
+    setIsAuthenticated(true);
+  }, []);
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -36,7 +50,7 @@ export default function LoginPage() {
       const data = await response.json(); //waits for server response
 
       if (response.ok) {
-        router.replace("/"); //upon successful login, redirects
+        router.replace("/dashboard"); //upon successful login, redirects
       } else {
         setError(data?.message || "Login failed. Please try again.");
       }
@@ -46,6 +60,10 @@ export default function LoginPage() {
       setError("Something went wrong. Please try again.");
     }
   };
+
+  if (isAuthenticated === null) {
+    return <CustomLoader />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-custom-blue-600 to-custom-blue-950 p-4">

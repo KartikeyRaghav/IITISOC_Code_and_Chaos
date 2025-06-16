@@ -1,5 +1,4 @@
 import { asyncHandler } from "../utils/asyncHandler.util.js";
-import { ApiError } from "../utils/ApiError.util.js";
 import { ApiResponse } from "../utils/ApiResponse.util.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.util.js";
@@ -9,13 +8,15 @@ const generateAccessandRefreshTokens = async (user) => {
   try {
     const accessToken = await user.generateAccessToken();
     if (!accessToken) {
-      throw new ApiError(500, "Failed to generate access token");
+      return res
+        .status(500)
+        .json({ message: "Failed to generate access token" });
     }
     user.refreshToken = await user.generateRefreshToken();
     await user.save({ validateBeforeSave: false });
     return { accessToken, refreshToken: user.refreshToken };
   } catch (error) {
-    throw new ApiError(500, "Failed to generate tokens", error);
+    return res.status(500).json({ message: "Failed to generate tokens" });
   }
 };
 
@@ -23,13 +24,13 @@ export const registerUser = asyncHandler(async (req, res) => {
   const { password, fullName, email } = req.body;
 
   if ([fullName, email, password].some((field) => field?.trim() === "")) {
-    throw new ApiError(400, "All fields are required");
+    return res.status(400).json({ message: "All fields are required" });
   }
 
   const existingUser = await User.findOne({ email });
 
   if (existingUser) {
-    throw new ApiError(400, "Email already in use");
+    return res.status(400).json({ mesaage: "Email already in use" });
   }
 
   const localProfilePicture = req.files?.profilePicture[0].path;
@@ -38,11 +39,15 @@ export const registerUser = asyncHandler(async (req, res) => {
     try {
       const cloudinaryResponse = await uploadOnCloudinary(localProfilePicture);
       if (!cloudinaryResponse) {
-        throw new ApiError(500, "Failed to upload profile picture");
+        return res
+          .status(500)
+          .json({ message: "Failed to upload profile picture" });
       }
       profilePicture = cloudinaryResponse.url;
     } catch (error) {
-      throw new ApiError(500, "Error uploading profile picture to Cloudinary");
+      return res
+        .status(500)
+        .json({ message: "Error uploading profile picture to Cloudinary" });
     }
   }
 
@@ -58,7 +63,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   );
 
   if (!createdUser) {
-    throw new ApiError(500, "Failed to create user");
+    return res.status(500).json({ message: "Failed to create user" });
   }
 
   res
@@ -70,7 +75,7 @@ export const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    throw new ApiError(400, "Email and password are required");
+    return res.status(400).json({ message: "Email and password are required" });
   }
 
   const user = await User.findOne({
@@ -78,20 +83,22 @@ export const loginUser = asyncHandler(async (req, res) => {
   });
 
   if (!user || !(await user.isPasswordCorrect(password))) {
-    throw new ApiError(401, "Invalid email or password");
+    return res.status(401).json({ message: "Invalid email or password" });
   }
 
   const { accessToken, refreshToken } =
     await generateAccessandRefreshTokens(user);
   if (!refreshToken) {
-    throw new ApiError(500, "Failed to generate refresh token");
+    return res
+      .status(500)
+      .json({ message: "Failed to generate refresh token" });
   }
 
   const userData = await User.findById(user._id).select(
     "-password -refreshToken"
   );
   if (!userData) {
-    throw new ApiError(500, "Failed to retrieve user data");
+    return res.status(500).json({ message: "Failed to retrieve user data" });
   }
 
   const options = {
@@ -114,7 +121,7 @@ export const logoutUser = asyncHandler(async (req, res) => {
   const user = req.user;
 
   if (!user) {
-    throw new ApiError(401, "User not authenticated");
+    return res.status(401).json({ message: "User not authenticated" });
   }
 
   user.refreshToken = null;
@@ -136,7 +143,9 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     req.cookies?.refreshToken || req.headers.authorization?.split(" ")[1];
 
   if (!incomingRefreshToken) {
-    throw new ApiError(401, "Unauthorized access: No refresh token provided");
+    return res
+      .status(401)
+      .json({ message: "Unauthorized access: No refresh token provided" });
   }
 
   const decodedRefreshToken = jwt.verify(
@@ -149,11 +158,11 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   );
 
   if (!user) {
-    throw new ApiError(401, "Invalid refresh token");
+    return res.status(401).json({ message: "Invalid refresh token" });
   }
 
   if (incomingRefreshToken !== user.refreshToken) {
-    throw new ApiError(401, "Refresh token does not match");
+    return res.status(401).json({ message: "Refresh token does not match" });
   }
 
   const options = {
@@ -175,78 +184,22 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     );
 });
 
-export const githubOAuthConsent = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
-  if (user.hasGithubPermission === true) {
-    res.redirect(`http://localhost:3000/api/v1/users/github/getUserRepos`);
+export const getUserProfile = asyncHandler(async (req, res) => {
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({ message: "User not authenticated" });
   }
-  const clientID = process.env.GITHUB_CLIENT_ID;
-  const redirectURI = "http://localhost:3000/api/v1/users/github/callback";
-  const scope = "read:user repo";
 
-  const githubAuthURL = `https://github.com/login/oauth/authorize?client_id=${clientID}&redirect_uri=${redirectURI}&scope=${scope}`;
-
-  res.redirect(githubAuthURL);
-});
-
-export const handleGithubCallback = asyncHandler(async (req, res) => {
-  const code = req.query.code;
-  const clientID = process.env.GITHUB_CLIENT_ID;
-  const clientSecret = process.env.GITHUB_CLIENT_SECRET;
-
-  const tokenResponse = await fetch(
-    `https://github.com/login/oauth/access_token`,
-    {
-      method: "POST",
-      headers: { Accept: "application/json" },
-      body: new URLSearchParams({
-        client_id: clientID,
-        client_secret: clientSecret,
-        code: code,
-      }),
-    }
-  );
-
-  const tokenData = await tokenResponse.json();
-  const accessToken = tokenData.access_token;
-
-  const userResponse = await fetch("https://api.github.com/user", {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: "application/vnd.github+json",
-    },
-  });
-  const githubUser = await userResponse.json();
-  const username = githubUser.login;
-
-  const user = await User.findByIdAndUpdate(req.user._id, {
-    githubUsername: username,
-  });
-  res.redirect(`http://localhost:3000/api/v1/users/github/getUserRepos`);
+  res.status(200).json({ user });
 });
 
 export const getUserRepos = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
-  const username = user.githubUsername;
 
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-  const isoDate = sixMonthsAgo.toISOString().split("T")[0];
-
-  try {
-    const response = await fetch(
-      `https://api.github.com/search/repositories?q=user:${username}+pushed:>${isoDate}&per_page=100`,
-      {
-        headers: {
-          // Authorization: `Bearer ${accessToken}`,
-          Accept: "application/vnd.github+json",
-        },
-      }
-    );
-    const data = await response.json();
-    console.log(data);
-    res.json({ data });
-  } catch (error) {
-    res.json({ erro: "Error" });
+  if (!user) {
+    return res.status(401).json({ message: "User not authenticated" });
   }
+
+  res.status(200).json(user.repos);
 });
