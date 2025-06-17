@@ -115,6 +115,7 @@ export const getGithubRepos = asyncHandler(async (req, res) => {
         ...user.repos,
         {
           name: item.name,
+          description: item.description,
           html_url: item.html_url,
           clone_url: item.clone_url,
           last_updateAt: new Date(),

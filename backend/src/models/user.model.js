@@ -37,6 +37,7 @@ const userSchema = new Schema(
     repos: [
       {
         name: String,
+        description: String,
         html_url: String,
         clone_url: String,
         last_updateAt: Date,

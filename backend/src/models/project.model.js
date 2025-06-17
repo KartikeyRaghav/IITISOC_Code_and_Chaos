@@ -52,6 +52,16 @@ const projectSchema = new Schema(
       type: String,
       trim: true,
     },
+    branch: {
+      type: String,
+      default: "main",
+      trim: true,
+    },
+    folder: {
+      type: String,
+      default: null,
+      trim: true,
+    },
   },
   {
     timestamps: true,
