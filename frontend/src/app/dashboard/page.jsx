@@ -6,6 +6,10 @@ import { checkAuth } from "@/utils/checkAuth";
 import CustomLoader from "@/components/CustomLoader";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Navbar from "@/components/Navbar";
+import ActionPanel from "@/components/ActionPanel";
+import DashboardMain from "@/components/DashoboardMain";
+import AppIntro from "@/components/AppIntro";
 
 const Dashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -57,6 +61,7 @@ const Dashboard = () => {
   };
 
   const getUserRepos = async () => {
+    console.log('hi');
     try {
       const response = await fetch(
         "http://localhost:3000/api/v1/users/getUserRepos",
@@ -282,7 +287,7 @@ const Dashboard = () => {
     return <CustomLoader />;
   }
 
-  return (
+  /*return (
     <div>
       <ToastContainer />
       <button onClick={() => getRepos()}>Get github</button>
@@ -297,7 +302,30 @@ const Dashboard = () => {
         <div key={i}>{log}</div>
       ))}
     </div>
-  );
+  );*/
+
+  return (
+    <>
+      <ToastContainer />
+      <Navbar />
+      <div className="min-h-screen w-full flex flex-row bg-black">
+        <div className="w-3/4">
+          <AppIntro />
+        </div>
+        <div className="w-1/4">
+          <ActionPanel onGetRepos={getRepos} onGetUserRepos={getUserRepos} />
+        </div>
+      </div>
+      <main className="w-full">
+        <DashboardMain 
+            repos={repos}
+            logs={logs}
+            url={url}
+            onClone={cloneRepo}
+          />
+      </main>
+    </>
+  )
 };
 
 export default Dashboard;

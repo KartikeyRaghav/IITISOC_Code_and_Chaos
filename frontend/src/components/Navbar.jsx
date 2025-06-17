@@ -32,7 +32,7 @@ const Navbar = () => {
       }`}
     >
       <div className="max-w-screen-xl mx-auto flex items-center justify-between py-2 sm:py-3 px-4 sm:px-6">
-        <nav className="hidden sm:gap-10 lg:flex gap-10">
+        <nav className="hidden lg:flex flex-1 justify-evenly">
           {navLinks.map((item) => (
             <a
               key={item.id}

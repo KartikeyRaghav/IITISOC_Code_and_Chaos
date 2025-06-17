@@ -22,6 +22,7 @@ const generateAccessandRefreshTokens = async (user) => {
 
 export const registerUser = asyncHandler(async (req, res) => {
   const { password, fullName, email } = req.body;
+  console.log('hi');
 
   if ([fullName, email, password].some((field) => field?.trim() === "")) {
     return res.status(400).json({ message: "All fields are required" });
@@ -30,7 +31,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   const existingUser = await User.findOne({ email });
 
   if (existingUser) {
-    return res.status(400).json({ mesaage: "Email already in use" });
+    return res.status(400).json({ message: "Email already in use" });
   }
 
   const localProfilePicture = req.files?.profilePicture[0].path;
