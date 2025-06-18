@@ -93,11 +93,11 @@ const Dashboard = () => {
     <>
       <ToastContainer />
       <Navbar />
-      <div className="min-h-screen w-full flex flex-row bg-black">
-        <div className="w-3/4">
+      <div className="min-h-screen w-full flex flex-col lg:flex-row bg-black">
+        <div className="w-full lg:w-3/4">
           <AppIntro />
         </div>
-        <div className="w-1/4">
+        <div className="w-full lg:w-1/4">
           <ActionPanel
             onGetRepos={getGithub}
             hasGithubPermission={hasGithubPermission}
