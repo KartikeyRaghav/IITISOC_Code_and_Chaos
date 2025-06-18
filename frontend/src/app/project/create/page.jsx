@@ -47,7 +47,7 @@ const CreateProject = () => {
       }
       try {
         const response = await fetch(
-          `http://localhost:3000/api/v1/github/getBranches`,
+          `http://localhost:3001/api/v1/github/getBranches`,
           {
             method: "POST",
             body: JSON.stringify({
@@ -65,7 +65,7 @@ const CreateProject = () => {
     const getUserRepos = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3000/api/v1/users/getUserRepos",
+          "http://localhost:3001/api/v1/users/getUserRepos",
           {
             credentials: "include",
           }
@@ -96,7 +96,7 @@ const CreateProject = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/v1/project/checkName",
+        "http://localhost:3001/api/v1/project/checkName",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -118,7 +118,7 @@ const CreateProject = () => {
       setLogs((prev) => [...prev, "Starting docker container run"]);
       const controller = new AbortController();
 
-      fetch(`http://localhost:3000/api/v1/build/dockerContainer`, {
+      fetch(`http://localhost:3001/api/v1/build/dockerContainer`, {
         method: "POST",
         credentials: "include",
         signal: controller.signal,
@@ -169,7 +169,7 @@ const CreateProject = () => {
       setLogs((prev) => [...prev, "Starting docker image build"]);
       const controller = new AbortController();
 
-      fetch(`http://localhost:3000/api/v1/build/dockerImage`, {
+      fetch(`http://localhost:3001/api/v1/build/dockerImage`, {
         method: "POST",
         credentials: "include",
         signal: controller.signal,
@@ -218,7 +218,7 @@ const CreateProject = () => {
     try {
       setLogs((prev) => [...prev, "Generating dockerfile"]);
       const response = await fetch(
-        `http://localhost:3000/api/v1/build/dockerFile`,
+        `http://localhost:3001/api/v1/build/dockerFile`,
         {
           credentials: "include",
           method: "POST",
@@ -246,7 +246,7 @@ const CreateProject = () => {
     try {
       setLogs((prev) => [...prev, "Detecting tech stack"]);
       const response = await fetch(
-        `http://localhost:3000/api/v1/build/detectTechStack`,
+        `http://localhost:3001/api/v1/build/detectTechStack`,
         {
           credentials: "include",
           method: "POST",
@@ -274,7 +274,7 @@ const CreateProject = () => {
     try {
       const controller = new AbortController();
 
-      fetch(`http://localhost:3000/api/v1/build/cloneRepo`, {
+      fetch(`http://localhost:3001/api/v1/build/cloneRepo`, {
         method: "POST",
         credentials: "include",
         signal: controller.signal,

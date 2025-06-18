@@ -48,7 +48,7 @@ export default function SignupPage() {
       })); //logs request payload for debugging
 
       const response = await fetch( //sends POST req to backend API to register user
-        "http://localhost:3000/api/v1/users/register",
+        "http://localhost:3001/api/v1/users/register",
         {
           method: "POST",
           headers: {
@@ -70,7 +70,7 @@ export default function SignupPage() {
       console.log("Response data:", data) //logs response data for debugging
 
       if (response.ok) {
-        router.replace("/");
+        router.replace("/dashboard");
       } else {
         const errorMessage = data?.message || data?.error || (typeof data === 'string' ? data:'Unknown error');
         setError(errorMessage);

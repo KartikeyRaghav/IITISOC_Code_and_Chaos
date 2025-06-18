@@ -4,10 +4,10 @@ import { asyncHandler } from "../utils/asyncHandler.util.js";
 export const githubOAuthConsent = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
   if (user.hasGithubPermission === true) {
-    res.redirect(`http://localhost:3000/api/v1/github/getUserRepos`);
+    res.redirect(`http://localhost:3001/api/v1/github/getUserRepos`);
   }
   const clientID = process.env.GITHUB_CLIENT_ID;
-  const redirectURI = "http://localhost:3000/api/v1/github/callback";
+  const redirectURI = "http://localhost:3001/api/v1/github/callback";
   const scope = "read:user repo";
 
   const githubAuthURL = `https://github.com/login/oauth/authorize?client_id=${clientID}&redirect_uri=${redirectURI}&scope=${scope}`;
@@ -26,7 +26,7 @@ export const handleGithubCallback = asyncHandler(async (req, res) => {
             window.opener.postMessage({
               status: "error",
               message: "User denied GitHub permission"
-            }, "http://localhost:4000");
+            }, "http://localhost:4001");
             window.close();
           </script>
         </body>
@@ -82,7 +82,7 @@ export const handleGithubCallback = asyncHandler(async (req, res) => {
             email: "${user.email}",
             avatar: "${user.avatar_url}"
           }
-        }, "http://localhost:4000");
+        }, "http://localhost:4001");
 
         window.close();
       </script>

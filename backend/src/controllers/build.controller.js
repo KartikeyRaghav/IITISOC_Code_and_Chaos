@@ -29,7 +29,7 @@ export const cloneRepo = asyncHandler(async (req, res) => {
 
   res.setHeader("Content-Type", "text/plain");
   res.setHeader("Transfer-Encoding", "chunked");
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:4000");
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:4001");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
   let clone = null;
@@ -177,7 +177,7 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
   try {
     res.setHeader("Content-Type", "text/plain");
     res.setHeader("Transfer-Encoding", "chunked");
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:4000");
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:4001");
     res.setHeader("Access-Control-Allow-Credentials", "true");
 
     const build = spawn("docker", ["build", "-t", imageName, clonedPath]);
@@ -213,7 +213,7 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
   try {
     res.setHeader("Content-Type", "text/plain");
     res.setHeader("Transfer-Encoding", "chunked");
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:4000");
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:4001");
     res.setHeader("Access-Control-Allow-Credentials", "true");
 
     const run = spawn("docker", [

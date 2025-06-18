@@ -37,7 +37,7 @@ const Dashboard = () => {
 
   const getOAuthConsent = () => {
     const oauthWindow = window.open(
-      "http://localhost:3000/api/v1/github",
+      "http://localhost:3001/api/v1/github",
       "_blank",
       "width=600,height=700"
     );
@@ -50,7 +50,7 @@ const Dashboard = () => {
         getOAuthConsent();
       }
       const response = await fetch(
-        "http://localhost:3000/api/v1/github/getGithubRepos",
+        "http://localhost:3001/api/v1/github/getGithubRepos",
         {
           credentials: "include",
         }
@@ -66,7 +66,7 @@ const Dashboard = () => {
   const getUserRepos = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/getUserRepos",
+        "http://localhost:3001/api/v1/users/getUserRepos",
         {
           credentials: "include",
         }
