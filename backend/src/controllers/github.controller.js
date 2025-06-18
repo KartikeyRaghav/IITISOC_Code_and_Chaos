@@ -126,6 +126,27 @@ export const getGithubRepos = asyncHandler(async (req, res) => {
 
     res.json({ data });
   } catch (error) {
-    res.json({ erro: "Error" });
+    console.error(error);
+    res.status(500).json({ message: "Error fetching the repos" });
+  }
+});
+
+export const getRepoBranches = asyncHandler(async (req, res) => {
+  const { username, repoName } = req.body;
+  if (!username || !repoName) {
+    return res
+      .status(400)
+      .json({ message: "Username and Reponame are required" });
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${username}/${repoName}/branches`
+    );
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching the branches" });
   }
 });

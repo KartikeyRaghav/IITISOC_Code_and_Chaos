@@ -35,6 +35,33 @@ const CreateProject = () => {
   }, []);
 
   useEffect(() => {
+    if (repoName) {
+      setFormData({ ...formData, repoName: repoName });
+    }
+  }, []);
+
+  useEffect(() => {
+    const getBranches = async () => {
+      if (formData.repoName === "Select a repo") {
+        return;
+      }
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/v1/github/getBranches`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              username: localStorage.getItem("githubUsername"),
+              repoName: formData.repoName,
+            }),
+          }
+        );
+      } catch (error) {}
+    };
+    getBranches();
+  }, [formData.repoName]);
+
+  useEffect(() => {
     const getUserRepos = async () => {
       try {
         const response = await fetch(
@@ -234,7 +261,7 @@ const CreateProject = () => {
       );
       const data = await response.json();
       setLogs((prev) => [...prev, "Tech stack detected " + data.stack]);
-      
+
       generateDockerfile(repo, clonedPath, data.stack);
     } catch (error) {
       console.log(error);

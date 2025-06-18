@@ -7,6 +7,6 @@ const projectRouter = Router();
 projectRouter.use(verifyJWT);
 
 projectRouter.route("/checkName").post(checkName);
-projectRouter.route("/create").post();
+// projectRouter.route("/create").post();
 
 export default projectRouter;
