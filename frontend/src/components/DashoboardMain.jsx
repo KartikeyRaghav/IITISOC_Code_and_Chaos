@@ -1,9 +1,12 @@
 import { useRouter } from "next/navigation";
 
-const DashboardMain = ({ repos, logs, url }) => {
+const DashboardMain = ({ repos, logs, url, repoRef }) => {
   const router = useRouter();
   return (
-    <div className="flex-1 p-8 space-y-8 min-h-screen bg-gradient-to-br from-[#003047] to-[#37005c]">
+    <div 
+      ref={repoRef}
+      className="flex-1 p-8 space-y-8 min-h-screen bg-gradient-to-br from-[#003047] to-[#37005c]"
+    >
       <h2 className="text-3xl font-extrabold text-white tracking-tight mb-4">
         Your GitHub Repositories
       </h2>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import CustomToast from "@/components/CustomToast";
 import { checkAuth } from "@/utils/checkAuth";
@@ -16,6 +16,8 @@ const Dashboard = () => {
   const [url, setUrl] = useState(null);
   const router = useRouter();
   const [hasGithubPermission, setHasGithubPermission] = useState(false);
+
+  const repoRef = useRef(null)
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -73,6 +75,10 @@ const Dashboard = () => {
       );
       const data = await response.json();
       setRepos(data);
+
+      setTimeout(() => {
+        repoRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100); //slight delay to ensure rendering is complete
     } catch (error) {
       console.log(error);
       CustomToast("Error while getting your repositories");
@@ -103,6 +109,7 @@ const Dashboard = () => {
         <DashboardMain
           repos={repos}
           url={url}
+          repoRef={repoRef}
         />
       </main>
     </>
