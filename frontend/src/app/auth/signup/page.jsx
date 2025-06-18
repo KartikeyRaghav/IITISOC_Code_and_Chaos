@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 export default function SignupPage() {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
+  const router = useRouter(); //initializes router
+  const [formData, setFormData] = useState({ //sets up state, everything to empty string
     fullName: "",
     email: "",
     password: "",
@@ -20,23 +20,34 @@ export default function SignupPage() {
     const verifyAuth = async () => {
       const data = await checkAuth();
       if (data.status === 200) {
-        router.replace("/dashboard");
+        router.replace("/dashboard"); //if authenticated, redirects
       }
     };
     verifyAuth();
-    setIsAuthenticated(true);
-  }, []);
+    setIsAuthenticated(true); 
+  }, []); //runs when comp mounts
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  }
+  } //updates formData state when input changes
 
   const handleSignup = async (e) => {
-    e.preventDefault();
-    setError("");
+    e.preventDefault(); //prevents default form submission
+    setError(""); //clears prev errors
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    } //checks if psw matches, if not sets error and stops
 
     try {
-      const response = await fetch(
+      console.log("Sending request with:", JSON.stringify({
+        email: formData.email,
+        password: formData.password,
+        fullName: formData.fullName,
+      })); //logs request payload for debugging
+
+      const response = await fetch( //sends POST req to backend API to register user
         "http://localhost:3000/api/v1/users/register",
         {
           method: "POST",
@@ -52,22 +63,27 @@ export default function SignupPage() {
         }
       );
 
-      const data = await response.json();
+      console.log("Response status:", response.status)
+
+      const data = await response.json(); // waits for server response
+
+      console.log("Response data:", data) //logs response data for debugging
 
       if (response.ok) {
         router.replace("/");
       } else {
-        setError(data?.message || "Signup failed. Please try again.");
+        const errorMessage = data?.message || data?.error || (typeof data === 'string' ? data:'Unknown error');
+        setError(errorMessage);
       }
     } catch (err) {
-      console.error(err.message);
-      setError("Something went wrong. Please try again.");
+      console.error('Full error object:', err);
+      setError(err.message ||"Network request failed.");
     }
   };
 
   if (isAuthenticated === null) {
     return <CustomLoader />;
-  }
+  } //shows loading spinner
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r to-custom-blue-600 from-custom-blue-950 p-4">
