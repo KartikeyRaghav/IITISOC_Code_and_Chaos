@@ -1,7 +1,9 @@
 "use client";
 
+import CustomLoader from "@/components/CustomLoader";
+import CustomToast from "@/components/CustomToast";
 import { checkAuth } from "@/utils/checkAuth";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 const CreateProject = () => {
@@ -11,8 +13,11 @@ const CreateProject = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [repos, setRepos] = useState([]);
   const [branches, setBranches] = useState([]);
+  const router = useRouter();
+  const [isNameOk, setIsNameOk] = useState(true);
   const [formData, setFormData] = useState({
-    name: "Select a repo",
+    name: "",
+    repoName: "Select a repo",
     branch: "",
     folder: "",
   });
@@ -51,6 +56,35 @@ const CreateProject = () => {
   if (isAuthenticated === null) {
     return <CustomLoader />;
   }
+
+  function handleChange(e) {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  }
+
+  const checkProjectName = async () => {
+    if (formData.name.length < 5) {
+      CustomToast("Project name should be atleast 5 letters");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/v1/project/checkName",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: formData.name }),
+        }
+      );
+      const data = response.json();
+      if (data.message === "Already exists") {
+        CustomToast("Project Name already exists");
+        setIsNameOk(false);
+        return;
+      }
+      setIsNameOk(true);
+    } catch (error) {}
+  };
 
   const runDockerContainer = async (repo, imageName) => {
     try {
@@ -200,6 +234,7 @@ const CreateProject = () => {
       );
       const data = await response.json();
       setLogs((prev) => [...prev, "Tech stack detected " + data.stack]);
+      
       generateDockerfile(repo, clonedPath, data.stack);
     } catch (error) {
       console.log(error);
@@ -261,7 +296,28 @@ const CreateProject = () => {
   return (
     <div>
       <div>
-        <select name="" id=""></select>
+        <input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+        />
+        <button onClick={checkProjectName}>Check</button>
+      </div>
+      <div>
+        <select
+          name="repoName"
+          id="repoName"
+          value={formData.repoName}
+          onChange={handleChange}
+        >
+          <option value="Select a repo">Select a repo</option>
+          {repos.map((repo, i) => (
+            <option key={i} value={repo.name}>
+              {repo.name}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="mt-8 bg-black/90 border border-[#ad65dd] text-green-200 p-6 rounded-xl h-60 overflow-y-scroll font-mono text-sm shadow-inner">
         <div className="mb-2 text-[#ad65dd] font-semibold">Deployment Logs</div>

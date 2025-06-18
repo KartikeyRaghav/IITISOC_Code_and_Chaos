@@ -20,7 +20,7 @@ const webhookSchema = new Schema(
       type: String,
       enum: ["active", "inactive"],
       default: "active",
-    },  
+    },
   },
   {
     timestamps: true,
