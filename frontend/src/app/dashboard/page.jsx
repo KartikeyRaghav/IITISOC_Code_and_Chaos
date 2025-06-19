@@ -7,7 +7,7 @@ import CustomLoader from "@/components/CustomLoader";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import ActionPanel from "@/components/ActionPanel";
-import DashboardMain from "@/components/DashoboardMain";
+import DashboardMain from "@/components/DashboardMain";
 import AppIntro from "@/components/AppIntro";
 
 const Dashboard = () => {
