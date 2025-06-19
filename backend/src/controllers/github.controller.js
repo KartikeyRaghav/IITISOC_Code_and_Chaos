@@ -132,8 +132,8 @@ export const getGithubRepos = asyncHandler(async (req, res) => {
 });
 
 export const getRepoBranches = asyncHandler(async (req, res) => {
-  const { username, repoName } = req.body;
-  if (!username || !repoName) {
+  const { username, repoName } = req.query;
+  if (!username || (!repoName && repoName !== "Select a repo")) {
     return res
       .status(400)
       .json({ message: "Username and Reponame are required" });
@@ -144,9 +144,35 @@ export const getRepoBranches = asyncHandler(async (req, res) => {
       `https://api.github.com/repos/${username}/${repoName}/branches`
     );
     const data = await response.json();
-    console.log(data);
+    let branch_names = [];
+
+    data.map((branch) => {
+      branch_names.push(branch.name);
+    });
+    res.status(200).json({ branch_names });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error fetching the branches" });
+  }
+});
+
+export const getRepo = asyncHandler(async (req, res) => {
+  const { username, repoName } = req.query;
+  if (!username || (!repoName && repoName !== "Select a repo")) {
+    return res
+      .status(400)
+      .json({ message: "Username and Reponame are required" });
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${username}/${repoName}`
+    );
+    const data = await response.json();
+
+    res.status(200).json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching the repo" });
   }
 });

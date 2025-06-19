@@ -5,6 +5,7 @@ import CustomToast from "@/components/CustomToast";
 import { checkAuth } from "@/utils/checkAuth";
 import { useSearchParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
 
 const CreateProject = () => {
   const [logs, setLogs] = useState([]);
@@ -14,13 +15,14 @@ const CreateProject = () => {
   const [repos, setRepos] = useState([]);
   const [branches, setBranches] = useState([]);
   const router = useRouter();
-  const [isNameOk, setIsNameOk] = useState(true);
+  const [isNameOk, setIsNameOk] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     repoName: "Select a repo",
-    branch: "",
+    branch: "Select a branch",
     folder: "",
   });
+  const [selectedRepo, setSelectedRepo] = useState(null);
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -41,21 +43,29 @@ const CreateProject = () => {
   }, []);
 
   useEffect(() => {
+    repos.map((repo, i) => {
+      if (repo.name === formData.repoName) {
+        setSelectedRepo(repo);
+      }
+    });
+  }, [formData.repoName]);
+
+  useEffect(() => {
     const getBranches = async () => {
       if (formData.repoName === "Select a repo") {
         return;
       }
       try {
+        const username = localStorage.getItem("githubUsername");
         const response = await fetch(
-          `http://localhost:3001/api/v1/github/getBranches`,
+          `http://localhost:3001/api/v1/github/getBranches?username=${username}&repoName=${formData.repoName}`,
           {
-            method: "POST",
-            body: JSON.stringify({
-              username: localStorage.getItem("githubUsername"),
-              repoName: formData.repoName,
-            }),
+            credentials: "include",
           }
         );
+        const data = await response.json();
+        setBranches(data.branch_names);
+        setFormData({ ...formData, branch: data.branch_names[0] });
       } catch (error) {}
     };
     getBranches();
@@ -72,6 +82,13 @@ const CreateProject = () => {
         );
         const data = await response.json();
         setRepos(data);
+        if (repoName) {
+          data.map((repo, i) => {
+            if (repo.name === repoName) {
+              setSelectedRepo(repo);
+            }
+          });
+        }
       } catch (error) {
         console.log(error);
         CustomToast("Error while getting your repositories");
@@ -79,14 +96,6 @@ const CreateProject = () => {
     };
     getUserRepos();
   }, []);
-
-  if (isAuthenticated === null) {
-    return <CustomLoader />;
-  }
-
-  function handleChange(e) {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  }
 
   const checkProjectName = async () => {
     if (formData.name.length < 5) {
@@ -101,6 +110,7 @@ const CreateProject = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: formData.name }),
+          credentials: "include",
         }
       );
       const data = response.json();
@@ -110,139 +120,53 @@ const CreateProject = () => {
         return;
       }
       setIsNameOk(true);
-    } catch (error) {}
-  };
-
-  const runDockerContainer = async (repo, imageName) => {
-    try {
-      setLogs((prev) => [...prev, "Starting docker container run"]);
-      const controller = new AbortController();
-
-      fetch(`http://localhost:3001/api/v1/build/dockerContainer`, {
-        method: "POST",
-        credentials: "include",
-        signal: controller.signal,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          repoName: repo.name,
-          imageName,
-          port: 8081,
-        }),
-      })
-        .then((response) => {
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-          const readChunk = () => {
-            reader.read().then(({ done, value }) => {
-              if (done) return;
-              const text = decoder.decode(value);
-              setLogs((prev) => [...prev, text]);
-
-              const match = text.match(/\[RUN_COMPLETE\] (.*)/);
-              if (match) {
-                let url = match[1];
-                console.log("Run complete. url:", url);
-                setLogs((prev) => [...prev, "Run complete"]);
-                setUrl(url);
-              }
-
-              readChunk();
-            });
-          };
-
-          readChunk();
-        })
-        .catch((err) => console.error("Streaming error:", err));
-
-      () => controller.abort();
     } catch (error) {
-      console.log(error);
-      CustomToast("Error while running docker container");
-      setLogs((prev) => [...prev, "Error while running docker container"]);
+      console.error(error);
+      CustomToast("Error in checking name");
     }
   };
 
-  const generateDockerImage = async (repo, clonedPath) => {
-    try {
-      setLogs((prev) => [...prev, "Starting docker image build"]);
-      const controller = new AbortController();
+  useEffect(() => {
+    checkProjectName();
+  }, [formData.name]);
 
-      fetch(`http://localhost:3001/api/v1/build/dockerImage`, {
-        method: "POST",
-        credentials: "include",
-        signal: controller.signal,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          repoName: repo.name,
-          clonedPath,
-        }),
-      })
-        .then((response) => {
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-          const readChunk = () => {
-            reader.read().then(({ done, value }) => {
-              if (done) return;
-              const text = decoder.decode(value);
-              setLogs((prev) => [...prev, text]);
+  function handleChange(e) {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  }
 
-              const match = text.match(/\[BUILD_COMPLETE\] (.*)/);
-              if (match) {
-                let fullImageName = match[1];
-                console.log("Build complete. Image name:", fullImageName);
-                setLogs((prev) => [...prev, "Build complete"]);
-                runDockerContainer(repo, fullImageName);
-              }
+  if (isAuthenticated === null) {
+    return <CustomLoader />;
+  }
 
-              readChunk();
-            });
-          };
+  const createProject = async (stack) => {
+    if (isNameOk) {
+      try {
+        const response = await fetch(
+          `http://localhost:3001/api/v1/project/create`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: formData.name,
+              branch: formData.branch,
+              folder: formData.folder,
+              framework: stack,
+              repositoryUrl: selectedRepo.html_url,
+            }),
+            credentials: "include",
+          }
+        );
 
-          readChunk();
-        })
-        .catch((err) => console.error("Streaming error:", err));
-
-      () => controller.abort();
-    } catch (error) {
-      console.log(error);
-      CustomToast("Error while building dockerimage");
-      setLogs((prev) => [...prev, "Error while building docker image"]);
+        const data = await response.json();
+        console.log(data);
+      } catch (error) {
+        console.error(error);
+        CustomToast("Error in creating project");
+      }
     }
   };
 
-  const generateDockerfile = async (repo, clonedPath, techStack) => {
-    try {
-      setLogs((prev) => [...prev, "Generating dockerfile"]);
-      const response = await fetch(
-        `http://localhost:3001/api/v1/build/dockerFile`,
-        {
-          credentials: "include",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            clonedPath,
-            techStack,
-          }),
-        }
-      );
-      const data = await response.json();
-      setLogs((prev) => [...prev, "Dockerfile generated"]);
-      generateDockerImage(repo, clonedPath);
-    } catch (error) {
-      console.log(error);
-      CustomToast("Error while generating dockerfile");
-      setLogs((prev) => [...prev, "Error while generating dockerfile"]);
-    }
-  };
-
-  const detectTechStack = async (repo, clonedPath) => {
+  const detectTechStack = async (clonedPath) => {
     try {
       setLogs((prev) => [...prev, "Detecting tech stack"]);
       const response = await fetch(
@@ -261,8 +185,9 @@ const CreateProject = () => {
       );
       const data = await response.json();
       setLogs((prev) => [...prev, "Tech stack detected " + data.stack]);
-
-      generateDockerfile(repo, clonedPath, data.stack);
+      if (data.stack !== "unknown") {
+        createProject(data.stack);
+      }
     } catch (error) {
       console.log(error);
       CustomToast("Error while detecting tech stack");
@@ -270,58 +195,64 @@ const CreateProject = () => {
     }
   };
 
-  const cloneRepo = async (repo) => {
-    try {
-      const controller = new AbortController();
+  const cloneRepo = async () => {
+    if (isNameOk) {
+      try {
+        const controller = new AbortController();
 
-      fetch(`http://localhost:3001/api/v1/build/cloneRepo`, {
-        method: "POST",
-        credentials: "include",
-        signal: controller.signal,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          repoName: repo.name,
-          cloneUrl: repo.clone_url,
-        }),
-      })
-        .then((response) => {
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-          setLogs((prev) => [...prev, "Starting to clone the repository"]);
-          const readChunk = () => {
-            reader.read().then(({ done, value }) => {
-              if (done) return;
-              const text = decoder.decode(value);
-              setLogs((prev) => [...prev, text]);
-
-              const match = text.match(/\[CLONE_COMPLETE\] (.*)/);
-              if (match) {
-                let fullTargetDir = match[1];
-                console.log("Clone complete. Target Dir:", fullTargetDir);
-                setLogs((prev) => [...prev, "Cloning complete"]);
-                detectTechStack(repo, fullTargetDir);
-              }
-
-              readChunk();
-            });
-          };
-
-          readChunk();
+        fetch(`http://localhost:3001/api/v1/build/cloneRepo`, {
+          method: "POST",
+          credentials: "include",
+          signal: controller.signal,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            repoName: selectedRepo.name,
+            cloneUrl: selectedRepo.clone_url,
+            branch: formData.branch,
+          }),
         })
-        .catch((err) => console.error("Streaming error:", err));
+          .then((response) => {
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            setLogs((prev) => [...prev, "Starting to clone the repository"]);
+            const readChunk = () => {
+              reader.read().then(({ done, value }) => {
+                if (done) return;
+                const text = decoder.decode(value);
+                setLogs((prev) => [...prev, text]);
 
-      return () => controller.abort();
-    } catch (error) {
-      console.log(error);
-      CustomToast("Error while cloning");
-      setLogs((prev) => [...prev, "Error while cloning the repo"]);
+                const match = text.match(/\[CLONE_COMPLETE\] (.*)/);
+                if (match) {
+                  let fullTargetDir = match[1];
+                  console.log("Clone complete. Target Dir:", fullTargetDir);
+                  setLogs((prev) => [...prev, "Cloning complete"]);
+                  detectTechStack(fullTargetDir);
+                }
+
+                readChunk();
+              });
+            };
+
+            readChunk();
+          })
+          .catch((err) => console.error("Streaming error:", err));
+
+        return () => controller.abort();
+      } catch (error) {
+        console.log(error);
+        CustomToast("Error while cloning");
+        setLogs((prev) => [...prev, "Error while cloning the repo"]);
+      }
+    } else {
+      CustomToast("Project Name");
     }
   };
 
   return (
     <div>
+      <ToastContainer />
       <div>
         <input
           type="text"
@@ -346,6 +277,30 @@ const CreateProject = () => {
           ))}
         </select>
       </div>
+      <div>
+        <select
+          name="branch"
+          id="branch"
+          value={formData.branch}
+          onChange={handleChange}
+        >
+          <option value="Select a branch">Select a branch</option>
+          {branches.length > 0 &&
+            branches.map((branch, i) => (
+              <option key={i} value={branch}>
+                {branch}
+              </option>
+            ))}
+        </select>
+      </div>
+      <input
+        value={formData.folder}
+        onChange={handleChange}
+        type="text"
+        placeholder="Folder name (Leave empty if no frontend folder)"
+      />
+      <br />
+      <button onClick={cloneRepo}>Create project</button>
       <div className="mt-8 bg-black/90 border border-[#ad65dd] text-green-200 p-6 rounded-xl h-60 overflow-y-scroll font-mono text-sm shadow-inner">
         <div className="mb-2 text-[#ad65dd] font-semibold">Deployment Logs</div>
         <div className="space-y-1">

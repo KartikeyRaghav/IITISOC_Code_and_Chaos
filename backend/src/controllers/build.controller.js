@@ -19,7 +19,7 @@ const checkCloneExists = async (pathName) => {
 };
 
 export const cloneRepo = asyncHandler(async (req, res) => {
-  const { repoName, cloneUrl } = req.body;
+  const { repoName, cloneUrl, branch } = req.body;
 
   const targetDir = path.join(TEMP_DIR, repoName);
 
@@ -39,7 +39,7 @@ export const cloneRepo = asyncHandler(async (req, res) => {
     clone = spawn("git", ["-C", targetDir, "pull"]);
   } else {
     console.log("clone doesn't exist");
-    clone = spawn("git", ["clone", cloneUrl, targetDir]);
+    clone = spawn("git", ["clone", "-b", branch, cloneUrl, targetDir]);
   }
 
   clone.stdout.on("data", (data) => {
