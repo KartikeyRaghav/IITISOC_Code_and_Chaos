@@ -251,23 +251,38 @@ const CreateProject = () => {
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-gradient-to-br from-[#004466] to-[#6a00b3] flex items-center justify-center py-8">
       <ToastContainer />
-      <div>
+      <div className="bg-[#23243a] rounded-2xl shadow-xl p-8 w-full max-w-3xl flex flex-xol md:flex-row gap-8">
+        <div className="flex-1 flex flex-col gap-4">
+          <h1 className="text-3xl font-bold text-white mb-2 border-b-2 border-purple-500 pb-2">
+            Create a New Project 
+          </h1>
+          <label className="text-gray-300 font-medium">Project Name</label>
+          <div className="flex gap-2 items-center">
         <input
           type="text"
           name="name"
           value={formData.name}
           onChange={handleChange}
+          className="flex-1 p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+          placeholder="Enter project name"
         />
-        <button onClick={checkProjectName}>Check</button>
+        <button 
+          type="button"
+          onClick={checkProjectName}
+          className="px-4 py-2 rounded bg-gradient-to-r from-custom-blue-300 via-[#00aaff] to-[#9a00ff] text-white font-semibold shadow hover:from-[#002233] hover:via-[#0096e6] hover:to-[#5a0099] transition">
+            Check
+          </button>
       </div>
-      <div>
+      
+      <label className="text-gray-300 font-medium mt-2">Select Repo</label>
         <select
           name="repoName"
           id="repoName"
           value={formData.repoName}
           onChange={handleChange}
+          className="w-full p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
         >
           <option value="Select a repo">Select a repo</option>
           {repos.map((repo, i) => (
@@ -276,13 +291,14 @@ const CreateProject = () => {
             </option>
           ))}
         </select>
-      </div>
-      <div>
+      
+      <label className="text-gray-300 font-medium mt-2">Select Branch</label>
         <select
           name="branch"
           id="branch"
           value={formData.branch}
           onChange={handleChange}
+          className="w-full p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
         >
           <option value="Select a branch">Select a branch</option>
           {branches.length > 0 &&
@@ -292,16 +308,27 @@ const CreateProject = () => {
               </option>
             ))}
         </select>
-      </div>
+      
+      <label className="text-gray-300 font-medium mt-2">Folder (optional)</label>
       <input
         value={formData.folder}
         onChange={handleChange}
+        name="folder"
         type="text"
-        placeholder="Folder name (Leave empty if no frontend folder)"
+        placeholder="Folder name (Leave empty if not needed)"
+        className="w-full p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
       />
-      <br />
-      <button onClick={cloneRepo}>Create project</button>
-      <div className="mt-8 bg-black/90 border border-[#ad65dd] text-green-200 p-6 rounded-xl h-60 overflow-y-scroll font-mono text-sm shadow-inner">
+      
+      <button 
+        onClick={cloneRepo}
+        type="button"
+        className="w-full py-3 mt-4 rounded bg-gradient-to-r from-custom-blue-300 via-[#00aaff] to-[#9a00ff] text-white font-semibold text-lg shadow hover:from-[#002233] hover:via-[#0096e6] hover:to-[#5a0099] transition"
+      >
+        Create project
+      </button>
+      </div>
+
+      <div className="flex-1 bg-[#18192b] rounded-xl p-4 overflow-y-auto max-h-80 text-green-300 font-mono text-sm shadow-inner mt-8 md:mt-0">
         <div className="mb-2 text-[#ad65dd] font-semibold">Deployment Logs</div>
         <div className="space-y-1">
           {logs.map((log, i) => (
@@ -311,8 +338,143 @@ const CreateProject = () => {
           ))}
         </div>
       </div>
+      </div>
     </div>
   );
 };
 
 export default CreateProject;
+
+
+/* "use client";
+import CustomToast from "@/components/CustomToast";
+import React, { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
+import Select from "react-select";
+
+const Project = () => {
+  const [repos, setRepos] = useState([]);
+  const [selectedRepo, setSelectedRepo] = useState(null);
+  const [branches, setBranches] = useState([]);
+  const [selectedBranch, setSelectedBranch] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const getProjects = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:3001/api/v1/project/getAllProjects`,
+          { credentials: "include" }
+        );
+        const data = await response.json();
+        setRepos(data);
+        console.log(data);
+      } catch (error) {
+        CustomToast("Error fetching your projects");
+      }
+    };
+    getProjects();
+  }, []);
+
+  useEffect(() => {
+    const fetchBranches = async () => {
+      if (!selectedRepo) return;
+      setIsLoading(true);
+      try {
+        const response = await fetch(
+          `https://api.github.com/repos/${selectedRepo.owner.login}/${selectedRepo.name}/branches`,
+          {
+            headers: {
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
+              Accept: "application/vnd.github.v3+json"
+            }
+          }
+        );
+        const data = await response.json();
+        setBranches(data);
+      } catch (error) {
+        CustomToast("Error fetching branches");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchBranches();
+  }, [selectedRepo]);
+
+  const handleDelpoyment = async () => {
+    try {
+      const response = await fetch(`https://localhost:3001/api/v1/deploy`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          repo: selectedRepo.name,
+          owner: selectedRepo.owner.login,
+          branch: selectedBranch.value
+      })
+    })
+
+    const data = await response.json();
+    if (response.ok) {
+      CustomToast(data.message || 'Deployment started successfully!')
+    } else {
+      CustomToast(data.error || 'Deployment failed')
+    } 
+  } catch (error) {
+    CustomToast('Deployment request failed')
+  }
+};
+
+  return (
+    <div className="p-6 max-w-3xl mx-auto">
+      <ToastContainer />
+      <h1 className="text-2xl font-bold mb-6">Project Deployment Dashboard</h1>
+      <div className="mb-6">
+        <label className="block mb-2 font-medium">Select Repo:</label>
+        <Select
+          options={repos.map(repo => ({
+            value:repo.id,
+            label:repo.name,
+            repoObject: repo
+          }))}
+          onChange={(selected) => 
+            setSelectedRepo(selected, repoObject)}
+            placeholder="Choose a repo"
+            className="react-select-container"
+            classNamePrefix="react-select"
+          />
+      </div>
+
+      <div className="mb-6">
+        <label className="block mb-2 font-medium">Select Branch:</label>
+        <Select 
+          options={branches.map(branch => ({
+            value: branch.name,
+            label: branch.name
+          }))}
+          onChange={setSelectedBranch}
+          isDisabled={!selectedRepo || isLoading}
+          isLoading={isLoading}
+          placeholder={isLoading ? "Loading branches..." : "Choose a branch"}
+          className="react-select-container"
+          classNamePrefix="react-select"
+        />
+      </div>
+
+      <button
+        onClick={handleDelpoyment}
+        disabled={!selectedBranch}
+        className={`px-4 py-2 rounded-md ${
+          selectedBranch
+            ? 'bg-blue-600 hover:bg-blue-700 text-white'
+            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+        }`}
+      >
+        Deploy Project
+      </button>
+    </div>
+  );
+};
+
+export default Project;
+*/
