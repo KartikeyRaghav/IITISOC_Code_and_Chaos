@@ -335,18 +335,7 @@ const CreateProject = () => {
           </button>
         </div>
 
-        <div className="flex-1 bg-[#18192b] rounded-xl p-4 overflow-y-auto max-h-80 text-green-300 font-mono text-sm shadow-inner mt-8 md:mt-0">
-          <div className="mb-2 text-[#ad65dd] font-semibold">
-            Deployment Logs
-          </div>
-          <div className="space-y-1">
-            {logs.map((log, i) => (
-              <div key={i} className="whitespace-pre-line">
-                {log}
-              </div>
-            ))}
-          </div>
-        </div>
+        
       </div>
     </div>
   );
