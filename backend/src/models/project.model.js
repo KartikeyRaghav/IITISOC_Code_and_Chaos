@@ -9,6 +9,14 @@ const projectSchema = new Schema(
       unique: true,
       index: true,
     },
+    repoName: {
+      type: String,
+      required: true,
+    },
+    clonedPath: {
+      type: String,
+      required: true,
+    },
     deploymentHistory: {
       type: String,
       trim: true,

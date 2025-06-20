@@ -3,10 +3,12 @@ import CustomToast from "@/components/CustomToast";
 import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import Select from "react-select";
+import { useRouter } from "next/navigation";
 
 const Project = () => {
   const [repos, setRepos] = useState([]);
-  
+  const router = useRouter();
+
   useEffect(() => {
     const getProjects = async () => {
       try {
@@ -37,17 +39,23 @@ const Project = () => {
         {repos.map((project) => (
           <div
             key={project.id}
+            onClick={() => {
+              router.push(`/project/${project.name}`);
+            }}
             className="bg-white shadow rounded-lg p-6 flex flex-col"
           >
             <h2 className="text-lg font-semibold mb-2">
-              {project.project_name || project.name}
+              {project.name}
             </h2>
             <p className="text-gray-600 mb-4">
               {project.description || "No description available"}
             </p>
             <div className="text-xs text-gray-400 mt-auto">
-              Created on: {project.created_at ? new Date(project.created_at).toLocaleString() : "N/A"}
-          </div>
+              Created on:{" "}
+              {project.createdAt
+                ? new Date(project.createdAt).toLocaleString()
+                : "N/A"}
+            </div>
           </div>
         ))}
       </div>

@@ -138,7 +138,7 @@ const CreateProject = () => {
     return <CustomLoader />;
   }
 
-  const createProject = async (stack) => {
+  const createProject = async (stack, clonedPath) => {
     if (isNameOk) {
       try {
         const response = await fetch(
@@ -152,6 +152,8 @@ const CreateProject = () => {
               folder: formData.folder,
               framework: stack,
               repositoryUrl: selectedRepo.html_url,
+              repoName: selectedRepo.name,
+              clonedPath,
             }),
             credentials: "include",
           }
@@ -186,7 +188,7 @@ const CreateProject = () => {
       const data = await response.json();
       setLogs((prev) => [...prev, "Tech stack detected " + data.stack]);
       if (data.stack !== "unknown") {
-        createProject(data.stack);
+        createProject(data.stack, clonedPath);
       }
     } catch (error) {
       console.log(error);
@@ -256,95 +258,101 @@ const CreateProject = () => {
       <div className="bg-[#23243a] rounded-2xl shadow-xl p-8 w-full max-w-3xl flex flex-xol md:flex-row gap-8">
         <div className="flex-1 flex flex-col gap-4">
           <h1 className="text-3xl font-bold text-white mb-2 border-b-2 border-purple-500 pb-2">
-            Create a New Project 
+            Create a New Project
           </h1>
           <label className="text-gray-300 font-medium">Project Name</label>
           <div className="flex gap-2 items-center">
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          className="flex-1 p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
-          placeholder="Enter project name"
-        />
-        <button 
-          type="button"
-          onClick={checkProjectName}
-          className="px-4 py-2 rounded bg-gradient-to-r from-custom-blue-300 via-[#00aaff] to-[#9a00ff] text-white font-semibold shadow hover:from-[#002233] hover:via-[#0096e6] hover:to-[#5a0099] transition">
-            Check
-          </button>
-      </div>
-      
-      <label className="text-gray-300 font-medium mt-2">Select Repo</label>
-        <select
-          name="repoName"
-          id="repoName"
-          value={formData.repoName}
-          onChange={handleChange}
-          className="w-full p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
-        >
-          <option value="Select a repo">Select a repo</option>
-          {repos.map((repo, i) => (
-            <option key={i} value={repo.name}>
-              {repo.name}
-            </option>
-          ))}
-        </select>
-      
-      <label className="text-gray-300 font-medium mt-2">Select Branch</label>
-        <select
-          name="branch"
-          id="branch"
-          value={formData.branch}
-          onChange={handleChange}
-          className="w-full p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
-        >
-          <option value="Select a branch">Select a branch</option>
-          {branches.length > 0 &&
-            branches.map((branch, i) => (
-              <option key={i} value={branch}>
-                {branch}
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="flex-1 p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+              placeholder="Enter project name"
+            />
+            <button
+              type="button"
+              onClick={checkProjectName}
+              className="px-4 py-2 rounded bg-gradient-to-r from-custom-blue-300 via-[#00aaff] to-[#9a00ff] text-white font-semibold shadow hover:from-[#002233] hover:via-[#0096e6] hover:to-[#5a0099] transition"
+            >
+              Check
+            </button>
+          </div>
+
+          <label className="text-gray-300 font-medium mt-2">Select Repo</label>
+          <select
+            name="repoName"
+            id="repoName"
+            value={formData.repoName}
+            onChange={handleChange}
+            className="w-full p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+          >
+            <option value="Select a repo">Select a repo</option>
+            {repos.map((repo, i) => (
+              <option key={i} value={repo.name}>
+                {repo.name}
               </option>
             ))}
-        </select>
-      
-      <label className="text-gray-300 font-medium mt-2">Folder (optional)</label>
-      <input
-        value={formData.folder}
-        onChange={handleChange}
-        name="folder"
-        type="text"
-        placeholder="Folder name (Leave empty if not needed)"
-        className="w-full p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
-      />
-      
-      <button 
-        onClick={cloneRepo}
-        type="button"
-        className="w-full py-3 mt-4 rounded bg-gradient-to-r from-custom-blue-300 via-[#00aaff] to-[#9a00ff] text-white font-semibold text-lg shadow hover:from-[#002233] hover:via-[#0096e6] hover:to-[#5a0099] transition"
-      >
-        Create project
-      </button>
-      </div>
+          </select>
 
-      <div className="flex-1 bg-[#18192b] rounded-xl p-4 overflow-y-auto max-h-80 text-green-300 font-mono text-sm shadow-inner mt-8 md:mt-0">
-        <div className="mb-2 text-[#ad65dd] font-semibold">Deployment Logs</div>
-        <div className="space-y-1">
-          {logs.map((log, i) => (
-            <div key={i} className="whitespace-pre-line">
-              {log}
-            </div>
-          ))}
+          <label className="text-gray-300 font-medium mt-2">
+            Select Branch
+          </label>
+          <select
+            name="branch"
+            id="branch"
+            value={formData.branch}
+            onChange={handleChange}
+            className="w-full p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+          >
+            <option value="Select a branch">Select a branch</option>
+            {branches.length > 0 &&
+              branches.map((branch, i) => (
+                <option key={i} value={branch}>
+                  {branch}
+                </option>
+              ))}
+          </select>
+
+          <label className="text-gray-300 font-medium mt-2">
+            Folder (optional)
+          </label>
+          <input
+            value={formData.folder}
+            onChange={handleChange}
+            name="folder"
+            type="text"
+            placeholder="Folder name (Leave empty if not needed)"
+            className="w-full p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+          />
+
+          <button
+            onClick={cloneRepo}
+            type="button"
+            className="w-full py-3 mt-4 rounded bg-gradient-to-r from-custom-blue-300 via-[#00aaff] to-[#9a00ff] text-white font-semibold text-lg shadow hover:from-[#002233] hover:via-[#0096e6] hover:to-[#5a0099] transition"
+          >
+            Create project
+          </button>
         </div>
-      </div>
+
+        <div className="flex-1 bg-[#18192b] rounded-xl p-4 overflow-y-auto max-h-80 text-green-300 font-mono text-sm shadow-inner mt-8 md:mt-0">
+          <div className="mb-2 text-[#ad65dd] font-semibold">
+            Deployment Logs
+          </div>
+          <div className="space-y-1">
+            {logs.map((log, i) => (
+              <div key={i} className="whitespace-pre-line">
+                {log}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
 export default CreateProject;
-
 
 /* "use client";
 import CustomToast from "@/components/CustomToast";

@@ -56,10 +56,18 @@ export const checkName = asyncHandler(async (req, res) => {
 });
 
 export const createProject = asyncHandler(async (req, res) => {
-  const { name, branch, folder, repositoryUrl, framework } = req.body;
+  const {
+    name,
+    branch,
+    folder,
+    repositoryUrl,
+    framework,
+    repoName,
+    clonedPath,
+  } = req.body;
 
-  if (name === "Select a repo" || !branch) {
-    return res.status(400).json({ message: "Name and branch are required" });
+  if (name === "Select a repo" || !branch || !clonedPath || !repoName) {
+    return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
@@ -72,6 +80,8 @@ export const createProject = asyncHandler(async (req, res) => {
       repositoryUrl,
       framework,
       createdBy: user,
+      repoName,
+      clonedPath,
     });
 
     res.status(200).json({ message: "Project created" });
