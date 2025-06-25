@@ -99,6 +99,7 @@ const CreateProject = () => {
 
   const checkProjectName = async () => {
     if (formData.name.length < 5) {
+      setIsNameOk(false);
       CustomToast("Project name should be atleast 5 letters");
       return;
     }
@@ -113,7 +114,8 @@ const CreateProject = () => {
           credentials: "include",
         }
       );
-      const data = response.json();
+      const data = await response.json();
+      console.log(data);
       if (data.message === "Already exists") {
         CustomToast("Project Name already exists");
         setIsNameOk(false);
@@ -160,7 +162,12 @@ const CreateProject = () => {
         );
 
         const data = await response.json();
-        console.log(data);
+        if (response.status === 409) {
+          CustomToast("A project for this repo already exists");
+        }
+        if (response.ok) {
+          router.push(`/project/${formData.name}`);
+        }
       } catch (error) {
         console.error(error);
         CustomToast("Error in creating project");
@@ -248,7 +255,7 @@ const CreateProject = () => {
         setLogs((prev) => [...prev, "Error while cloning the repo"]);
       }
     } else {
-      CustomToast("Project Name");
+      CustomToast("Enter a valid project name");
     }
   };
 
@@ -261,22 +268,34 @@ const CreateProject = () => {
             Create a New Project
           </h1>
           <label className="text-gray-300 font-medium">Project Name</label>
-          <div className="flex gap-2 items-center">
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="flex-1 p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
-              placeholder="Enter project name"
-            />
-            <button
-              type="button"
-              onClick={checkProjectName}
-              className="px-4 py-2 rounded bg-gradient-to-r from-custom-blue-300 via-[#00aaff] to-[#9a00ff] text-white font-semibold shadow hover:from-[#002233] hover:via-[#0096e6] hover:to-[#5a0099] transition"
+          <div>
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                autoComplete="off"
+                className="flex-1 p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                placeholder="Enter project name"
+              />
+              <button
+                type="button"
+                onClick={checkProjectName}
+                className="px-4 py-2 rounded bg-gradient-to-r from-custom-blue-300 via-[#00aaff] to-[#9a00ff] text-white font-semibold shadow hover:from-[#002233] hover:via-[#0096e6] hover:to-[#5a0099] transition"
+              >
+                Check
+              </button>
+            </div>
+            <p
+              className={`mt-2 ${isNameOk ? "text-green-500" : "text-red-500"}`}
             >
-              Check
-            </button>
+              {formData.name != ""
+                ? isNameOk
+                  ? "Project name is available"
+                  : "Choose a different project name"
+                : null}
+            </p>
           </div>
 
           <label className="text-gray-300 font-medium mt-2">Select Repo</label>
@@ -334,8 +353,6 @@ const CreateProject = () => {
             Create project
           </button>
         </div>
-
-        
       </div>
     </div>
   );

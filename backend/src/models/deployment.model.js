@@ -12,6 +12,11 @@ const deploymentSchema = new Schema(
       enum: ["pending", "in-progress", "completed", "failed"],
       default: "pending",
     },
+    imageName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     logUrl: {
       type: String,
       required: true,

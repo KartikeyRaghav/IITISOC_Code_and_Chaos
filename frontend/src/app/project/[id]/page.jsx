@@ -31,7 +31,21 @@ const ProjectPage = () => {
     getProject();
   }, [projectName]);
 
-  const runDockerContainer = async (repoName, imageName) => {
+  const updateDeployment = async (deploymentId) => {
+    try {
+      const response = await fetch(
+        "http://localhost:3001/api/v1/deployment/update",
+        {
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          method: "PUT",
+          body: JSON.stringify({ _id: deploymentId }),
+        }
+      );
+    } catch (error) {}
+  };
+
+  const runDockerContainer = async (repoName, imageName, deploymentId) => {
     try {
       setLogs((prev) => [...prev, "Starting docker container run"]);
       const controller = new AbortController();
@@ -46,7 +60,7 @@ const ProjectPage = () => {
         body: JSON.stringify({
           repoName,
           imageName,
-          port: 8081,
+          port: 8082,
         }),
       })
         .then((response) => {
@@ -63,7 +77,7 @@ const ProjectPage = () => {
                 let url = match[1];
                 console.log("Run complete. url:", url);
                 setLogs((prev) => [...prev, "Run complete"]);
-                setUrl(url);
+                updateDeployment(deploymentId);
               }
 
               readChunk();
@@ -79,6 +93,55 @@ const ProjectPage = () => {
       console.log(error);
       CustomToast("Error while running docker container");
       setLogs((prev) => [...prev, "Error while running docker container"]);
+    }
+  };
+
+  const getVersion = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/v1/deployment/version",
+        {
+          credentials: "include",
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            projectName,
+          }),
+        }
+      );
+
+      const data = await response.json();
+      return data.version;
+    } catch (error) {}
+  };
+
+  const createDeployment = async (imageName) => {
+    try {
+      console.log("Working");
+      const prevVersion = await getVersion();
+      const version = (Number(prevVersion) + 1).toString();
+      const response = await fetch(
+        "http://localhost:3001/api/v1/deployment/create",
+        {
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            projectName,
+            imageName,
+            version,
+            status: "in-progress",
+            logUrl: "http://localhost:4000/logs" + projectName + "/" + version,
+            previewUrl: "http://localhost:4000/" + projectName + "/" + version,
+          }),
+          method: "POST",
+          credentials: "include",
+        }
+      );
+      console.log("Worked");
+      const data = await response.json();
+      return data._id;
+    } catch (error) {
+      console.error(error);
+      CustomToast("Error making a new deployment");
     }
   };
 
@@ -103,7 +166,7 @@ const ProjectPage = () => {
           const reader = response.body.getReader();
           const decoder = new TextDecoder();
           const readChunk = () => {
-            reader.read().then(({ done, value }) => {
+            reader.read().then(async ({ done, value }) => {
               if (done) return;
               const text = decoder.decode(value);
               setLogs((prev) => [...prev, text]);
@@ -113,7 +176,8 @@ const ProjectPage = () => {
                 let fullImageName = match[1];
                 console.log("Build complete. Image name:", fullImageName);
                 setLogs((prev) => [...prev, "Build complete"]);
-                runDockerContainer(repoName, fullImageName);
+                let deploymentId = await createDeployment(fullImageName);
+                runDockerContainer(repoName, fullImageName, deploymentId);
               }
 
               readChunk();
@@ -179,7 +243,11 @@ const ProjectPage = () => {
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="text-gray-400">
-                  <Link href={project.repositoryUrl} target="_blank" className="ml-2 cursor-pointer">
+                  <Link
+                    href={project.repositoryUrl}
+                    target="_blank"
+                    className="ml-2 cursor-pointer"
+                  >
                     {project.repositoryUrl || project.repositoryName || "N/A"}
                   </Link>
                 </div>

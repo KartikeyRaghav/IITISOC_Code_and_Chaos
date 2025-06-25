@@ -17,7 +17,6 @@ export const getAllProjects = asyncHandler(async (req, res) => {
 
 export const getProject = asyncHandler(async (req, res) => {
   const { projectName } = req.query;
-  console.log(projectName);
 
   if (!projectName) {
     res.status(400).json({ message: "Project name is required" });
@@ -46,7 +45,7 @@ export const checkName = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "No name sent" });
   }
 
-  const project = Project.findOne({ name });
+  const project = await Project.findOne({ name });
 
   if (project) {
     return res.status(200).json({ message: "Already exists" });
@@ -71,6 +70,16 @@ export const createProject = asyncHandler(async (req, res) => {
   }
 
   try {
+    const repoProjectExists = await Project.findOne({
+      $and: [{ repositoryUrl }, { branch }],
+    });
+
+    if (repoProjectExists) {
+      return res
+        .status(409)
+        .json({ message: "A project for this repo already exists" });
+    }
+
     const user = await User.findById(req.user._id);
 
     const project = await Project.create({

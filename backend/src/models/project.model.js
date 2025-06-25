@@ -17,11 +17,13 @@ const projectSchema = new Schema(
       type: String,
       required: true,
     },
-    deploymentHistory: {
-      type: String,
-      trim: true,
-      default: null,
-    },
+    deploymentHistory: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Deployment",
+        default: null,
+      },
+    ],
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
