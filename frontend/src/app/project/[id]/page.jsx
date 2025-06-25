@@ -3,6 +3,9 @@ import CustomToast from "@/components/CustomToast";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const ProjectPage = () => {
   const projectName = usePathname().split("/")[2];
@@ -14,7 +17,7 @@ const ProjectPage = () => {
     const getProject = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/api/v1/project/getProject?projectName=${projectName}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/getProject?projectName=${projectName}`,
           { credentials: "include" }
         );
         const data = await response.json();
@@ -34,7 +37,7 @@ const ProjectPage = () => {
   const updateDeployment = async (deploymentId) => {
     try {
       const response = await fetch(
-        "http://localhost:3001/api/v1/deployment/update",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/deployment/update`,
         {
           credentials: "include",
           headers: { "Content-Type": "application/json" },
@@ -50,19 +53,22 @@ const ProjectPage = () => {
       setLogs((prev) => [...prev, "Starting docker container run"]);
       const controller = new AbortController();
 
-      fetch(`http://localhost:3001/api/v1/build/dockerContainer`, {
-        method: "POST",
-        credentials: "include",
-        signal: controller.signal,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          repoName,
-          imageName,
-          port: 8082,
-        }),
-      })
+      fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/build/dockerContainer`,
+        {
+          method: "POST",
+          credentials: "include",
+          signal: controller.signal,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            repoName,
+            imageName,
+            port: 8082,
+          }),
+        }
+      )
         .then((response) => {
           const reader = response.body.getReader();
           const decoder = new TextDecoder();
@@ -99,7 +105,7 @@ const ProjectPage = () => {
   const getVersion = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/api/v1/deployment/version",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/deployment/version`,
         {
           credentials: "include",
           method: "POST",
@@ -121,7 +127,7 @@ const ProjectPage = () => {
       const prevVersion = await getVersion();
       const version = (Number(prevVersion) + 1).toString();
       const response = await fetch(
-        "http://localhost:3001/api/v1/deployment/create",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/deployment/create`,
         {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -129,8 +135,14 @@ const ProjectPage = () => {
             imageName,
             version,
             status: "in-progress",
-            logUrl: "http://localhost:4000/logs" + projectName + "/" + version,
-            previewUrl: "http://localhost:4000/" + projectName + "/" + version,
+            logUrl:
+              `${process.env.FRONTEND_URL}` +
+              "/logs" +
+              projectName +
+              "/" +
+              version,
+            previewUrl:
+              `${process.env.FRONTEND_URL}` + "/" + projectName + "/" + version,
           }),
           method: "POST",
           credentials: "include",
@@ -150,7 +162,7 @@ const ProjectPage = () => {
       setLogs((prev) => [...prev, "Starting docker image build"]);
       const controller = new AbortController();
 
-      fetch(`http://localhost:3001/api/v1/build/dockerImage`, {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/build/dockerImage`, {
         method: "POST",
         credentials: "include",
         signal: controller.signal,
@@ -200,7 +212,7 @@ const ProjectPage = () => {
     try {
       setLogs((prev) => [...prev, "Generating dockerfile"]);
       const response = await fetch(
-        `http://localhost:3001/api/v1/build/dockerFile`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/build/dockerFile`,
         {
           credentials: "include",
           method: "POST",
@@ -287,7 +299,7 @@ const ProjectPage = () => {
                   }
                   className="px-4 py-2 rounded:md font-medium bg-gradient-to-r from-custom-blue-300 via-[#00aaff] to-[#9a00ff] hover:from-[#002233] hover:via-[#0096e6] hover:to-[#5a0099] text-white transition"
                 >
-                  Build and Deploy
+                  Build and Preview
                 </button>
               </div>
               <div className="bg-[#18192b] rounded-lg p-4 max-h-64 overflow-y-auto">

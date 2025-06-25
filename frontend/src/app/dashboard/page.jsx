@@ -9,6 +9,9 @@ import Navbar from "@/components/Navbar";
 import ActionPanel from "@/components/ActionPanel";
 import DashboardMain from "@/components/DashboardMain";
 import AppIntro from "@/components/AppIntro";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const Dashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -17,7 +20,7 @@ const Dashboard = () => {
   const router = useRouter();
   const [hasGithubPermission, setHasGithubPermission] = useState(false);
 
-  const repoRef = useRef(null)
+  const repoRef = useRef(null);
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -39,7 +42,7 @@ const Dashboard = () => {
 
   const getOAuthConsent = () => {
     const oauthWindow = window.open(
-      "http://localhost:3001/api/v1/github",
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/github`,
       "_blank",
       "width=600,height=700"
     );
@@ -52,7 +55,7 @@ const Dashboard = () => {
         getOAuthConsent();
       }
       const response = await fetch(
-        "http://localhost:3001/api/v1/github/getGithubRepos",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/github/getGithubRepos`,
         {
           credentials: "include",
         }
@@ -68,7 +71,7 @@ const Dashboard = () => {
   const getUserRepos = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3001/api/v1/users/getUserRepos",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/getUserRepos`,
         {
           credentials: "include",
         }
@@ -106,11 +109,7 @@ const Dashboard = () => {
         </div>
       </div>
       <main className="w-full">
-        <DashboardMain
-          repos={repos}
-          url={url}
-          repoRef={repoRef}
-        />
+        <DashboardMain repos={repos} url={url} repoRef={repoRef} />
       </main>
     </>
   );

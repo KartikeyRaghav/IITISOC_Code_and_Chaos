@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.util.js";
 import { exec, spawn } from "child_process";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
+import getPort from "get-port";
 import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -29,7 +30,7 @@ export const cloneRepo = asyncHandler(async (req, res) => {
 
   res.setHeader("Content-Type", "text/plain");
   res.setHeader("Transfer-Encoding", "chunked");
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:4001");
+  res.setHeader("Access-Control-Allow-Origin", `${process.env.FRONTEND_URL}`);
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
   let clone = null;
@@ -177,7 +178,7 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
   try {
     res.setHeader("Content-Type", "text/plain");
     res.setHeader("Transfer-Encoding", "chunked");
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:4001");
+    res.setHeader("Access-Control-Allow-Origin", `${process.env.FRONTEND_URL}`);
     res.setHeader("Access-Control-Allow-Credentials", "true");
 
     const build = spawn("docker", ["build", "-t", imageName, clonedPath]);
@@ -206,14 +207,15 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
 });
 
 export const runDockerContainer = asyncHandler(async (req, res) => {
-  const { port, imageName, repoName } = req.body;
+  const { imageName, repoName } = req.body;
 
+  const port = await getPort();
   const containerName = `container-${repoName.toLowerCase()}-${Date.now()}`;
 
   try {
     res.setHeader("Content-Type", "text/plain");
     res.setHeader("Transfer-Encoding", "chunked");
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:4001");
+    res.setHeader("Access-Control-Allow-Origin", `${process.env.FRONTEND_URL}`);
     res.setHeader("Access-Control-Allow-Credentials", "true");
 
     const run = spawn("docker", [

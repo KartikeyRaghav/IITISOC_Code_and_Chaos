@@ -4,10 +4,14 @@ import ProfileUpload from "@/components/ProfileUpload";
 import { checkAuth } from "@/utils/checkAuth";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export default function SignupPage() {
   const router = useRouter(); //initializes router
-  const [formData, setFormData] = useState({ //sets up state, everything to empty string
+  const [formData, setFormData] = useState({
+    //sets up state, everything to empty string
     fullName: "",
     email: "",
     password: "",
@@ -24,7 +28,7 @@ export default function SignupPage() {
       }
     };
     verifyAuth();
-    setIsAuthenticated(true); 
+    setIsAuthenticated(true);
   }, []); //runs when comp mounts
 
   function handleChange(e) {
@@ -41,14 +45,18 @@ export default function SignupPage() {
     } //checks if psw matches, if not sets error and stops
 
     try {
-      console.log("Sending request with:", JSON.stringify({
-        email: formData.email,
-        password: formData.password,
-        fullName: formData.fullName,
-      })); //logs request payload for debugging
+      console.log(
+        "Sending request with:",
+        JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.fullName,
+        })
+      ); //logs request payload for debugging
 
-      const response = await fetch( //sends POST req to backend API to register user
-        "http://localhost:3001/api/v1/users/register",
+      const response = await fetch(
+        //sends POST req to backend API to register user
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/register`,
         {
           method: "POST",
           headers: {
@@ -63,21 +71,24 @@ export default function SignupPage() {
         }
       );
 
-      console.log("Response status:", response.status)
+      console.log("Response status:", response.status);
 
       const data = await response.json(); // waits for server response
 
-      console.log("Response data:", data) //logs response data for debugging
+      console.log("Response data:", data); //logs response data for debugging
 
       if (response.ok) {
         router.replace("/dashboard");
       } else {
-        const errorMessage = data?.message || data?.error || (typeof data === 'string' ? data:'Unknown error');
+        const errorMessage =
+          data?.message ||
+          data?.error ||
+          (typeof data === "string" ? data : "Unknown error");
         setError(errorMessage);
       }
     } catch (err) {
-      console.error('Full error object:', err);
-      setError(err.message ||"Network request failed.");
+      console.error("Full error object:", err);
+      setError(err.message || "Network request failed.");
     }
   };
 

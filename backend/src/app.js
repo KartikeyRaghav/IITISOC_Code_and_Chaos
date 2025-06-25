@@ -6,7 +6,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:4001",
+    origin: `${process.env.FRONTEND_URL}`,
     credentials: true,
   })
 );

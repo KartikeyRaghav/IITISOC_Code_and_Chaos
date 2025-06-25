@@ -6,6 +6,9 @@ import { checkAuth } from "@/utils/checkAuth";
 import { useSearchParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const CreateProject = () => {
   const [logs, setLogs] = useState([]);
@@ -58,7 +61,7 @@ const CreateProject = () => {
       try {
         const username = localStorage.getItem("githubUsername");
         const response = await fetch(
-          `http://localhost:3001/api/v1/github/getBranches?username=${username}&repoName=${formData.repoName}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/github/getBranches?username=${username}&repoName=${formData.repoName}`,
           {
             credentials: "include",
           }
@@ -75,7 +78,7 @@ const CreateProject = () => {
     const getUserRepos = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3001/api/v1/users/getUserRepos",
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/getUserRepos`,
           {
             credentials: "include",
           }
@@ -106,7 +109,7 @@ const CreateProject = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:3001/api/v1/project/checkName",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/checkName`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -144,7 +147,7 @@ const CreateProject = () => {
     if (isNameOk) {
       try {
         const response = await fetch(
-          `http://localhost:3001/api/v1/project/create`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/create`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -179,7 +182,7 @@ const CreateProject = () => {
     try {
       setLogs((prev) => [...prev, "Detecting tech stack"]);
       const response = await fetch(
-        `http://localhost:3001/api/v1/build/detectTechStack`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/build/detectTechStack`,
         {
           credentials: "include",
           method: "POST",
@@ -209,7 +212,7 @@ const CreateProject = () => {
       try {
         const controller = new AbortController();
 
-        fetch(`http://localhost:3001/api/v1/build/cloneRepo`, {
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/build/cloneRepo`, {
           method: "POST",
           credentials: "include",
           signal: controller.signal,
@@ -377,7 +380,7 @@ const Project = () => {
     const getProjects = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/api/v1/project/getAllProjects`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/getAllProjects`,
           { credentials: "include" }
         );
         const data = await response.json();
@@ -417,7 +420,7 @@ const Project = () => {
 
   const handleDelpoyment = async () => {
     try {
-      const response = await fetch(`https://localhost:3001/api/v1/deploy`, {
+      const response = await fetch(`https://34.131.131.243/api/v1/deploy`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

@@ -87,6 +87,6 @@ export const updateDeployment = asyncHandler(async (req, res) => {
       return res.status(401).json({ message: "Not authorized to update it" });
     }
 
-    deployment.status = status; 
+    deployment.status = status;
   } catch (error) {}
 });

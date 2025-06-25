@@ -6,6 +6,9 @@ import Grid from "@/components/Grid";
 import { checkAuth } from "@/utils/checkAuth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export default function Home() {
   const router = useRouter();

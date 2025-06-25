@@ -2,8 +2,10 @@
 import CustomToast from "@/components/CustomToast";
 import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
-import Select from "react-select";
 import { useRouter } from "next/navigation";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const Project = () => {
   const [repos, setRepos] = useState([]);
@@ -13,7 +15,7 @@ const Project = () => {
     const getProjects = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/api/v1/project/getAllProjects`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/getAllProjects`,
           { credentials: "include" }
         );
         const data = await response.json();
@@ -44,9 +46,7 @@ const Project = () => {
             }}
             className="bg-white shadow rounded-lg p-6 flex flex-col"
           >
-            <h2 className="text-lg font-semibold mb-2">
-              {project.name}
-            </h2>
+            <h2 className="text-lg font-semibold mb-2">{project.name}</h2>
             <p className="text-gray-600 mb-4">
               {project.description || "No description available"}
             </p>
