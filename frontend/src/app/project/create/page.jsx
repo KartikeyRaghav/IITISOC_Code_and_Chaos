@@ -5,6 +5,7 @@ import CustomToast from "@/components/CustomToast";
 import { checkAuth } from "@/utils/checkAuth";
 import { useSearchParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { Github, GitBranch, Folder, X, Loader2, Check } from "lucide-react";
 import { ToastContainer } from "react-toastify";
 import dotenv from "dotenv";
 
@@ -16,6 +17,8 @@ const CreateProject = () => {
   const repoName = searchParams.get("repo");
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [repos, setRepos] = useState([]);
+  const [isChecking, setIsChecking] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   const [branches, setBranches] = useState([]);
   const router = useRouter();
   const [isNameOk, setIsNameOk] = useState(false);
@@ -107,6 +110,8 @@ const CreateProject = () => {
       return;
     }
 
+    setIsChecking(true);
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/checkName`,
@@ -122,6 +127,7 @@ const CreateProject = () => {
       if (data.message === "Already exists") {
         CustomToast("Project Name already exists");
         setIsNameOk(false);
+        setIsChecking(false);
         return;
       }
       setIsNameOk(true);
@@ -129,6 +135,7 @@ const CreateProject = () => {
       console.error(error);
       CustomToast("Error in checking name");
     }
+    setIsChecking(false);
   };
 
   useEffect(() => {
@@ -145,6 +152,7 @@ const CreateProject = () => {
 
   const createProject = async (stack, clonedPath) => {
     if (isNameOk) {
+      setIsCreating(true);
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/create`,
@@ -169,12 +177,14 @@ const CreateProject = () => {
           CustomToast("A project for this repo already exists");
         }
         if (response.ok) {
+          setIsCreating(false);
           router.push(`/project/${formData.name}`);
         }
       } catch (error) {
         console.error(error);
         CustomToast("Error in creating project");
       }
+      setIsCreating(false);
     }
   };
 
@@ -262,99 +272,216 @@ const CreateProject = () => {
     }
   };
 
+  const isFormValid =
+    formData.name &&
+    isNameOk &&
+    formData.repoName !== "Select a repo" &&
+    formData.branch !== "Select a branch";
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#004466] to-[#6a00b3] flex items-center justify-center py-8">
-      <ToastContainer />
-      <div className="bg-[#23243a] rounded-2xl shadow-xl p-8 w-full max-w-3xl flex flex-xol md:flex-row gap-8">
-        <div className="flex-1 flex flex-col gap-4">
-          <h1 className="text-3xl font-bold text-white mb-2 border-b-2 border-purple-500 pb-2">
-            Create a New Project
+    <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3] flex items-center justify-center py-8 px-4">
+      <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-8 w-full max-w-2xl border border-purple-500/20 backdrop-blur-sm">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-full mb-4 shadow-lg">
+            <Github className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-purple-600 bg-clip-text">
+            Create New Project
           </h1>
-          <label className="text-gray-300 font-medium">Project Name</label>
-          <div>
-            <div className="flex gap-2 items-center">
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                autoComplete="off"
-                className="flex-1 p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
-                placeholder="Enter project name"
-              />
-              <button
-                type="button"
-                onClick={checkProjectName}
-                className="px-4 py-2 rounded bg-gradient-to-r from-custom-blue-300 via-[#00aaff] to-[#9a00ff] text-white font-semibold shadow hover:from-[#002233] hover:via-[#0096e6] hover:to-[#5a0099] transition"
-              >
-                Check
-              </button>
+          <p className="text-gray-400 text-lg">
+            Deploy your repository with ease
+          </p>
+        </div>
+
+        <div className="space-y-6">
+          {/* Project Name */}
+          <div className="space-y-2">
+            <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+              Project Name
+            </label>
+            <div className="relative">
+              <div className="flex gap-3">
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    autoComplete="off"
+                    className="w-full p-4 rounded-xl bg-[#2c2f4a]/80 text-white border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 placeholder-gray-400 backdrop-blur-sm"
+                    placeholder="Enter your project name"
+                  />
+                  {formData.name && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      {isNameOk ? (
+                        <Check className="w-5 h-5 text-green-400" />
+                      ) : (
+                        <X className="w-5 h-5 text-red-400" />
+                      )}
+                    </div>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={checkProjectName}
+                  disabled={!formData.name.trim() || isChecking}
+                  className="px-6 py-4 rounded-xl bg-gradient-to-r from-[#00aaff] to-[#9a00ff] text-white font-semibold shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 flex items-center gap-2 min-w-[100px] justify-center"
+                >
+                  {isChecking ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Check"
+                  )}
+                </button>
+              </div>
+              {formData.name && (
+                <div
+                  className={`mt-3 flex items-center gap-2 text-sm transition-all duration-300 ${
+                    isNameOk ? "text-green-400" : "text-red-400"
+                  }`}
+                >
+                  {isNameOk ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      Project name is available
+                    </>
+                  ) : (
+                    <>
+                      <X className="w-4 h-4" />
+                      Choose a different project name
+                    </>
+                  )}
+                </div>
+              )}
             </div>
-            <p
-              className={`mt-2 ${isNameOk ? "text-green-500" : "text-red-500"}`}
-            >
-              {formData.name != ""
-                ? isNameOk
-                  ? "Project name is available"
-                  : "Choose a different project name"
-                : null}
-            </p>
           </div>
 
-          <label className="text-gray-300 font-medium mt-2">Select Repo</label>
-          <select
-            name="repoName"
-            id="repoName"
-            value={formData.repoName}
-            onChange={handleChange}
-            className="w-full p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
-          >
-            <option value="Select a repo">Select a repo</option>
-            {repos.map((repo, i) => (
-              <option key={i} value={repo.name}>
-                {repo.name}
-              </option>
-            ))}
-          </select>
-
-          <label className="text-gray-300 font-medium mt-2">
-            Select Branch
-          </label>
-          <select
-            name="branch"
-            id="branch"
-            value={formData.branch}
-            onChange={handleChange}
-            className="w-full p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
-          >
-            <option value="Select a branch">Select a branch</option>
-            {branches.length > 0 &&
-              branches.map((branch, i) => (
-                <option key={i} value={branch}>
-                  {branch}
+          {/* Repository Selection */}
+          <div className="space-y-2">
+            <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
+              <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+              Repository
+            </label>
+            <div className="relative">
+              <select
+                name="repoName"
+                value={formData.repoName}
+                onChange={handleChange}
+                className="w-full p-4 rounded-xl bg-[#2c2f4a]/80 text-white border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 appearance-none cursor-pointer backdrop-blur-sm"
+              >
+                <option value="Select a repo" disabled>
+                  Select a repository
                 </option>
-              ))}
-          </select>
+                {repos.map((repo) => (
+                  <option
+                    key={repo.name}
+                    value={repo.name}
+                    className="bg-[#2c2f4a] text-white"
+                  >
+                    {repo.name}
+                  </option>
+                ))}
+              </select>
+              <Github className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+            </div>
+          </div>
 
-          <label className="text-gray-300 font-medium mt-2">
-            Folder (optional)
-          </label>
-          <input
-            value={formData.folder}
-            onChange={handleChange}
-            name="folder"
-            type="text"
-            placeholder="Folder name (Leave empty if not needed)"
-            className="w-full p-3 rounded bg-[#2c2f4a] text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
-          />
+          {/* Branch Selection */}
+          <div className="space-y-2">
+            <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+              Branch
+            </label>
+            <div className="relative">
+              <select
+                name="branch"
+                value={formData.branch}
+                onChange={handleChange}
+                className="w-full p-4 rounded-xl bg-[#2c2f4a]/80 text-white border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 appearance-none cursor-pointer backdrop-blur-sm"
+                disabled={formData.repoName === "Select a repo"}
+              >
+                <option value="Select a branch" disabled>
+                  Select a branch
+                </option>
+                {branches.map((branch, i) => (
+                  <option
+                    key={i}
+                    value={branch}
+                    className="bg-[#2c2f4a] text-white"
+                  >
+                    {branch}
+                  </option>
+                ))}
+              </select>
+              <GitBranch className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+            </div>
+          </div>
 
-          <button
-            onClick={cloneRepo}
-            type="button"
-            className="w-full py-3 mt-4 rounded bg-gradient-to-r from-custom-blue-300 via-[#00aaff] to-[#9a00ff] text-white font-semibold text-lg shadow hover:from-[#002233] hover:via-[#0096e6] hover:to-[#5a0099] transition"
-          >
-            Create project
-          </button>
+          {/* Folder */}
+          <div className="space-y-2">
+            <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
+              <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+              Folder{" "}
+              <span className="text-gray-500 text-xs normal-case">
+                (optional)
+              </span>
+            </label>
+            <div className="relative">
+              <input
+                value={formData.folder}
+                onChange={handleChange}
+                name="folder"
+                type="text"
+                placeholder="Folder path (leave empty if not needed)"
+                className="w-full p-4 rounded-xl bg-[#2c2f4a]/80 text-white border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 placeholder-gray-400 backdrop-blur-sm"
+              />
+              <Folder className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            </div>
+          </div>
+
+          {/* Create Button */}
+          <div className="pt-4">
+            <button
+              onClick={cloneRepo}
+              type="button"
+              disabled={!isFormValid || isCreating}
+              className={`w-full py-4 rounded-xl font-bold text-lg shadow-xl transition-all duration-500 flex items-center justify-center gap-3 ${
+                isFormValid && !isCreating
+                  ? "bg-gradient-to-r from-[#00aaff] via-[#0099ff] to-[#9a00ff] text-white hover:shadow-2xl hover:shadow-purple-500/30 hover:scale-[1.02] transform"
+                  : "bg-gray-600/50 text-gray-400 cursor-not-allowed"
+              }`}
+            >
+              {isCreating ? (
+                <>
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  Creating Project...
+                </>
+              ) : (
+                <>
+                  <Github className="w-6 h-6" />
+                  Create Project
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Progress Indicator */}
+        <div className="mt-8 flex justify-center space-x-2">
+          {[1, 2, 3, 4].map((step) => (
+            <div
+              key={step}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                (step === 1 && formData.name && isNameOk) ||
+                (step === 2 && formData.repoName !== "Select a repo") ||
+                (step === 3 && formData.branch !== "Select a branch") ||
+                (step === 4 && isFormValid)
+                  ? "bg-gradient-to-r from-blue-400 to-purple-500"
+                  : "bg-gray-600"
+              }`}
+            />
+          ))}
         </div>
       </div>
     </div>
@@ -362,136 +489,3 @@ const CreateProject = () => {
 };
 
 export default CreateProject;
-
-/* "use client";
-import CustomToast from "@/components/CustomToast";
-import React, { useEffect, useState } from "react";
-import { ToastContainer } from "react-toastify";
-import Select from "react-select";
-
-const Project = () => {
-  const [repos, setRepos] = useState([]);
-  const [selectedRepo, setSelectedRepo] = useState(null);
-  const [branches, setBranches] = useState([]);
-  const [selectedBranch, setSelectedBranch] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const getProjects = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/getAllProjects`,
-          { credentials: "include" }
-        );
-        const data = await response.json();
-        setRepos(data);
-        console.log(data);
-      } catch (error) {
-        CustomToast("Error fetching your projects");
-      }
-    };
-    getProjects();
-  }, []);
-
-  useEffect(() => {
-    const fetchBranches = async () => {
-      if (!selectedRepo) return;
-      setIsLoading(true);
-      try {
-        const response = await fetch(
-          `https://api.github.com/repos/${selectedRepo.owner.login}/${selectedRepo.name}/branches`,
-          {
-            headers: {
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
-              Accept: "application/vnd.github.v3+json"
-            }
-          }
-        );
-        const data = await response.json();
-        setBranches(data);
-      } catch (error) {
-        CustomToast("Error fetching branches");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchBranches();
-  }, [selectedRepo]);
-
-  const handleDelpoyment = async () => {
-    try {
-      const response = await fetch(`https://34.131.131.243/api/v1/deploy`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          repo: selectedRepo.name,
-          owner: selectedRepo.owner.login,
-          branch: selectedBranch.value
-      })
-    })
-
-    const data = await response.json();
-    if (response.ok) {
-      CustomToast(data.message || 'Deployment started successfully!')
-    } else {
-      CustomToast(data.error || 'Deployment failed')
-    } 
-  } catch (error) {
-    CustomToast('Deployment request failed')
-  }
-};
-
-  return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <ToastContainer />
-      <h1 className="text-2xl font-bold mb-6">Project Deployment Dashboard</h1>
-      <div className="mb-6">
-        <label className="block mb-2 font-medium">Select Repo:</label>
-        <Select
-          options={repos.map(repo => ({
-            value:repo.id,
-            label:repo.name,
-            repoObject: repo
-          }))}
-          onChange={(selected) => 
-            setSelectedRepo(selected, repoObject)}
-            placeholder="Choose a repo"
-            className="react-select-container"
-            classNamePrefix="react-select"
-          />
-      </div>
-
-      <div className="mb-6">
-        <label className="block mb-2 font-medium">Select Branch:</label>
-        <Select 
-          options={branches.map(branch => ({
-            value: branch.name,
-            label: branch.name
-          }))}
-          onChange={setSelectedBranch}
-          isDisabled={!selectedRepo || isLoading}
-          isLoading={isLoading}
-          placeholder={isLoading ? "Loading branches..." : "Choose a branch"}
-          className="react-select-container"
-          classNamePrefix="react-select"
-        />
-      </div>
-
-      <button
-        onClick={handleDelpoyment}
-        disabled={!selectedBranch}
-        className={`px-4 py-2 rounded-md ${
-          selectedBranch
-            ? 'bg-blue-600 hover:bg-blue-700 text-white'
-            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-        }`}
-      >
-        Deploy Project
-      </button>
-    </div>
-  );
-};
-
-export default Project;
-*/
