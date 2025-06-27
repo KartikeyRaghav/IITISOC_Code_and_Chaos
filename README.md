@@ -1,6 +1,6 @@
-# IITISOC_CODE_AND_CHAOS
+# IGNITIA
 
-_Transforming Chaos into Code, Powering Innovation_
+_Ignite your web presence_
 
 ![Last Commit](https://img.shields.io/badge/last%20commit-today-brightgreen)
 ![Language](https://img.shields.io/badge/javascript-98.9%25-blue)
