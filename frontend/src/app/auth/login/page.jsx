@@ -38,20 +38,17 @@ export default function LoginPage() {
     setError(""); //clears previous error message
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/login`,
-        {
-          method: "POST", //POST request to backend API, tells server that we are sending login details
-          headers: {
-            "Content-Type": "application/json", //request body contains JSON data
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-          credentials: "include",
-        }
-      );
+      const response = await fetch(`/api/v1/users/login`, {
+        method: "POST", //POST request to backend API, tells server that we are sending login details
+        headers: {
+          "Content-Type": "application/json", //request body contains JSON data
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+        credentials: "include",
+      });
 
       const data = await response.json(); //waits for server response
 

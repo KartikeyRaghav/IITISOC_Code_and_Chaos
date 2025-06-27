@@ -14,10 +14,9 @@ const Project = () => {
   useEffect(() => {
     const getProjects = async () => {
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/getAllProjects`,
-          { credentials: "include" }
-        );
+        const response = await fetch(`/api/v1/project/getAllProjects`, {
+          credentials: "include",
+        });
         const data = await response.json();
         setRepos(data);
         console.log(data);

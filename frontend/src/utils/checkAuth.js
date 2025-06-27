@@ -1,11 +1,8 @@
 export const checkAuth = async () => {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/profile`,
-      {
-        credentials: "include",
-      }
-    );
+    const response = await fetch(`/api/v1/users/profile`, {
+      credentials: "include",
+    });
     const data = await response.json();
 
     localStorage.setItem("githubUsername", data.user.githubUsername);
