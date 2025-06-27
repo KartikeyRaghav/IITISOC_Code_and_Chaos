@@ -18,6 +18,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import dotenv from "dotenv";
+import EnhancedLogDisplay from "@/components/EnhancedLogDisplay";
 
 dotenv.config();
 
@@ -98,6 +99,7 @@ const ProjectDetails = () => {
                 let url = match[1];
                 console.log("Run complete. url:", url);
                 setLogs((prev) => [...prev, "Run complete"]);
+                setIsBuilding(false);
                 updateDeployment(deploymentId);
               }
 
@@ -261,9 +263,7 @@ const ProjectDetails = () => {
         project.clonedPath || "",
         project.framework || ""
       );
-    } finally {
-      setIsBuilding(false);
-    }
+    } catch {}
   };
 
   const getStatusIcon = () => {
@@ -480,57 +480,9 @@ const ProjectDetails = () => {
               </div>
             </div>
 
-            {/* Build Logs - Full Width */}
+            {/* Enhanced Build Logs - Full Width */}
             <div className="xl:col-span-3">
-              <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl border border-purple-500/20 backdrop-blur-sm overflow-hidden">
-                <div className="bg-gradient-to-r from-[#2c2f4a] to-[#1e1f3a] px-8 py-6 border-b border-gray-600/30">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                      <Terminal className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h4 className="text-xl font-bold text-white">
-                        Build Logs
-                      </h4>
-                      <p className="text-gray-400 text-sm">
-                        Real-time build output and progress
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-[#0f1419] p-6">
-                  <div className="bg-[#1a1f2e] rounded-2xl p-6 max-h-80 overflow-y-auto border border-gray-700/50">
-                    {logs && logs.length === 0 ? (
-                      <div className="text-center py-12">
-                        <Terminal className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                        <p className="text-gray-500 text-lg font-medium">
-                          No logs yet
-                        </p>
-                        <p className="text-gray-600 text-sm mt-1">
-                          Start a build to see progress here
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="font-mono text-sm space-y-2">
-                        {logs.map((log, index) => (
-                          <div
-                            key={index}
-                            className="flex items-start gap-3 py-1 hover:bg-gray-800/30 rounded px-2 -mx-2 transition-colors duration-200"
-                          >
-                            <span className="text-gray-500 text-xs mt-0.5 font-bold min-w-[3rem]">
-                              {String(index + 1).padStart(3, "0")}
-                            </span>
-                            <span className="text-green-300 whitespace-pre-wrap flex-1 leading-relaxed">
-                              {log}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <EnhancedLogDisplay logs={logs} isBuilding={isBuilding} />
             </div>
           </div>
         )}
