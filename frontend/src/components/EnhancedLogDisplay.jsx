@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Terminal,
   CheckCircle,
@@ -10,6 +10,10 @@ import {
   FileText,
   Container,
   Globe,
+  ExternalLink,
+  Rocket,
+  Copy,
+  Check,
 } from "lucide-react";
 import { LogParser } from "@/utils/logParser";
 
@@ -17,12 +21,24 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
   const [events, setEvents] = useState([]);
   const [expandedSections, setExpandedSections] = useState(new Set(["major"]));
   const [overallProgress, setOverallProgress] = useState(0);
+  const [deploymentUrl, setDeploymentUrl] = useState(null);
+  const [isComplete, setIsComplete] = useState(false);
+  const [urlCopied, setUrlCopied] = useState(false);
+  const detailedLogsRef = useRef(null);
 
   useEffect(() => {
     const parsedEvents = LogParser.parseLogs(logs);
     setEvents(parsedEvents);
     setOverallProgress(LogParser.getOverallProgress(parsedEvents));
+    setDeploymentUrl(LogParser.getDeploymentUrl(parsedEvents));
+    setIsComplete(LogParser.isDeploymentComplete(parsedEvents));
   }, [logs]);
+
+  useEffect(() => {
+    if (detailedLogsRef.current && expandedSections.has("detailed")) {
+      detailedLogsRef.current.scrollTop = detailedLogsRef.current.scrollHeight;
+    }
+  }, [events, expandedSections]);
 
   const toggleSection = (section) => {
     const newExpanded = new Set(expandedSections);
@@ -32,6 +48,18 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
       newExpanded.add(section);
     }
     setExpandedSections(newExpanded);
+  };
+
+  const copyUrl = async () => {
+    if (deploymentUrl) {
+      try {
+        await navigator.clipboard.writeText(deploymentUrl);
+        setUrlCopied(true);
+        setTimeout(() => setUrlCopied(false), 2000);
+      } catch (err) {
+        console.error("Failed to copy URL:", err);
+      }
+    }
   };
 
   const getCategoryIcon = (category) => {
@@ -44,6 +72,8 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
         return <Container className="w-4 h-4" />;
       case "nginx":
         return <Globe className="w-4 h-4" />;
+      case "deployment":
+        return <Rocket className="w-4 h-4" />;
       default:
         return <Terminal className="w-4 h-4" />;
     }
@@ -55,6 +85,8 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
         return "text-blue-400 bg-blue-500/20 border-blue-500/30";
       case "success":
         return "text-green-400 bg-green-500/20 border-green-500/30";
+      case "completion":
+        return "text-emerald-400 bg-emerald-500/20 border-emerald-500/30";
       case "warning":
         return "text-yellow-400 bg-yellow-500/20 border-yellow-500/30";
       case "error":
@@ -65,7 +97,7 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
   };
 
   const majorEvents = events.filter(
-    (e) => e.type === "major" || e.type === "success"
+    (e) => e.type === "major" || e.type === "success" || e.type === "completion"
   );
   const minorEvents = events.filter(
     (e) => e.type === "info" || e.type === "minor"
@@ -93,22 +125,73 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
                 {overallProgress}% Complete
               </div>
               <div className="text-xs text-gray-400">
-                {isBuilding
+                {isComplete
+                  ? "Deployed Successfully"
+                  : isBuilding
                   ? "Building..."
-                  : overallProgress === 100
-                  ? "Completed"
                   : "Ready"}
               </div>
             </div>
             <div className="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-500 ease-out"
+                className={`h-full transition-all duration-500 ease-out ${
+                  isComplete
+                    ? "bg-gradient-to-r from-green-500 to-emerald-500"
+                    : "bg-gradient-to-r from-blue-500 to-green-500"
+                }`}
                 style={{ width: `${overallProgress}%` }}
               />
             </div>
           </div>
         </div>
       </div>
+
+      {deploymentUrl && (
+        <div className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 border-b border-emerald-500/30 px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-emerald-500/30 rounded-lg flex items-center justify-center">
+                <Rocket className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div>
+                <h5 className="text-emerald-300 font-semibold text-sm">
+                  🎉 Deployment Successful!
+                </h5>
+                <p className="text-emerald-400/80 text-xs">
+                  Your application is now live
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="bg-[#1a1b2e]/50 rounded-xl px-4 py-2 border border-emerald-500/20">
+                <code className="text-emerald-300 text-sm font-mono">
+                  {deploymentUrl}
+                </code>
+              </div>
+              <button
+                onClick={copyUrl}
+                className="p-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 transition-colors"
+                title="Copy URL"
+              >
+                {urlCopied ? (
+                  <Check className="w-4 h-4 text-emerald-400" />
+                ) : (
+                  <Copy className="w-4 h-4 text-emerald-400" />
+                )}
+              </button>
+              <a
+                href={deploymentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-medium transition-colors shadow-lg hover:shadow-emerald-500/25"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Open App
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="p-6">
         {events.length === 0 ? (
@@ -145,6 +228,12 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
                 <h5 className="text-lg font-semibold text-white">
                   Major Milestones ({majorEvents.length})
                 </h5>
+                {isComplete && (
+                  <div className="ml-auto flex items-center gap-2 text-emerald-400 text-sm">
+                    <CheckCircle className="w-4 h-4" />
+                    Complete
+                  </div>
+                )}
               </button>
 
               {expandedSections.has("major") && (
@@ -157,7 +246,8 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
                       )}`}
                     >
                       <div className="flex-shrink-0 mt-1">
-                        {event.type === "success" ? (
+                        {event.type === "success" ||
+                        event.type === "completion" ? (
                           <CheckCircle className="w-5 h-5" />
                         ) : (
                           getCategoryIcon(event.category)
@@ -179,11 +269,27 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
                             {event.description}
                           </p>
                         )}
-                        {event.details && event.details.length > 0 && (
-                          <div className="font-mono text-xs opacity-60 bg-black/20 rounded p-2">
-                            {event.details[0]}
+                        {event.url && (
+                          <div className="mt-2">
+                            <a
+                              href={event.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 text-xs font-medium px-3 py-1 rounded-lg bg-black/20 hover:bg-black/30 transition-colors"
+                            >
+                              <Globe className="w-3 h-3" />
+                              {event.url}
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
                           </div>
                         )}
+                        {event.details &&
+                          event.details.length > 0 &&
+                          !event.url && (
+                            <div className="font-mono text-xs opacity-60 bg-black/20 rounded p-2">
+                              {event.details[0]}
+                            </div>
+                          )}
                       </div>
                     </div>
                   ))}
@@ -206,10 +312,16 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
                   <h5 className="text-lg font-semibold text-white">
                     Detailed Logs ({minorEvents.length})
                   </h5>
+                  <div className="ml-auto text-xs text-gray-500">
+                    Auto-scrolling enabled
+                  </div>
                 </button>
 
                 {expandedSections.has("detailed") && (
-                  <div className="bg-[#0f1419] rounded-2xl p-4 max-h-80 overflow-y-auto border border-gray-700/50 ml-8">
+                  <div
+                    ref={detailedLogsRef}
+                    className="bg-[#0f1419] rounded-2xl p-4 max-h-80 overflow-y-auto border border-gray-700/50 ml-8 scroll-smooth"
+                  >
                     <div className="space-y-2">
                       {minorEvents.map((event, index) => (
                         <div
@@ -254,7 +366,7 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
               </div>
             )}
 
-            {isBuilding && (
+            {isBuilding && !isComplete && (
               <div className="flex items-center justify-center gap-3 py-4 px-6 bg-blue-500/10 border border-blue-500/20 rounded-xl">
                 <Activity className="w-5 h-5 text-blue-400 animate-pulse" />
                 <span className="text-blue-300 font-medium">

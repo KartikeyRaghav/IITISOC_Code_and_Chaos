@@ -112,6 +112,20 @@ export class LogParser {
       title: "Worker Processes",
       description: "Starting nginx worker processes",
     },
+    {
+      pattern: /Docker container run exited with code 137/i,
+      type: "completion",
+      category: "deployment",
+      title: "Deployment Completed",
+      description: "Application successfully deployed and running",
+    },
+    {
+      pattern: /\[RUN_COMPLETE\]/i,
+      type: "completion",
+      category: "deployment",
+      title: "Application Live",
+      description: "Your application is now accessible",
+    },
   ];
 
   static parseLog(logLine, index) {
@@ -120,10 +134,40 @@ export class LogParser {
 
     // Extract line number if present
     const lineNumberMatch = trimmedLog.match(/^(\d{3})\s*(.*)/);
-    const lineNumber = lineNumberMatch
-      ? lineNumberMatch[1]
-      : (index + 1).padStart(3, "0");
+    // const lineNumber = lineNumberMatch ? lineNumberMatch[1] :(index + 1).padStart(3, '0');
     const content = lineNumberMatch ? lineNumberMatch[2] : trimmedLog;
+
+    // Check for completion with URL
+    const completionUrlMatch = content.match(
+      /\[RUN_COMPLETE\]\s+(https?:\/\/[^\s]+)/i
+    );
+    if (completionUrlMatch) {
+      return {
+        id: `completion-${index}`,
+        timestamp: new Date().toISOString(),
+        type: "completion",
+        category: "deployment",
+        title: "Application Live",
+        description: "Your application is now accessible",
+        details: [content],
+        progress: 100,
+        url: completionUrlMatch[1],
+      };
+    }
+
+    // Check for container exit with code 137
+    if (content.includes("Docker container run exited with code 137")) {
+      return {
+        id: `container-exit-${index}`,
+        timestamp: new Date().toISOString(),
+        type: "completion",
+        category: "deployment",
+        title: "Deployment Completed",
+        description: "Container started successfully",
+        details: [content],
+        progress: 99,
+      };
+    }
 
     // Find matching pattern
     for (const pattern of this.eventPatterns) {
@@ -202,7 +246,9 @@ export class LogParser {
       "Build Completed": 90,
       "Build Process Finished": 95,
       "Container Startup": 98,
-      "Server Configuration Ready": 100,
+      "Server Configuration Ready": 99,
+      "Deployment Completed": 99,
+      "Application Live": 100,
     };
 
     return progressMap[title] || 0;
@@ -216,7 +262,11 @@ export class LogParser {
       const event = this.parseLog(log, index);
       if (event) {
         // Avoid duplicate major events
-        if (event.type === "major" || event.type === "success") {
+        if (
+          event.type === "major" ||
+          event.type === "success" ||
+          event.type === "completion"
+        ) {
           if (!processedTitles.has(event.title)) {
             processedTitles.add(event.title);
             events.push(event);
@@ -234,8 +284,12 @@ export class LogParser {
     return events.filter(
       (event) =>
         event.type === "major" ||
+        event.type === "success" ||
+        event.type === "completion" ||
         (event.type === "success" &&
-          ["dockerfile", "build", "container"].includes(event.category))
+          ["dockerfile", "build", "container", "deployment"].includes(
+            event.category
+          ))
     );
   }
 
@@ -245,5 +299,18 @@ export class LogParser {
 
     const maxProgress = Math.max(...milestones.map((m) => m.progress || 0));
     return maxProgress;
+  }
+
+  static getDeploymentUrl(events) {
+    const completionEvent = events.find(
+      (event) => event.type === "completion" && event.url
+    );
+    return completionEvent?.url || null;
+  }
+
+  static isDeploymentComplete(events) {
+    return events.some(
+      (event) => event.type === "completion" && event.category === "deployment"
+    );
   }
 }

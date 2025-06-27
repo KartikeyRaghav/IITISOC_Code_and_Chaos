@@ -81,7 +81,6 @@ const ProjectDetails = () => {
           body: JSON.stringify({
             repoName,
             imageName,
-            port: 8082,
           }),
         }
       )

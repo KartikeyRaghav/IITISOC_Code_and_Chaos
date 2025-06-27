@@ -40,7 +40,7 @@ const Project = () => {
         )}
         {repos.map((project) => (
           <div
-            key={project.id}
+            key={project.name}
             onClick={() => {
               router.push(`/project/${project.name}`);
             }}
