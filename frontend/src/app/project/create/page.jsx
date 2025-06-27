@@ -294,7 +294,6 @@ const CreateProject = () => {
         </div>
 
         <div className="space-y-6">
-          {/* Project Name */}
           <div className="space-y-2">
             <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
               <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
@@ -357,7 +356,6 @@ const CreateProject = () => {
             </div>
           </div>
 
-          {/* Repository Selection */}
           <div className="space-y-2">
             <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
               <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
@@ -387,7 +385,6 @@ const CreateProject = () => {
             </div>
           </div>
 
-          {/* Branch Selection */}
           <div className="space-y-2">
             <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
               <div className="w-2 h-2 bg-green-400 rounded-full"></div>
@@ -418,7 +415,6 @@ const CreateProject = () => {
             </div>
           </div>
 
-          {/* Folder */}
           <div className="space-y-2">
             <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
               <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
@@ -440,7 +436,6 @@ const CreateProject = () => {
             </div>
           </div>
 
-          {/* Create Button */}
           <div className="pt-4">
             <button
               onClick={cloneRepo}
@@ -467,7 +462,6 @@ const CreateProject = () => {
           </div>
         </div>
 
-        {/* Progress Indicator */}
         <div className="mt-8 flex justify-center space-x-2">
           {[1, 2, 3, 4].map((step) => (
             <div

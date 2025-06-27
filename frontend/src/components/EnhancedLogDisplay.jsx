@@ -2,11 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Terminal,
   CheckCircle,
-  Clock,
-  Download,
   Package,
-  Server,
-  Play,
   ChevronDown,
   ChevronRight,
   Activity,
@@ -15,7 +11,7 @@ import {
   Container,
   Globe,
 } from "lucide-react";
-import { LogParser, LogEvent } from "@/utils/logParser";
+import { LogParser } from "@/utils/logParser";
 
 const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
   const [events, setEvents] = useState([]);
@@ -77,7 +73,6 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
 
   return (
     <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl border border-purple-500/20 backdrop-blur-sm overflow-hidden">
-      {/* Header */}
       <div className="bg-gradient-to-r from-[#2c2f4a] to-[#1e1f3a] px-8 py-6 border-b border-gray-600/30">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -92,7 +87,6 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
             </div>
           </div>
 
-          {/* Overall Progress */}
           <div className="flex items-center gap-4">
             <div className="text-right">
               <div className="text-sm font-medium text-white">
@@ -137,7 +131,6 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Major Events Timeline */}
             <div>
               <button
                 onClick={() => toggleSection("major")}
@@ -198,7 +191,6 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
               )}
             </div>
 
-            {/* Detailed Logs */}
             {minorEvents.length > 0 && (
               <div>
                 <button
@@ -262,7 +254,6 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
               </div>
             )}
 
-            {/* Live Status */}
             {isBuilding && (
               <div className="flex items-center justify-center gap-3 py-4 px-6 bg-blue-500/10 border border-blue-500/20 rounded-xl">
                 <Activity className="w-5 h-5 text-blue-400 animate-pulse" />

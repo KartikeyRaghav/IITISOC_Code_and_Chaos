@@ -286,7 +286,6 @@ const ProjectDetails = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3] p-6">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"></div>
@@ -309,9 +308,7 @@ const ProjectDetails = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            {/* Main Project Info */}
             <div className="xl:col-span-2 space-y-6">
-              {/* Project Header Card */}
               <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-8 border border-purple-500/20 backdrop-blur-sm">
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex-1">
@@ -337,9 +334,7 @@ const ProjectDetails = () => {
                   </div>
                 </div>
 
-                {/* Project Metadata Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Repository */}
                   <div className="bg-[#2c2f4a]/50 rounded-2xl p-5 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
@@ -368,7 +363,6 @@ const ProjectDetails = () => {
                     )}
                   </div>
 
-                  {/* Branch */}
                   <div className="bg-[#2c2f4a]/50 rounded-2xl p-5 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
@@ -383,7 +377,6 @@ const ProjectDetails = () => {
                     </span>
                   </div>
 
-                  {/* Folder */}
                   {project.folder && (
                     <div className="bg-[#2c2f4a]/50 rounded-2xl p-5 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300">
                       <div className="flex items-center gap-3 mb-2">
@@ -400,7 +393,6 @@ const ProjectDetails = () => {
                     </div>
                   )}
 
-                  {/* Created Date */}
                   <div className="bg-[#2c2f4a]/50 rounded-2xl p-5 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
@@ -423,9 +415,7 @@ const ProjectDetails = () => {
               </div>
             </div>
 
-            {/* Build & Deployment Sidebar */}
             <div className="space-y-6">
-              {/* Build Control Card */}
               <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-6 border border-purple-500/20 backdrop-blur-sm">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-xl flex items-center justify-center shadow-lg">
@@ -458,7 +448,6 @@ const ProjectDetails = () => {
                   )}
                 </button>
 
-                {/* Quick Stats */}
                 <div className="mt-6 grid grid-cols-2 gap-4">
                   <div className="bg-[#2c2f4a]/50 rounded-xl p-4 text-center border border-gray-600/20">
                     <div className="text-2xl font-bold text-blue-400">
@@ -480,7 +469,6 @@ const ProjectDetails = () => {
               </div>
             </div>
 
-            {/* Enhanced Build Logs - Full Width */}
             <div className="xl:col-span-3">
               <EnhancedLogDisplay logs={logs} isBuilding={isBuilding} />
             </div>
