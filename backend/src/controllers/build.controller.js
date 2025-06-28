@@ -258,15 +258,15 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
 
     run.stdout.on("data", (data) => {
       res.write(`${data.toString()}\n\n`);
+      res.write(
+        `[RUN_COMPLETE] https://${projectName}.deploy.princecodes.online\n\n`
+      );
     });
 
     writeNginxConfig(projectName, port);
 
     run.stderr.on("data", (data) => {
       res.write(`${data.toString()}\n\n`);
-      res.write(
-        `[RUN_COMPLETE] https://${projectName}.deploy.princecodes.online\n\n`
-      );
     });
 
     run.on("close", (code) => {
