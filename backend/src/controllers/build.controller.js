@@ -208,24 +208,24 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
 
 function generateNginxConfig(subdomain, port) {
   return `server {
-    listen 443 ssl;
-    server_name ${subdomain}.deploy.princecodes.online;
+  listen 443 ssl;
+  server_name ${subdomain}.deploy.princecodes.online;
 
-    ssl_certificate /etc/letsencrypt/live/deploy.princecodes.online/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/deploy.princecodes.online/privkey.pem;
+  ssl_certificate /etc/letsencrypt/live/deploy.princecodes.online/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/deploy.princecodes.online/privkey.pem;
 
-    location / {
-      proxy_pass http://localhost:${port};
-      proxy_set_header Host $host;
-      proxy_set_header X-Real-IP $remote_addr;
-    }
+  location / {
+    proxy_pass http://localhost:${port};
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
   }
+}
     
-  server {
-    listen 80;
-    server_name ${subdomain}.deploy.princecodes.online;
-    return 301 https://$host$request_uri;
-  }`;
+server {
+  listen 80;
+  server_name ${subdomain}.deploy.princecodes.online;
+  return 301 https://$host$request_uri;
+}`;
 }
 
 function writeNginxConfig(subdomain, port) {
