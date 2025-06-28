@@ -232,7 +232,7 @@ function writeNginxConfig(subdomain, port) {
   const configPath = `/etc/nginx/conf.d/projects/${subdomain}.conf`;
   const content = generateNginxConfig(subdomain, port);
   fs.writeFileSync(configPath, content);
-  execSync("nginx -s reload");
+  execSync("sudo nginx -s reload");
 }
 
 export const runDockerContainer = asyncHandler(async (req, res) => {
