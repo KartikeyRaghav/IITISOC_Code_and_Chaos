@@ -206,8 +206,37 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
   }
 });
 
+function generateNginxConfig(subdomain, port) {
+  return `server {
+    listen 443 ssl;
+    server_name ${subdomain}.deploy.princecodes.online;
+
+    ssl_certificate /etc/letsencrypt/live/deploy.princecodes.online/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/deploy.princecodes.online/privkey.pem;
+
+    location / {
+      proxy_pass http://localhost:${port};
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+    }
+  }
+    
+  server {
+    listen 80;
+    server_name ${subdomain}.deploy.princecodes.online;
+    return 301 https://$host$request_uri;
+  }`;
+}
+
+function writeNginxConfig(subdomain, port) {
+  const configPath = `/etc/nginx/conf.d/projects/${subdomain}.conf`;
+  const content = generateNginxConfig(subdomain, port);
+  fs.writeFileSync(configPath, content);
+  execSync("nginx -s reload");
+}
+
 export const runDockerContainer = asyncHandler(async (req, res) => {
-  const { imageName, repoName } = req.body;
+  const { imageName, repoName, projectName } = req.body;
 
   const port = await getPort();
   const containerName = `container-${repoName.toLowerCase()}-${Date.now()}`;
@@ -231,13 +260,15 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
       res.write(`${data.toString()}\n\n`);
     });
 
+    writeNginxConfig(projectName, port)
+
     run.stderr.on("data", (data) => {
       res.write(`${data.toString()}\n\n`);
+      res.write(`[RUN_COMPLETE] https://${subdomain}.deploy.princecodes.online\n\n`);
     });
 
     run.on("close", (code) => {
       res.write(`Docker container run exited with code ${code}\n\n`);
-      res.write(`[RUN_COMPLETE] http://localhost:${port}\n\n`);
       res.end();
     });
 
