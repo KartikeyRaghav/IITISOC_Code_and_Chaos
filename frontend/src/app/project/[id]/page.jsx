@@ -37,8 +37,13 @@ const ProjectDetails = () => {
           { credentials: "include" }
         );
         const data = await response.json();
-        console.log(data);
-        setProject(data);
+        if (data) setProject(data);
+        else {
+          CustomToast("Error fetching project");
+          setTimeout(() => {
+            router.replace("/project");
+          }, 2000);
+        }
       } catch (error) {
         console.error(error);
         CustomToast("Error fetching project");
@@ -76,7 +81,7 @@ const ProjectDetails = () => {
         body: JSON.stringify({
           repoName,
           imageName,
-          projectName
+          projectName,
         }),
       })
         .then((response) => {
@@ -238,16 +243,93 @@ const ProjectDetails = () => {
     }
   };
 
+  const detectTechStack = async (clonedPath) => {
+    try {
+      setLogs((prev) => [...prev, "Detecting tech stack"]);
+      const response = await fetch(`/api/v1/build/detectTechStack`, {
+        credentials: "include",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          clonedPath,
+        }),
+      });
+      const data = await response.json();
+      setLogs((prev) => [...prev, "Tech stack detected " + data.stack]);
+      if (data.stack !== "unknown") {
+        generateDockerfile(
+          project.repoName || "",
+          project.clonedPath || "",
+          project.framework || ""
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      CustomToast("Error while detecting tech stack");
+      setLogs((prev) => [...prev, "Error while detecting tech stack"]);
+    }
+  };
+
+  const cloneRepo = async () => {
+    try {
+      const controller = new AbortController();
+
+      fetch(`/api/v1/build/cloneRepo`, {
+        method: "POST",
+        credentials: "include",
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          repoName: project.repoName,
+          cloneUrl: project.repositoryUrl + ".git",
+          branch: project.branch,
+        }),
+      })
+        .then((response) => {
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          setLogs((prev) => [...prev, "Starting to clone the repository"]);
+          const readChunk = () => {
+            reader.read().then(({ done, value }) => {
+              if (done) return;
+              const text = decoder.decode(value);
+              setLogs((prev) => [...prev, text]);
+
+              const match = text.match(/\[CLONE_COMPLETE\] (.*)/);
+              if (match) {
+                let fullTargetDir = match[1];
+                console.log("Clone complete. Target Dir:", fullTargetDir);
+                setLogs((prev) => [...prev, "Cloning complete"]);
+                detectTechStack(fullTargetDir);
+              }
+
+              readChunk();
+            });
+          };
+
+          readChunk();
+        })
+        .catch((err) => console.error("Streaming error:", err));
+
+      return () => controller.abort();
+    } catch (error) {
+      console.log(error);
+      CustomToast("Error while cloning");
+      setLogs((prev) => [...prev, "Error while cloning the repo"]);
+    }
+  };
+
   const handleBuildAndPreview = async () => {
     if (!project || !generateDockerfile) return;
 
     setIsBuilding(true);
     try {
-      await generateDockerfile(
-        project.repoName || "",
-        project.clonedPath || "",
-        project.framework || ""
-      );
+      await cloneRepo();
     } catch {}
   };
 
