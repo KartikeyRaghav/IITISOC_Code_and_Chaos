@@ -77,7 +77,7 @@ Parses log lines streamed from the backend and formats them into UI-friendly mes
 ### 1. Clone the Repo
 
 ```bash
-git clone [https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos)
+git clone https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos
 cd frontend
 ```
 

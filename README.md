@@ -43,7 +43,7 @@ _Ignite your web presence_
 
 ---
 
-## 🧭 Overview
+## Overview
 
 **Ignitia** is a full-stack platform that helps developers:
 
@@ -58,13 +58,17 @@ Think of it as your **Heroku alternative** with full visibility and control. �
 
 ---
 
-## 🖼️ Screenshots
+## Screenshots
 
-> _(Add deployment previews, dashboard view, or GIFs here)_
+![Landing](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/blob/main/frontend/public/screenshots/landing.png?raw=true)
+![Dashboard](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/blob/main/frontend/public/screenshots/dashboard.png?raw=true)
+![Project Listing](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/blob/main/frontend/public/screenshots/project_listing.png?raw=true)
+![Project Details](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/blob/main/frontend/public/screenshots/project_details.png?raw=true)
+![Create](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/blob/main/frontend/public/screenshots/create.png?raw=true)
 
 ---
 
-## ✨ Features
+## Features
 
 - 🔐 JWT + Cookie-based Authentication
 - ☁️ GitHub OAuth Integration
@@ -79,7 +83,7 @@ Think of it as your **Heroku alternative** with full visibility and control. �
 
 ---
 
-## 🏗 Architecture
+## Architecture
 
 Frontend (Next.js + Tailwind)
 ↓
@@ -91,7 +95,7 @@ NGINX (Reverse Proxy)
 
 ---
 
-## ⚙️ Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -104,7 +108,7 @@ NGINX (Reverse Proxy)
 
 ---
 
-### 🛠 Environment Setup
+### Environment Setup
 
 Create `.env` in both `backend/` and `frontend/` folders.
 
@@ -135,7 +139,7 @@ NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
 NEXT_PUBLIC_FRONTEND_URL=http://localhost:4001
 ```
 
-### 🚀 Run Locally
+### Run Locally
 
 ```bash
 # Backend
@@ -151,7 +155,7 @@ npm run dev
 
 ---
 
-## 🧱 Tech Stack
+## Tech Stack
 
 | Layer        | Tech                                                                      |
 | ------------ | ------------------------------------------------------------------------- |
@@ -163,7 +167,7 @@ npm run dev
 
 ---
 
-## 📁 Folder Structure
+## Folder Structure
 
 backend/
 ├── controllers/
@@ -183,44 +187,21 @@ frontend/
 
 ---
 
-## 🔌 API Routes
+## API Routes
+
 For full API docs, see [backend/README.md](backend/README.md)
 
-### Users
-
-`POST /api/v1/users/register`
-`POST /api/v1/users/login`
-`GET /api/v1/users/logout`
-`GET /api/v1/users/profile`
-
-### GitHub
-
-`GET /api/v1/github/oauth/consent`
-`GET /api/v1/github/getUserRepos`
-`GET /api/v1/github/branches?repo=...`
-
-### Build
-
-`POST /api/v1/build/clone`
-`POST /api/v1/build/detect`
-`POST /api/v1/build/dockerfile`
-`POST /api/v1/build/image`
-`POST /api/v1/build/run`
-
-### Projects
-
-`POST /api/v1/project/create`
-`GET /api/v1/project/all`
-
-### Deployment
-
-`POST /api/v1/deployment/create`
-`POST /api/v1/deployment/version`
-`POST /api/v1/deployment/update`
+| Area       | Base Path            | Features                                        |
+| ---------- | -------------------- | ----------------------------------------------- |
+| User       | `/api/v1/users`      | Login, register, logout, token refresh, profile |
+| GitHub     | `/api/v1/github`     | OAuth login, repos, branches                    |
+| Build      | `/api/v1/build`      | Clone repo, detect stack, docker build/run      |
+| Project    | `/api/v1/project`    | CRUD project, check names                       |
+| Deployment | `/api/v1/deployment` | Create, versioning, update status               |
 
 ---
 
-## 📌 TODO
+## TODO
 
 - [ ] Add domain verification & SSL integration
 - [ ] CI/CD trigger support via Webhooks

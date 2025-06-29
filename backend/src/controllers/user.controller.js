@@ -1,5 +1,4 @@
 import { asyncHandler } from "../utils/asyncHandler.util.js";
-import { ApiResponse } from "../utils/ApiResponse.util.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.util.js";
 import jwt from "jsonwebtoken";
@@ -66,9 +65,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     return res.status(500).json({ message: "Failed to create user" });
   }
 
-  res
-    .status(201)
-    .json(new ApiResponse(201, "User registered successfully", createdUser));
+  res.status(201).json(createdUser);
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
@@ -107,12 +104,10 @@ export const loginUser = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
-    .json(
-      new ApiResponse(200, "User logged in successfully", {
-        user: userData,
-        token: accessToken,
-      })
-    );
+    .json({
+      user: userData,
+      token: accessToken,
+    });
 });
 
 export const logoutUser = asyncHandler(async (req, res) => {
@@ -132,7 +127,7 @@ export const logoutUser = asyncHandler(async (req, res) => {
     .status(200)
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
-    .json(new ApiResponse(200, "User logged out successfully"));
+    .json({ message: "User logged out successfully" });
 });
 
 export const refreshAccessToken = asyncHandler(async (req, res) => {
@@ -172,12 +167,10 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
-    .json(
-      new ApiResponse(200, "Access token refreshed successfully", {
-        accessToken,
-        refreshToken,
-      })
-    );
+    .json({
+      accessToken,
+      refreshToken,
+    });
 });
 
 export const getUserProfile = asyncHandler(async (req, res) => {
