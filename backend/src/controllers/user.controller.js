@@ -12,8 +12,10 @@ const generateAccessandRefreshTokens = async (user) => {
         .status(500)
         .json({ message: "Failed to generate access token" });
     }
+
     user.refreshToken = await user.generateRefreshToken();
     await user.save({ validateBeforeSave: false });
+
     return { accessToken, refreshToken: user.refreshToken };
   } catch (error) {
     return res.status(500).json({ message: "Failed to generate tokens" });
@@ -23,17 +25,19 @@ const generateAccessandRefreshTokens = async (user) => {
 export const registerUser = asyncHandler(async (req, res) => {
   const { password, fullName, email } = req.body;
 
+  // Validate input fields
   if ([fullName, email, password].some((field) => field?.trim() === "")) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
+  // Check for duplicate email
   const existingUser = await User.findOne({ email });
-
   if (existingUser) {
     return res.status(400).json({ message: "Email already in use" });
   }
 
-  const localProfilePicture = req.files?.profilePicture[0].path;
+  // Handle profile picture upload to Cloudinary
+  const localProfilePicture = req.files?.profilePicture?.[0]?.path;
   let profilePicture = null;
   if (localProfilePicture) {
     try {
@@ -51,17 +55,13 @@ export const registerUser = asyncHandler(async (req, res) => {
     }
   }
 
-  const user = await User.create({
-    password,
-    fullName,
-    email,
-    profilePicture,
-  });
+  // Create user in DB
+  const user = await User.create({ password, fullName, email, profilePicture });
 
+  // Fetch created user (without password or refreshToken)
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
-
   if (!createdUser) {
     return res.status(500).json({ message: "Failed to create user" });
   }
@@ -74,18 +74,18 @@ export const registerUser = asyncHandler(async (req, res) => {
 export const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
+  // Validate credentials
   if (!email || !password) {
     return res.status(400).json({ message: "Email and password are required" });
   }
 
-  const user = await User.findOne({
-    email: email.toLowerCase(),
-  });
-
+  // Find user and validate password
+  const user = await User.findOne({ email: email.toLowerCase() });
   if (!user || !(await user.isPasswordCorrect(password))) {
     return res.status(401).json({ message: "Invalid email or password" });
   }
 
+  // Generate tokens
   const { accessToken, refreshToken } =
     await generateAccessandRefreshTokens(user);
   if (!refreshToken) {
@@ -101,10 +101,8 @@ export const loginUser = asyncHandler(async (req, res) => {
     return res.status(500).json({ message: "Failed to retrieve user data" });
   }
 
-  const options = {
-    httpOnly: true,
-  };
-
+  // Send tokens as HTTP-only cookies
+  const options = { httpOnly: true };
   res
     .status(200)
     .cookie("accessToken", accessToken, options)
@@ -124,13 +122,12 @@ export const logoutUser = asyncHandler(async (req, res) => {
     return res.status(401).json({ message: "User not authenticated" });
   }
 
+  // Clear refresh token from DB
   user.refreshToken = null;
   await user.save({ validateBeforeSave: false });
 
-  const options = {
-    httpOnly: true,
-  };
-
+  // Clear cookies
+  const options = { httpOnly: true };
   res
     .status(200)
     .clearCookie("accessToken", options)
@@ -148,6 +145,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
       .json({ message: "Unauthorized access: No refresh token provided" });
   }
 
+  // Verify and decode refresh token
   const decodedRefreshToken = jwt.verify(
     incomingRefreshToken,
     process.env.REFRESH_TOKEN_SECRET
@@ -156,7 +154,6 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   const user = await User.findById(decodedRefreshToken?._id).select(
     "-password -refreshToken"
   );
-
   if (!user) {
     return res.status(401).json({ message: "Invalid refresh token" });
   }
@@ -165,13 +162,12 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     return res.status(401).json({ message: "Refresh token does not match" });
   }
 
-  const options = {
-    httpOnly: true,
-  };
-
+  // Issue new tokens
   const { accessToken, refreshToken } =
     await generateAccessandRefreshTokens(user);
 
+  // Set new tokens as cookies
+  const options = { httpOnly: true };
   res
     .status(200)
     .cookie("accessToken", accessToken, options)

@@ -5,9 +5,10 @@ import { asyncHandler } from "../utils/asyncHandler.util.js";
 export const getAllProjects = asyncHandler(async (req, res) => {
   try {
     const user_id = req.user._id;
-    const projects = await Project.find({
-      createdBy: user_id,
-    });
+
+    // Find all projects where the user is the creator
+    const projects = await Project.find({ createdBy: user_id });
+
     res.status(200).json(projects);
   } catch (error) {
     console.error(error);
@@ -18,19 +19,17 @@ export const getAllProjects = asyncHandler(async (req, res) => {
 export const getProject = asyncHandler(async (req, res) => {
   const { projectName } = req.query;
 
+  // Validate input
   if (!projectName) {
-    res.status(400).json({ message: "Project name is required" });
+    return res.status(400).json({ message: "Project name is required" });
   }
 
   try {
+    // Ensure the project belongs to the logged-in user
     const project = await Project.findOne({
-      $and: [
-        {
-          name: projectName,
-        },
-        { createdBy: req.user._id },
-      ],
+      $and: [{ name: projectName }, { createdBy: req.user._id }],
     });
+
     res.status(200).json(project);
   } catch (error) {
     console.error(error);
@@ -41,10 +40,12 @@ export const getProject = asyncHandler(async (req, res) => {
 export const checkName = asyncHandler(async (req, res) => {
   const { name } = req.body;
 
+  // Validate name
   if (!name || name === "") {
     return res.status(400).json({ message: "No name sent" });
   }
 
+  // Check for existing project
   const project = await Project.findOne({ name });
 
   if (project) {
@@ -65,11 +66,13 @@ export const createProject = asyncHandler(async (req, res) => {
     clonedPath,
   } = req.body;
 
+  // Validate required fields
   if (name === "Select a repo" || !branch || !clonedPath || !repoName) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
+    // Prevent duplicate project for the same repo and branch
     const repoProjectExists = await Project.findOne({
       $and: [{ repositoryUrl }, { branch }],
     });
@@ -80,8 +83,10 @@ export const createProject = asyncHandler(async (req, res) => {
         .json({ message: "A project for this repo already exists" });
     }
 
+    // Get user data
     const user = await User.findById(req.user._id);
 
+    // Create a new project entry
     const project = await Project.create({
       name,
       branch,

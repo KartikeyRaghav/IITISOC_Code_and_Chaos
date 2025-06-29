@@ -1,15 +1,21 @@
+// Import utility for async error handling
 import { asyncHandler } from "../utils/asyncHandler.util.js";
-import { exec, execSync, spawn } from "child_process";
+
+// Node.js built-in modules for command execution and file handling
+import { execSync, spawn } from "child_process";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import getPort from "get-port";
 import fs from "fs";
 
+// Get the current directory of the file (for ES Modules)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Temporary directory to store cloned repositories
 const TEMP_DIR = path.join(__dirname, "../../temp/repo_temp");
 
+// Utility function to check if a cloned repo already exists
 const checkCloneExists = async (pathName) => {
   try {
     const result = fs.existsSync(pathName);
@@ -19,21 +25,26 @@ const checkCloneExists = async (pathName) => {
   }
 };
 
+// Route handler to clone or pull a repository
 export const cloneRepo = asyncHandler(async (req, res) => {
   const { repoName, cloneUrl, branch } = req.body;
 
   const targetDir = path.join(TEMP_DIR, repoName);
 
+  // Ensure temp directory exists
   if (!fs.existsSync(TEMP_DIR)) {
     fs.mkdirSync(TEMP_DIR, { recursive: true });
   }
 
+  // Set headers for streaming response
   res.setHeader("Content-Type", "text/plain");
   res.setHeader("Transfer-Encoding", "chunked");
   res.setHeader("Access-Control-Allow-Origin", `${process.env.FRONTEND_URL}`);
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
   let clone = null;
+
+  // If repo exists, pull the latest changes; otherwise clone
   const cloneExists = await checkCloneExists(targetDir);
   if (cloneExists) {
     clone = spawn("git", ["-C", targetDir, "pull"]);
@@ -41,25 +52,30 @@ export const cloneRepo = asyncHandler(async (req, res) => {
     clone = spawn("git", ["clone", "-b", branch, cloneUrl, targetDir]);
   }
 
+  // Stream stdout to response
   clone.stdout.on("data", (data) => {
     res.write(`${data.toString()}\n\n`);
   });
 
+  // Stream stderr to response
   clone.stderr.on("data", (data) => {
     res.write(`${data.toString()}\n\n`);
   });
 
+  // Notify when cloning is complete
   clone.on("close", (code) => {
     res.write(`Git clone exited with code ${code}\n\n`);
     res.write(`[CLONE_COMPLETE] ${targetDir}\n\n`);
     res.end();
   });
 
+  // Handle client disconnection
   req.on("close", () => {
     clone.kill();
   });
 });
 
+// Route handler to detect the technology stack of the cloned project
 export const detectTechStack = asyncHandler(async (req, res) => {
   const { clonedPath } = req.body;
 
@@ -68,6 +84,8 @@ export const detectTechStack = asyncHandler(async (req, res) => {
   }
 
   const packagePath = path.join(clonedPath, "package.json");
+
+  // Detect using package.json dependencies
   if (fs.existsSync(packagePath)) {
     const pkg = JSON.parse(fs.readFileSync(packagePath, "utf-8"));
     const deps = pkg.dependencies || {};
@@ -82,13 +100,16 @@ export const detectTechStack = asyncHandler(async (req, res) => {
       return res.status(200).json({ stack: "node-api" });
   }
 
+  // Fallback to checking for static HTML files
   const files = fs.readdirSync(clonedPath);
   if (files.some((f) => f.endsWith(".html")))
     return res.status(200).json({ stack: "static" });
 
+  // Unknown stack
   res.status(400).json({ message: "unknown" });
 });
 
+// Utility to generate Dockerfile content based on tech stack
 function generateDockerfileContent(stack) {
   switch (stack) {
     case "react":
@@ -142,6 +163,7 @@ CMD ["nginx", "-g", "daemon off;"]`;
   }
 }
 
+// Route handler to create Dockerfile in the cloned repo
 export const generateDockerFile = asyncHandler(async (req, res) => {
   const { clonedPath, techStack } = req.body;
 
@@ -153,6 +175,8 @@ export const generateDockerFile = asyncHandler(async (req, res) => {
 
   const dockerfileContent = generateDockerfileContent(techStack);
   const dockerfilePath = path.join(clonedPath, "Dockerfile");
+
+  // Write Dockerfile
   fs.writeFileSync(dockerfilePath, dockerfileContent);
 
   res.status(200).json({
@@ -162,6 +186,7 @@ export const generateDockerFile = asyncHandler(async (req, res) => {
   });
 });
 
+// Route handler to build Docker image
 export const generateDockerImage = asyncHandler(async (req, res) => {
   const { repoName, clonedPath } = req.body;
 
@@ -174,11 +199,13 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
   const imageName = `app-${repoName.toLowerCase()}-${Date.now()}`;
 
   try {
+    // Set headers for chunked streaming
     res.setHeader("Content-Type", "text/plain");
     res.setHeader("Transfer-Encoding", "chunked");
     res.setHeader("Access-Control-Allow-Origin", `${process.env.FRONTEND_URL}`);
     res.setHeader("Access-Control-Allow-Credentials", "true");
 
+    // Build Docker image
     const build = spawn("docker", ["build", "-t", imageName, clonedPath]);
 
     build.stdout.on("data", (data) => {
@@ -204,6 +231,7 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
   }
 });
 
+// Helper: Generate nginx config for subdomain reverse proxy
 function generateNginxConfig(subdomain, port) {
   return `server {
   listen 80;
@@ -217,6 +245,7 @@ function generateNginxConfig(subdomain, port) {
 }`;
 }
 
+// Helper: Write and reload nginx config
 function writeNginxConfig(subdomain, port) {
   const configPath = `/etc/nginx/conf.d/projects/${subdomain}.conf`;
   const content = generateNginxConfig(subdomain, port);
@@ -224,10 +253,11 @@ function writeNginxConfig(subdomain, port) {
   execSync("sudo nginx -s reload");
 }
 
+// Route handler to run a Docker container and setup reverse proxy via nginx
 export const runDockerContainer = asyncHandler(async (req, res) => {
   const { imageName, repoName, projectName } = req.body;
 
-  const port = await getPort();
+  const port = await getPort(); // Get free port
   const containerName = `container-${repoName.toLowerCase()}-${Date.now()}`;
 
   try {
@@ -236,6 +266,7 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
     res.setHeader("Access-Control-Allow-Origin", `${process.env.FRONTEND_URL}`);
     res.setHeader("Access-Control-Allow-Credentials", "true");
 
+    // Run Docker container
     const run = spawn("docker", [
       "run",
       "-p",
@@ -252,7 +283,7 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
       );
     });
 
-    writeNginxConfig(projectName, port);
+    writeNginxConfig(projectName, port); // Configure nginx for subdomain
 
     run.stderr.on("data", (data) => {
       res.write(`${data.toString()}\n\n`);
