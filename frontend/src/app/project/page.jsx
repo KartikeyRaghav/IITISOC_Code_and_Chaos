@@ -14,6 +14,7 @@ import {
   Sparkles,
   Rocket,
 } from "lucide-react";
+import Navbar from "@/components/Navbar";
 
 dotenv.config();
 
