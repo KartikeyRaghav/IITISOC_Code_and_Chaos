@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🌐 Ignitia – Frontend
 
-## Getting Started
+This is the **frontend** of a full-stack web deployment platform that lets users log in, connect GitHub, select repos, deploy them automatically, and monitor logs—all from a beautiful, modern UI.
 
-First, run the development server:
+---
+
+## ⚙️ Tech Stack
+
+- **React (Next.js 13+ / App Router)**
+- **Tailwind CSS** – Utility-first styling
+- **Framer Motion** – Smooth animations
+- **Heroicons + Lucide** – Icon libraries
+- **Cloudinary** – Profile image uploads
+- **JWT Auth + Cookies** – Secure login sessions
+
+---
+
+## 🧩 Project Structure
+
+<pre> src/ ├── app/ # App router pages and layouts │ ├── layout.jsx │ ├── globals.css │ ├── page.jsx # Home page │ ├── auth/ # Login / Signup pages │ ├── dashboard/ # User dashboard │ ├── project/ # Project views and creation │ └── logs/ # Deployment logs per project ├── components/ # Shared & UI components │ └── ui/ # ShadCN-style reusable UI ├── constants/ # Static constants (URLs, text) ├── lib/ # Utility functions └── utils/ # Middleware, log parsing </pre>
+
+---
+
+## 🚀 Features
+
+### 👤 Authentication
+
+- Login and register with JWT & refresh token (via cookies)
+- Profile picture upload using Cloudinary
+- Protected routes using `checkAuth.js`
+
+### 🔗 GitHub Integration
+
+- GitHub OAuth 2.0 login flow
+- Repo & branch selector from user's GitHub
+
+### 📂 Project Lifecycle
+
+- Detect tech stack automatically from cloned repo
+- Auto-generate Dockerfile from frontend
+- Trigger backend build → image → run steps via logs
+- View active deployments with live preview URLs
+
+### 🧾 Log Monitoring
+
+- Logs streamed using Server-Sent Events (SSE)
+- Displayed with animation effects (via `EnhancedLogDisplay`)
+
+---
+
+## 🖼️ Notable Components
+
+- `Hero.jsx` – Homepage hero section
+- `Navbar.jsx`, `Header.jsx` – Navigation and headers
+- `CustomToast.jsx`, `CustomLoader.jsx` – Toasts and loaders
+- `CreateProject.jsx` – Guided repo → stack → deploy UI
+- `DashboardMain.jsx`, `ActionPanel.jsx` – Dashboard widgets
+- `Grid.jsx`, `AppIntro.jsx` – Home intro animations
+- `EnhancedLogDisplay.jsx` – Real-time Docker log stream display
+
+---
+
+## 🧪 Utilities
+
+### `checkAuth.js`
+
+Protects routes by validating JWT via cookies/session.
+
+### `logParser.js`
+
+Parses log lines streamed from the backend and formats them into UI-friendly messages.
+
+---
+
+## 🔧 Setup Instructions
+
+### 1. Clone the Repo
+
+```bash
+git clone [https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos)
+cd frontend
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Setup Environment Variables
+
+### 4. Run the Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 🛡 Security Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Auth managed with `httpOnly` cookies (no localStorage)
+- Backend CORS restricted to frontend origin
+- No tokens stored client-side
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 📌 TODO
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [ ] Responsive layout optimizations
+- [ ] Toast enhancement during deploy flow
+- [ ] Add animation to log stream
+- [ ] Role-based view control
+- [ ] Use optimistic UI updates after deploy

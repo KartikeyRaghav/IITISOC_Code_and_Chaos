@@ -106,7 +106,7 @@ This backend powers a **cloud-based web deployment platform**, allowing users to
 ### 1. Clone the Repo
 
 ```bash
-git clone <repo_url>
+git clone [https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos)
 cd backend
 ```
 
