@@ -17,7 +17,22 @@ This is the **frontend** of a full-stack web deployment platform that lets users
 
 ## 🧩 Project Structure
 
-<pre lang="markdown"> ```bash src/ ├── app/ # App router pages and layouts │ ├── layout.jsx │ ├── globals.css │ ├── page.jsx # Home page │ ├── auth/ # Login / Signup pages │ ├── dashboard/ # User dashboard │ ├── project/ # Project views and creation │ └── logs/ # Deployment logs per project ├── components/ # Shared & UI components │ └── ui/ # ShadCN-style reusable UI ├── constants/ # Static constants (URLs, text) ├── lib/ # Utility functions └── utils/ # Middleware, log parsing ``` </pre>
+```
+src/ 
+├── app/ # App router pages and layouts 
+│ ├── layout.jsx 
+│ ├── globals.css 
+│ ├── page.jsx # Home page 
+│ ├── auth/ # Login / Signup pages 
+│ ├── dashboard/ # User dashboard 
+│ ├── project/ # Project views and creation 
+│ └── logs/ # Deployment logs per project 
+├── components/ # Shared & UI components 
+│ └── ui/ # ShadCN-style reusable UI 
+├── constants/ # Static constants (URLs, text) 
+├── lib/ # Utility functions 
+└── utils/ # Middleware, log parsing
+```
 
 ---
 

@@ -84,7 +84,15 @@ Think of it as your **Heroku alternative** with full visibility and control. �
 
 ## Architecture
 
-<pre lang="markdown"> ``` Frontend (Next.js + Tailwind) ↓ Backend (Express + MongoDB) ↓ Docker Engine (Build & Run) ↓ NGINX (Reverse Proxy) ``` </pre>
+```
+Frontend (Next.js + Tailwind) 
+          ↓ 
+Backend (Express + MongoDB) 
+          ↓ 
+Docker Engine (Build & Run)
+          ↓ 
+NGINX (Reverse Proxy)
+```
 
 ---
 
@@ -162,7 +170,8 @@ npm run dev
 
 ## Folder Structure
 
-```backend/
+```
+backend/
 ├── controllers/
 ├── models/
 ├── routes/
