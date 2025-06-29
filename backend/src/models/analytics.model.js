@@ -16,7 +16,7 @@ const analyticsSchema = new Schema(
     uptime: {
       type: Number,
     },
-    erros: {
+    errors: {
       type: Number,
     },
     project: {
