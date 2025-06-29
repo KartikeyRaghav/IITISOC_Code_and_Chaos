@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import dotenv from "dotenv";
 import EnhancedLogDisplay from "@/components/EnhancedLogDisplay";
+import Navbar from "@/components/Navbar";
+import { ToastContainer } from "react-toastify";
 
 dotenv.config();
 
@@ -346,196 +348,200 @@ const ProjectDetails = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3] p-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"></div>
-            <h1 className="text-4xl font-bold text-white bg-gradient-to-r from-blue-400 via-purple-400 to-purple-600 bg-clip-text">
-              Project Details
-            </h1>
-          </div>
-          <div className="h-1 w-24 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"></div>
-        </div>
-
-        {!project ? (
-          <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-12 text-center border border-purple-500/20 backdrop-blur-sm">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-full mb-6 shadow-lg">
-              <Loader2 className="w-8 h-8 text-white animate-spin" />
+    <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3]">
+      <ToastContainer />
+      <Navbar />
+      <div className="p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"></div>
+              <h1 className="text-4xl font-bold text-white bg-gradient-to-r from-blue-400 via-purple-400 to-purple-600 bg-clip-text">
+                Project Details
+              </h1>
             </div>
-            <h2 className="text-2xl font-semibold text-white mb-2">
-              Loading Project
-            </h2>
-            <p className="text-gray-400">Fetching project details...</p>
+            <div className="h-1 w-24 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"></div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            <div className="xl:col-span-2 space-y-6">
-              <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-8 border border-purple-500/20 backdrop-blur-sm">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-xl flex items-center justify-center shadow-lg">
-                        <Github className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h2 className="text-3xl font-bold text-white">
-                          {project.project_name || project.name}
-                        </h2>
-                        <div className="flex items-center gap-2 mt-1">
-                          {getStatusIcon()}
-                          <span className="text-sm font-medium text-gray-300">
-                            {getStatusText()}
-                          </span>
+
+          {!project ? (
+            <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-12 text-center border border-purple-500/20 backdrop-blur-sm">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-full mb-6 shadow-lg">
+                <Loader2 className="w-8 h-8 text-white animate-spin" />
+              </div>
+              <h2 className="text-2xl font-semibold text-white mb-2">
+                Loading Project
+              </h2>
+              <p className="text-gray-400">Fetching project details...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+              <div className="xl:col-span-2 space-y-6">
+                <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-8 border border-purple-500/20 backdrop-blur-sm">
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-xl flex items-center justify-center shadow-lg">
+                          <Github className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h2 className="text-3xl font-bold text-white">
+                            {project.project_name || project.name}
+                          </h2>
+                          <div className="flex items-center gap-2 mt-1">
+                            {getStatusIcon()}
+                            <span className="text-sm font-medium text-gray-300">
+                              {getStatusText()}
+                            </span>
+                          </div>
                         </div>
                       </div>
+                      <p className="text-gray-300 text-lg leading-relaxed">
+                        {project.description || "No description available"}
+                      </p>
                     </div>
-                    <p className="text-gray-300 text-lg leading-relaxed">
-                      {project.description || "No description available"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-[#2c2f4a]/50 rounded-2xl p-5 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                        <Github className="w-4 h-4 text-blue-400" />
-                      </div>
-                      <span className="font-semibold text-blue-300 text-sm uppercase tracking-wide">
-                        Repository
-                      </span>
-                    </div>
-                    {project.repositoryUrl ? (
-                      <a
-                        href={project.repositoryUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-white hover:text-blue-300 transition-colors duration-200 group"
-                      >
-                        <span className="truncate">
-                          {project.repositoryUrl}
-                        </span>
-                        <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                      </a>
-                    ) : (
-                      <span className="text-gray-400">
-                        {project.repositoryName || "N/A"}
-                      </span>
-                    )}
                   </div>
 
-                  <div className="bg-[#2c2f4a]/50 rounded-2xl p-5 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                        <GitBranch className="w-4 h-4 text-green-400" />
-                      </div>
-                      <span className="font-semibold text-green-300 text-sm uppercase tracking-wide">
-                        Branch
-                      </span>
-                    </div>
-                    <span className="text-white font-mono bg-gray-800/50 px-3 py-1 rounded-lg text-sm">
-                      {project.branch || "N/A"}
-                    </span>
-                  </div>
-
-                  {project.folder && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="bg-[#2c2f4a]/50 rounded-2xl p-5 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300">
                       <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-                          <Folder className="w-4 h-4 text-yellow-400" />
+                        <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                          <Github className="w-4 h-4 text-blue-400" />
                         </div>
-                        <span className="font-semibold text-yellow-300 text-sm uppercase tracking-wide">
-                          Folder
+                        <span className="font-semibold text-blue-300 text-sm uppercase tracking-wide">
+                          Repository
+                        </span>
+                      </div>
+                      {project.repositoryUrl ? (
+                        <a
+                          href={project.repositoryUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-white hover:text-blue-300 transition-colors duration-200 group"
+                        >
+                          <span className="truncate">
+                            {project.repositoryUrl}
+                          </span>
+                          <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                        </a>
+                      ) : (
+                        <span className="text-gray-400">
+                          {project.repositoryName || "N/A"}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="bg-[#2c2f4a]/50 rounded-2xl p-5 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                          <GitBranch className="w-4 h-4 text-green-400" />
+                        </div>
+                        <span className="font-semibold text-green-300 text-sm uppercase tracking-wide">
+                          Branch
                         </span>
                       </div>
                       <span className="text-white font-mono bg-gray-800/50 px-3 py-1 rounded-lg text-sm">
-                        {project.folder}
+                        {project.branch || "N/A"}
                       </span>
                     </div>
-                  )}
 
-                  <div className="bg-[#2c2f4a]/50 rounded-2xl p-5 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                        <Calendar className="w-4 h-4 text-purple-400" />
+                    {project.folder && (
+                      <div className="bg-[#2c2f4a]/50 rounded-2xl p-5 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                            <Folder className="w-4 h-4 text-yellow-400" />
+                          </div>
+                          <span className="font-semibold text-yellow-300 text-sm uppercase tracking-wide">
+                            Folder
+                          </span>
+                        </div>
+                        <span className="text-white font-mono bg-gray-800/50 px-3 py-1 rounded-lg text-sm">
+                          {project.folder}
+                        </span>
                       </div>
-                      <span className="font-semibold text-purple-300 text-sm uppercase tracking-wide">
-                        Created
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-gray-400" />
-                      <span className="text-white text-sm">
-                        {project.createdAt
-                          ? new Date(project.createdAt).toLocaleString()
-                          : "N/A"}
-                      </span>
+                    )}
+
+                    <div className="bg-[#2c2f4a]/50 rounded-2xl p-5 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                          <Calendar className="w-4 h-4 text-purple-400" />
+                        </div>
+                        <span className="font-semibold text-purple-300 text-sm uppercase tracking-wide">
+                          Created
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-gray-400" />
+                        <span className="text-white text-sm">
+                          {project.createdAt
+                            ? new Date(project.createdAt).toLocaleString()
+                            : "N/A"}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-6">
-              <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-6 border border-purple-500/20 backdrop-blur-sm">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-xl flex items-center justify-center shadow-lg">
-                    <Play className="w-5 h-5 text-white" />
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-6 border border-purple-500/20 backdrop-blur-sm">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-xl flex items-center justify-center shadow-lg">
+                      <Play className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white">
+                      Build & Deploy
+                    </h3>
                   </div>
-                  <h3 className="text-xl font-bold text-white">
-                    Build & Deploy
-                  </h3>
-                </div>
 
-                <button
-                  onClick={handleBuildAndPreview}
-                  disabled={isBuilding || !generateDockerfile}
-                  className={`w-full py-4 rounded-2xl font-bold text-lg shadow-xl transition-all duration-500 flex items-center justify-center gap-3 ${
-                    !isBuilding && generateDockerfile
-                      ? "bg-gradient-to-r from-[#00aaff] via-[#0099ff] to-[#9a00ff] text-white hover:shadow-2xl hover:shadow-purple-500/30 hover:scale-[1.02] transform"
-                      : "bg-gray-600/50 text-gray-400 cursor-not-allowed"
-                  }`}
-                >
-                  {isBuilding ? (
-                    <>
-                      <Loader2 className="w-6 h-6 animate-spin" />
-                      Building...
-                    </>
-                  ) : (
-                    <>
-                      <Play className="w-6 h-6" />
-                      Build and Preview
-                    </>
-                  )}
-                </button>
+                  <button
+                    onClick={handleBuildAndPreview}
+                    disabled={isBuilding || !generateDockerfile}
+                    className={`w-full py-4 rounded-2xl font-bold text-lg shadow-xl transition-all duration-500 flex items-center justify-center gap-3 ${
+                      !isBuilding && generateDockerfile
+                        ? "bg-gradient-to-r from-[#00aaff] via-[#0099ff] to-[#9a00ff] text-white hover:shadow-2xl hover:shadow-purple-500/30 hover:scale-[1.02] transform"
+                        : "bg-gray-600/50 text-gray-400 cursor-not-allowed"
+                    }`}
+                  >
+                    {isBuilding ? (
+                      <>
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                        Building...
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-6 h-6" />
+                        Build and Preview
+                      </>
+                    )}
+                  </button>
 
-                <div className="mt-6 grid grid-cols-2 gap-4">
-                  <div className="bg-[#2c2f4a]/50 rounded-xl p-4 text-center border border-gray-600/20">
-                    <div className="text-2xl font-bold text-blue-400">
-                      {logs.length}
+                  <div className="mt-6 grid grid-cols-2 gap-4">
+                    <div className="bg-[#2c2f4a]/50 rounded-xl p-4 text-center border border-gray-600/20">
+                      <div className="text-2xl font-bold text-blue-400">
+                        {logs.length}
+                      </div>
+                      <div className="text-xs text-gray-400 uppercase tracking-wide">
+                        Log Entries
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-400 uppercase tracking-wide">
-                      Log Entries
-                    </div>
-                  </div>
-                  <div className="bg-[#2c2f4a]/50 rounded-xl p-4 text-center border border-gray-600/20">
-                    <div className="text-2xl font-bold text-green-400">
-                      {project.status === "success" ? "✓" : "—"}
-                    </div>
-                    <div className="text-xs text-gray-400 uppercase tracking-wide">
-                      Status
+                    <div className="bg-[#2c2f4a]/50 rounded-xl p-4 text-center border border-gray-600/20">
+                      <div className="text-2xl font-bold text-green-400">
+                        {project.status === "success" ? "✓" : "—"}
+                      </div>
+                      <div className="text-xs text-gray-400 uppercase tracking-wide">
+                        Status
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="xl:col-span-3">
-              <EnhancedLogDisplay logs={logs} isBuilding={isBuilding} />
+              <div className="xl:col-span-3">
+                <EnhancedLogDisplay logs={logs} isBuilding={isBuilding} />
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
