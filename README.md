@@ -53,7 +53,7 @@ _Ignite your web presence_
 - Host via dynamic subdomains (e.g. `project1.deploy.princecodes.online`)
 - Monitor deployments with rollback capability
 
-Think of it as your **Heroku alternative** with full visibility and control. 🔥
+Think of it as your **Vercel alternative** with full visibility and control. 🔥
 
 ---
 
