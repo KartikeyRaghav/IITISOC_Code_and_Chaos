@@ -139,7 +139,7 @@ export class LogParser {
 
     // Check for completion with URL
     const completionUrlMatch = content.match(
-      /\[RUN_COMPLETE\]\s+(https?:\/\/[^\s]+)/i
+      /\[RUN_COMPLETE\]\s+(http?:\/\/[^\s]+)/i
     );
     if (completionUrlMatch) {
       return {

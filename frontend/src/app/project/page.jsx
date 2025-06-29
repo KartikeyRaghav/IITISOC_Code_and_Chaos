@@ -24,12 +24,9 @@ const Project = () => {
   useEffect(() => {
     const getProjects = async () => {
       try {
-        const response = await fetch(
-          `/api/v1/project/getAllProjects`,
-          {
-            credentials: "include",
-          }
-        );
+        const response = await fetch(`/api/v1/project/getAllProjects`, {
+          credentials: "include",
+        });
         const data = await response.json();
         setRepos(data);
         console.log(data);
@@ -68,6 +65,8 @@ const Project = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3] p-6">
+      <ToastContainer />
+      <Navbar />
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-12">
