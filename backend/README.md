@@ -62,19 +62,19 @@ This backend powers a **cloud-based web deployment platform**, allowing users to
 
 ### 🧪 `Project`
 
-| Field                        | Type              | Description                |
-| ---------------------------- | ----------------- | -------------------------- | -------- | --------- |
-| `name`                       | `String`          | Unique project name        |
-| `repoName`                   | `String`          | GitHub repo name           |
-| `clonedPath`                 | `String`          | Local path                 |
-| `repositoryUrl`              | `String`          | GitHub clone URL           |
-| `framework`                  | `String`          | Detected tech stack        |
-| `branch`                     | `String`          | Default: main              |
-| `deploymentHistory`          | `Array<ObjectId>` | References to `Deployment` |
-| `webhook`                    | `ObjectId`        | Optional `Webhook`         |
-| `customDomain` / `subdomain` | `String`          | Custom DNS entries         |
-| `isLive`                     | `Boolean`         | Deployment state           |
-| `sslStatus`                  | `String`          | `"pending"                 | "issued" | "failed"` |
+| Field                        | Type              | Description                   |
+| ---------------------------- | ----------------- | ----------------------------- |
+| `name`                       | `String`          | Unique project name           |
+| `repoName`                   | `String`          | GitHub repo name              |
+| `clonedPath`                 | `String`          | Local path                    |
+| `repositoryUrl`              | `String`          | GitHub clone URL              |
+| `framework`                  | `String`          | Detected tech stack           |
+| `branch`                     | `String`          | Default: main                 |
+| `deploymentHistory`          | `Array<ObjectId>` | References to `Deployment`    |
+| `webhook`                    | `ObjectId`        | Optional `Webhook`            |
+| `customDomain` / `subdomain` | `String`          | Custom DNS entries            |
+| `isLive`                     | `Boolean`         | Deployment state              |
+| `sslStatus`                  | `String`          | `"pending" "issued" "failed"` |
 
 ### 🚀 `Deployment`
 
@@ -116,7 +116,7 @@ This backend powers a **cloud-based web deployment platform**, allowing users to
 ### 1. Clone the Repo
 
 ```bash
-git clone https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos
+git clone https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos.git
 cd backend
 ```
 

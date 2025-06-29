@@ -39,7 +39,6 @@ _Ignite your web presence_
 - [Folder Structure](#folder-structure)
 - [API Routes](#api-routes)
 - [TODOs](#todos)
-- [License](#license)
 
 ---
 
@@ -63,7 +62,7 @@ Think of it as your **Heroku alternative** with full visibility and control. �
 ![Landing](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/blob/main/frontend/public/screenshots/landing.png?raw=true)
 ![Dashboard](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/blob/main/frontend/public/screenshots/dashboard.png?raw=true)
 ![Project Listing](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/blob/main/frontend/public/screenshots/project_listing.png?raw=true)
-![Project Details](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/blob/main/frontend/public/screenshots/project_details.png?raw=true)
+![Project Details](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/blob/main/frontend/public/screenshots/project_detail.png?raw=true)
 ![Create](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/blob/main/frontend/public/screenshots/create.png?raw=true)
 
 ---
@@ -85,13 +84,7 @@ Think of it as your **Heroku alternative** with full visibility and control. �
 
 ## Architecture
 
-Frontend (Next.js + Tailwind)
-↓
-Backend (Express + MongoDB)
-↓
-Docker Engine (Build & Run)
-↓
-NGINX (Reverse Proxy)
+<pre lang="markdown"> ``` Frontend (Next.js + Tailwind) ↓ Backend (Express + MongoDB) ↓ Docker Engine (Build & Run) ↓ NGINX (Reverse Proxy) ``` </pre>
 
 ---
 
@@ -169,7 +162,7 @@ npm run dev
 
 ## Folder Structure
 
-backend/
+```backend/
 ├── controllers/
 ├── models/
 ├── routes/
@@ -184,6 +177,7 @@ frontend/
 ├── lib/
 ├── utils/
 └── styles/
+```
 
 ---
 
@@ -201,7 +195,7 @@ For full API docs, see [backend/README.md](backend/README.md)
 
 ---
 
-## TODO
+## TODOS
 
 - [ ] Add domain verification & SSL integration
 - [ ] CI/CD trigger support via Webhooks
