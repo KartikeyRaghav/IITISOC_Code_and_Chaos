@@ -36,10 +36,8 @@ export const cloneRepo = asyncHandler(async (req, res) => {
   let clone = null;
   const cloneExists = await checkCloneExists(targetDir);
   if (cloneExists) {
-    console.log("clone exists");
     clone = spawn("git", ["-C", targetDir, "pull"]);
   } else {
-    console.log("clone doesn't exist");
     clone = spawn("git", ["clone", "-b", branch, cloneUrl, targetDir]);
   }
 

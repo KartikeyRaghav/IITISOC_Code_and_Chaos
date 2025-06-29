@@ -93,7 +93,7 @@ const CreateProject = () => {
           });
         }
       } catch (error) {
-        console.log(error);
+        console.error(error);
         CustomToast("Error while getting your repositories");
       }
     };
@@ -117,7 +117,6 @@ const CreateProject = () => {
         credentials: "include",
       });
       const data = await response.json();
-      console.log(data);
       if (data.message === "Already exists") {
         CustomToast("Project Name already exists");
         setIsNameOk(false);
@@ -199,7 +198,7 @@ const CreateProject = () => {
         createProject(data.stack, clonedPath);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       CustomToast("Error while detecting tech stack");
       setLogs((prev) => [...prev, "Error while detecting tech stack"]);
     }
@@ -236,7 +235,6 @@ const CreateProject = () => {
                 const match = text.match(/\[CLONE_COMPLETE\] (.*)/);
                 if (match) {
                   let fullTargetDir = match[1];
-                  console.log("Clone complete. Target Dir:", fullTargetDir);
                   setLogs((prev) => [...prev, "Cloning complete"]);
                   detectTechStack(fullTargetDir);
                 }
@@ -251,7 +249,7 @@ const CreateProject = () => {
 
         return () => controller.abort();
       } catch (error) {
-        console.log(error);
+        console.error(error);
         CustomToast("Error while cloning");
         setLogs((prev) => [...prev, "Error while cloning the repo"]);
       }

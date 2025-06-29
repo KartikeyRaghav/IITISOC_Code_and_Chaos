@@ -96,7 +96,6 @@ const ProjectDetails = () => {
               const match = text.match(/\[RUN_COMPLETE\] (.*)/);
               if (match) {
                 let url = match[1];
-                console.log("Run complete. url:", url);
                 setLogs((prev) => [...prev, "Run complete"]);
                 setIsBuilding(false);
                 updateDeployment(deploymentId);
@@ -112,7 +111,7 @@ const ProjectDetails = () => {
 
       () => controller.abort();
     } catch (error) {
-      console.log(error);
+      console.error(error);
       CustomToast("Error while running docker container");
       setLogs((prev) => [...prev, "Error while running docker container"]);
     }
@@ -136,7 +135,6 @@ const ProjectDetails = () => {
 
   const createDeployment = async (imageName) => {
     try {
-      console.log("Working");
       const prevVersion = await getVersion();
       const version = (Number(prevVersion) + 1).toString();
       const response = await fetch(`/api/v1/deployment/create`, {
@@ -158,7 +156,6 @@ const ProjectDetails = () => {
         method: "POST",
         credentials: "include",
       });
-      console.log("Worked");
       const data = await response.json();
       return data._id;
     } catch (error) {
@@ -196,7 +193,6 @@ const ProjectDetails = () => {
               const match = text.match(/\[BUILD_COMPLETE\] (.*)/);
               if (match) {
                 let fullImageName = match[1];
-                console.log("Build complete. Image name:", fullImageName);
                 setLogs((prev) => [...prev, "Build complete"]);
                 let deploymentId = await createDeployment(fullImageName);
                 runDockerContainer(repoName, fullImageName, deploymentId);
@@ -212,7 +208,7 @@ const ProjectDetails = () => {
 
       () => controller.abort();
     } catch (error) {
-      console.log(error);
+      console.error(error);
       CustomToast("Error while building dockerimage");
       setLogs((prev) => [...prev, "Error while building docker image"]);
     }
@@ -237,7 +233,7 @@ const ProjectDetails = () => {
       setLogs((prev) => [...prev, "Dockerfile generated"]);
       generateDockerImage(repoName, clonedPath);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       CustomToast("Error while generating dockerfile");
       setLogs((prev) => [...prev, "Error while generating dockerfile"]);
     }
@@ -267,7 +263,7 @@ const ProjectDetails = () => {
         );
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       CustomToast("Error while detecting tech stack");
       setLogs((prev) => [...prev, "Error while detecting tech stack"]);
     }
@@ -303,7 +299,6 @@ const ProjectDetails = () => {
               const match = text.match(/\[CLONE_COMPLETE\] (.*)/);
               if (match) {
                 let fullTargetDir = match[1];
-                console.log("Clone complete. Target Dir:", fullTargetDir);
                 setLogs((prev) => [...prev, "Cloning complete"]);
                 detectTechStack(fullTargetDir);
               }
@@ -318,7 +313,7 @@ const ProjectDetails = () => {
 
       return () => controller.abort();
     } catch (error) {
-      console.log(error);
+      console.error(error);
       CustomToast("Error while cloning");
       setLogs((prev) => [...prev, "Error while cloning the repo"]);
     }

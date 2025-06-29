@@ -58,9 +58,8 @@ const Dashboard = () => {
         credentials: "include",
       });
       const data = await response.json();
-      // console.log(data.data.items[0]);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       CustomToast("Error while getting your repositories");
     }
   };
@@ -77,7 +76,7 @@ const Dashboard = () => {
         repoRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 100); //slight delay to ensure rendering is complete
     } catch (error) {
-      console.log(error);
+      console.error(error);
       CustomToast("Error while getting your repositories");
     }
   };

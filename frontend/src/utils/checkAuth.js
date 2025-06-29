@@ -17,7 +17,7 @@ export const checkAuth = async () => {
       return { status: 400, message: "User logged out" };
     }
   } catch (error) {
-    console.log("Error");
+    console.error("Error");
     return { status: 400, message: "User logged out" };
   }
 };

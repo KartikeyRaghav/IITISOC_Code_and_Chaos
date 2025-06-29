@@ -30,7 +30,6 @@ const Project = () => {
         });
         const data = await response.json();
         setRepos(data);
-        console.log(data);
       } catch (error) {
         CustomToast("Error fetching your projects");
       }
