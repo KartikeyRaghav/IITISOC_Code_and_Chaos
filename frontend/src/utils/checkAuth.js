@@ -1,6 +1,6 @@
 export const checkAuth = async () => {
   try {
-    const response = await fetch(`http://localhost:3001/api/v1/users/profile`, {
+    const response = await fetch(`/api/v1/users/profile`, {
       credentials: "include",
     });
     const data = await response.json();

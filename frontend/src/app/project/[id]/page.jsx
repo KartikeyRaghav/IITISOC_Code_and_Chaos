@@ -35,7 +35,7 @@ const ProjectDetails = () => {
     const getProject = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/api/v1/project/getProject?projectName=${projectName}`,
+          `/api/v1/project/getProject?projectName=${projectName}`,
           { credentials: "include" }
         );
         const data = await response.json();
@@ -59,15 +59,12 @@ const ProjectDetails = () => {
 
   const updateDeployment = async (deploymentId) => {
     try {
-      const response = await fetch(
-        `http://localhost:3001/api/v1/deployment/update`,
-        {
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          method: "PUT",
-          body: JSON.stringify({ _id: deploymentId }),
-        }
-      );
+      const response = await fetch(`/api/v1/deployment/update`, {
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        method: "PUT",
+        body: JSON.stringify({ _id: deploymentId }),
+      });
     } catch (error) {}
   };
 
@@ -76,7 +73,7 @@ const ProjectDetails = () => {
       setLogs((prev) => [...prev, "Starting docker container run"]);
       const controller = new AbortController();
 
-      fetch(`http://localhost:3001/api/v1/build/dockerContainer`, {
+      fetch(`/api/v1/build/dockerContainer`, {
         method: "POST",
         credentials: "include",
         signal: controller.signal,
@@ -124,17 +121,14 @@ const ProjectDetails = () => {
 
   const getVersion = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:3001/api/v1/deployment/version`,
-        {
-          credentials: "include",
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            projectName,
-          }),
-        }
-      );
+      const response = await fetch(`/api/v1/deployment/version`, {
+        credentials: "include",
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectName,
+        }),
+      });
 
       const data = await response.json();
       return data.version;
@@ -145,28 +139,25 @@ const ProjectDetails = () => {
     try {
       const prevVersion = await getVersion();
       const version = (Number(prevVersion) + 1).toString();
-      const response = await fetch(
-        `http://localhost:3001/api/v1/deployment/create`,
-        {
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            projectName,
-            imageName,
+      const response = await fetch(`/api/v1/deployment/create`, {
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectName,
+          imageName,
+          version,
+          status: "in-progress",
+          logUrl:
+            `${process.env.FRONTEND_URL}` +
+            "/logs" +
+            projectName +
+            "/" +
             version,
-            status: "in-progress",
-            logUrl:
-              `${process.env.FRONTEND_URL}` +
-              "/logs" +
-              projectName +
-              "/" +
-              version,
-            previewUrl:
-              `${process.env.FRONTEND_URL}` + "/" + projectName + "/" + version,
-          }),
-          method: "POST",
-          credentials: "include",
-        }
-      );
+          previewUrl:
+            `${process.env.FRONTEND_URL}` + "/" + projectName + "/" + version,
+        }),
+        method: "POST",
+        credentials: "include",
+      });
       const data = await response.json();
       return data._id;
     } catch (error) {
@@ -180,7 +171,7 @@ const ProjectDetails = () => {
       setLogs((prev) => [...prev, "Starting docker image build"]);
       const controller = new AbortController();
 
-      fetch(`http://localhost:3001/api/v1/build/dockerImage`, {
+      fetch(`/api/v1/build/dockerImage`, {
         method: "POST",
         credentials: "include",
         signal: controller.signal,
@@ -228,21 +219,18 @@ const ProjectDetails = () => {
   const generateDockerfile = async (repoName, clonedPath, techStack) => {
     try {
       setLogs((prev) => [...prev, "Generating dockerfile"]);
-      const response = await fetch(
-        `http://localhost:3001/api/v1/build/dockerFile`,
-        {
-          credentials: "include",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            clonedPath,
-            techStack,
-          }),
-        }
-      );
+      const response = await fetch(`/api/v1/build/dockerFile`, {
+        credentials: "include",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          clonedPath,
+          techStack,
+        }),
+      });
       const data = await response.json();
       setLogs((prev) => [...prev, "Dockerfile generated"]);
       generateDockerImage(repoName, clonedPath);
@@ -256,20 +244,17 @@ const ProjectDetails = () => {
   const detectTechStack = async (clonedPath) => {
     try {
       setLogs((prev) => [...prev, "Detecting tech stack"]);
-      const response = await fetch(
-        `http://localhost:3001/api/v1/build/detectTechStack`,
-        {
-          credentials: "include",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            clonedPath,
-          }),
-        }
-      );
+      const response = await fetch(`/api/v1/build/detectTechStack`, {
+        credentials: "include",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          clonedPath,
+        }),
+      });
       const data = await response.json();
       setLogs((prev) => [...prev, "Tech stack detected " + data.stack]);
       if (data.stack !== "unknown") {
@@ -290,7 +275,7 @@ const ProjectDetails = () => {
     try {
       const controller = new AbortController();
 
-      fetch(`http://localhost:3001/api/v1/build/cloneRepo`, {
+      fetch(`/api/v1/build/cloneRepo`, {
         method: "POST",
         credentials: "include",
         signal: controller.signal,

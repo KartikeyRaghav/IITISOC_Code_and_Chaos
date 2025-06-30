@@ -56,7 +56,7 @@ export default function SignupPage() {
 
       const response = await fetch(
         //sends POST req to backend API to register user
-        `http://localhost:3001/api/v1/users/register`,
+        `/api/v1/users/register`,
         {
           method: "POST",
           headers: {

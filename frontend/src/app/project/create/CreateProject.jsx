@@ -64,7 +64,7 @@ const CreateProject = () => {
       try {
         const username = localStorage.getItem("githubUsername");
         const response = await fetch(
-          `http://localhost:3001/api/v1/github/getBranches?username=${username}&repoName=${formData.repoName}`,
+          `/api/v1/github/getBranches?username=${username}&repoName=${formData.repoName}`,
           {
             credentials: "include",
           }
@@ -80,12 +80,9 @@ const CreateProject = () => {
   useEffect(() => {
     const getUserRepos = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:3001/api/v1/users/getUserRepos`,
-          {
-            credentials: "include",
-          }
-        );
+        const response = await fetch(`/api/v1/users/getUserRepos`, {
+          credentials: "include",
+        });
         const data = await response.json();
         setRepos(data);
         if (repoName) {
@@ -113,15 +110,12 @@ const CreateProject = () => {
     setIsChecking(true);
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/api/v1/project/checkName`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: formData.name }),
-          credentials: "include",
-        }
-      );
+      const response = await fetch(`/api/v1/project/checkName`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: formData.name }),
+        credentials: "include",
+      });
       const data = await response.json();
       if (data.message === "Already exists") {
         CustomToast("Project Name already exists");
@@ -153,23 +147,20 @@ const CreateProject = () => {
     if (isNameOk) {
       setIsCreating(true);
       try {
-        const response = await fetch(
-          `http://localhost:3001/api/v1/project/create`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: formData.name,
-              branch: formData.branch,
-              folder: formData.folder,
-              framework: stack,
-              repositoryUrl: selectedRepo.html_url,
-              repoName: selectedRepo.name,
-              clonedPath,
-            }),
-            credentials: "include",
-          }
-        );
+        const response = await fetch(`/api/v1/project/create`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: formData.name,
+            branch: formData.branch,
+            folder: formData.folder,
+            framework: stack,
+            repositoryUrl: selectedRepo.html_url,
+            repoName: selectedRepo.name,
+            clonedPath,
+          }),
+          credentials: "include",
+        });
 
         const data = await response.json();
         if (response.status === 409) {
@@ -190,20 +181,17 @@ const CreateProject = () => {
   const detectTechStack = async (clonedPath) => {
     try {
       setLogs((prev) => [...prev, "Detecting tech stack"]);
-      const response = await fetch(
-        `http://localhost:3001/api/v1/build/detectTechStack`,
-        {
-          credentials: "include",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            clonedPath,
-          }),
-        }
-      );
+      const response = await fetch(`/api/v1/build/detectTechStack`, {
+        credentials: "include",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          clonedPath,
+        }),
+      });
       const data = await response.json();
       setLogs((prev) => [...prev, "Tech stack detected " + data.stack]);
       if (data.stack !== "unknown") {
@@ -221,7 +209,7 @@ const CreateProject = () => {
       try {
         const controller = new AbortController();
 
-        fetch(`http://localhost:3001/api/v1/build/cloneRepo`, {
+        fetch(`/api/v1/build/cloneRepo`, {
           method: "POST",
           credentials: "include",
           signal: controller.signal,

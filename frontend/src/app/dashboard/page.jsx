@@ -42,7 +42,7 @@ const Dashboard = () => {
 
   const getOAuthConsent = () => {
     const oauthWindow = window.open(
-      `http://localhost:3001/api/v1/github`,
+      `/api/v1/github`,
       "_blank",
       "width=600,height=700"
     );
@@ -54,12 +54,9 @@ const Dashboard = () => {
       if (localStorage.getItem("hasGithubPermission") === "false") {
         getOAuthConsent();
       }
-      const response = await fetch(
-        `http://localhost:3001/api/v1/github/getGithubRepos`,
-        {
-          credentials: "include",
-        }
-      );
+      const response = await fetch(`/api/v1/github/getGithubRepos`, {
+        credentials: "include",
+      });
       const data = await response.json();
     } catch (error) {
       console.error(error);
@@ -69,12 +66,9 @@ const Dashboard = () => {
 
   const getUserRepos = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:3001/api/v1/users/getUserRepos`,
-        {
-          credentials: "include",
-        }
-      );
+      const response = await fetch(`/api/v1/users/getUserRepos`, {
+        credentials: "include",
+      });
       const data = await response.json();
       setRepos(data);
 
