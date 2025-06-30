@@ -38,7 +38,7 @@ export default function LoginPage() {
     setError(""); //clears previous error message
 
     try {
-      const response = await fetch(`/api/v1/users/login`, {
+      const response = await fetch(`http://localhost:3001/api/v1/users/login`, {
         method: "POST", //POST request to backend API, tells server that we are sending login details
         headers: {
           "Content-Type": "application/json", //request body contains JSON data

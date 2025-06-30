@@ -25,9 +25,12 @@ const Project = () => {
   useEffect(() => {
     const getProjects = async () => {
       try {
-        const response = await fetch(`/api/v1/project/getAllProjects`, {
-          credentials: "include",
-        });
+        const response = await fetch(
+          `http://localhost:3001/api/v1/project/getAllProjects`,
+          {
+            credentials: "include",
+          }
+        );
         const data = await response.json();
         setRepos(data);
       } catch (error) {
