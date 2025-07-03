@@ -5,7 +5,18 @@ import CustomToast from "@/components/CustomToast";
 import { checkAuth } from "@/utils/checkAuth";
 import { useSearchParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { Github, GitBranch, Folder, X, Loader2, Check } from "lucide-react";
+import {
+  Github,
+  GitBranch,
+  Folder,
+  X,
+  Loader2,
+  Check,
+  AlertCircle,
+  Upload,
+  FileText,
+  Archive,
+} from "lucide-react";
 import { ToastContainer } from "react-toastify";
 import dotenv from "dotenv";
 
@@ -22,6 +33,9 @@ const CreateProject = () => {
   const [branches, setBranches] = useState([]);
   const router = useRouter();
   const [isNameOk, setIsNameOk] = useState(false);
+  const [creationMethod, setCreationMethod] = useState("github");
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [dragActive, setDragActive] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     repoName: "Select a repo",
@@ -64,7 +78,7 @@ const CreateProject = () => {
       try {
         const username = localStorage.getItem("githubUsername");
         const response = await fetch(
-          `/api/v1/github/getBranches?username=${username}&repoName=${formData.repoName}`,
+          `http://localhost:3001/api/v1/github/getBranches?username=${username}&repoName=${formData.repoName}`,
           {
             credentials: "include",
           }
@@ -80,9 +94,12 @@ const CreateProject = () => {
   useEffect(() => {
     const getUserRepos = async () => {
       try {
-        const response = await fetch(`/api/v1/users/getUserRepos`, {
-          credentials: "include",
-        });
+        const response = await fetch(
+          `http://localhost:3001/api/v1/users/getUserRepos`,
+          {
+            credentials: "include",
+          }
+        );
         const data = await response.json();
         setRepos(data);
         if (repoName) {
@@ -110,12 +127,15 @@ const CreateProject = () => {
     setIsChecking(true);
 
     try {
-      const response = await fetch(`/api/v1/project/checkName`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: formData.name }),
-        credentials: "include",
-      });
+      const response = await fetch(
+        `http://localhost:3001/api/v1/project/checkName`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: formData.name }),
+          credentials: "include",
+        }
+      );
       const data = await response.json();
       if (data.message === "Already exists") {
         CustomToast("Project Name already exists");
@@ -139,6 +159,64 @@ const CreateProject = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
+  const handleFileUpload = (file) => {
+    const allowedTypes = [
+      "text/html",
+      "application/zip",
+      "application/x-zip-compressed",
+    ];
+    const allowedExtensions = [".html", ".htm", ".zip"];
+
+    const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
+
+    if (
+      allowedTypes.includes(file.type) ||
+      allowedExtensions.includes(fileExtension)
+    ) {
+      setUploadedFile(file);
+    } else {
+      alert("Please upload only HTML files (.html, .htm) or ZIP files (.zip)");
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragActive(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setDragActive(false);
+  };
+
+  const handleFileInputChange = (e) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  };
+
+  const removeFile = () => {
+    setUploadedFile(null);
+  };
+
+  const getFileIcon = (fileName) => {
+    const extension = fileName.split(".").pop()?.toLowerCase();
+    if (extension === "zip")
+      return <Archive className="w-5 h-5 text-purple-400" />;
+    return <FileText className="w-5 h-5 text-blue-400" />;
+  };
+
   if (isAuthenticated === null) {
     return <CustomLoader />;
   }
@@ -147,20 +225,23 @@ const CreateProject = () => {
     if (isNameOk) {
       setIsCreating(true);
       try {
-        const response = await fetch(`/api/v1/project/create`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: formData.name,
-            branch: formData.branch,
-            folder: formData.folder,
-            framework: stack,
-            repositoryUrl: selectedRepo.html_url,
-            repoName: selectedRepo.name,
-            clonedPath,
-          }),
-          credentials: "include",
-        });
+        const response = await fetch(
+          `http://localhost:3001/api/v1/project/create`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: formData.name,
+              branch: formData.branch,
+              folder: formData.folder,
+              framework: stack,
+              repositoryUrl: selectedRepo.html_url,
+              repoName: selectedRepo.name,
+              clonedPath,
+            }),
+            credentials: "include",
+          }
+        );
 
         const data = await response.json();
         if (response.status === 409) {
@@ -181,17 +262,20 @@ const CreateProject = () => {
   const detectTechStack = async (clonedPath) => {
     try {
       setLogs((prev) => [...prev, "Detecting tech stack"]);
-      const response = await fetch(`/api/v1/build/detectTechStack`, {
-        credentials: "include",
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          clonedPath,
-        }),
-      });
+      const response = await fetch(
+        `http://localhost:3001/api/v1/build/detectTechStack`,
+        {
+          credentials: "include",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            clonedPath,
+          }),
+        }
+      );
       const data = await response.json();
       setLogs((prev) => [...prev, "Tech stack detected " + data.stack]);
       if (data.stack !== "unknown") {
@@ -209,7 +293,7 @@ const CreateProject = () => {
       try {
         const controller = new AbortController();
 
-        fetch(`/api/v1/build/cloneRepo`, {
+        fetch(`http://localhost:3001/api/v1/build/cloneRepo`, {
           method: "POST",
           credentials: "include",
           signal: controller.signal,
@@ -266,7 +350,7 @@ const CreateProject = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3] flex items-center justify-center py-8 px-4">
-      <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-8 w-full max-w-2xl border border-purple-500/20 backdrop-blur-sm">
+      <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-8 w-full max-w-3xl border border-purple-500/20 backdrop-blur-sm">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-full mb-4 shadow-lg">
             <Github className="w-8 h-8 text-white" />
@@ -275,11 +359,44 @@ const CreateProject = () => {
             Create New Project
           </h1>
           <p className="text-gray-400 text-lg">
-            Deploy your repository with ease
+            Deploy your repository or upload your files
           </p>
         </div>
 
+        {/* Creation Method Toggle */}
+        <div className="mb-8">
+          <div className="flex items-center justify-center mb-6">
+            <div className="bg-[#2c2f4a]/50 rounded-2xl p-2 border border-gray-600/30">
+              <div className="flex">
+                <button
+                  onClick={() => setCreationMethod("github")}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                    creationMethod === "github"
+                      ? "bg-gradient-to-r from-[#00aaff] to-[#9a00ff] text-white shadow-lg"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  <Github className="w-5 h-5" />
+                  GitHub Repository
+                </button>
+                <button
+                  onClick={() => setCreationMethod("upload")}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                    creationMethod === "upload"
+                      ? "bg-gradient-to-r from-[#00aaff] to-[#9a00ff] text-white shadow-lg"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  <Upload className="w-5 h-5" />
+                  Upload Files
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="space-y-6">
+          {/* Project Name */}
           <div className="space-y-2">
             <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
               <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
@@ -342,86 +459,197 @@ const CreateProject = () => {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
-              <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-              Repository
-            </label>
-            <div className="relative">
-              <select
-                name="repoName"
-                value={formData.repoName}
-                onChange={handleChange}
-                className="w-full p-4 rounded-xl bg-[#2c2f4a]/80 text-white border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 appearance-none cursor-pointer backdrop-blur-sm"
-              >
-                <option value="Select a repo" disabled>
-                  Select a repository
-                </option>
-                {repos.map((repo) => (
-                  <option
-                    key={repo.name}
-                    value={repo.name}
-                    className="bg-[#2c2f4a] text-white"
+          {/* GitHub Repository Section */}
+          {creationMethod === "github" && (
+            <>
+              {/* Repository Selection */}
+              <div className="space-y-2">
+                <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
+                  <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                  Repository
+                </label>
+                <div className="relative">
+                  <select
+                    name="repoName"
+                    value={formData.repoName}
+                    onChange={handleChange}
+                    className="w-full p-4 rounded-xl bg-[#2c2f4a]/80 text-white border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 appearance-none cursor-pointer backdrop-blur-sm"
                   >
-                    {repo.name}
-                  </option>
-                ))}
-              </select>
-              <Github className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-            </div>
-          </div>
+                    <option value="Select a repo" disabled>
+                      Select a repository
+                    </option>
+                    {repos.map((repo) => (
+                      <option
+                        key={repo.name}
+                        value={repo.name}
+                        className="bg-[#2c2f4a] text-white"
+                      >
+                        {repo.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Github className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                </div>
+              </div>
 
-          <div className="space-y-2">
-            <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-              Branch
-            </label>
-            <div className="relative">
-              <select
-                name="branch"
-                value={formData.branch}
-                onChange={handleChange}
-                className="w-full p-4 rounded-xl bg-[#2c2f4a]/80 text-white border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 appearance-none cursor-pointer backdrop-blur-sm"
-                disabled={formData.repoName === "Select a repo"}
-              >
-                <option value="Select a branch" disabled>
-                  Select a branch
-                </option>
-                {branches.map((branch, i) => (
-                  <option
-                    key={i}
-                    value={branch}
-                    className="bg-[#2c2f4a] text-white"
+              {/* Branch Selection */}
+              <div className="space-y-2">
+                <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  Branch
+                </label>
+                <div className="relative">
+                  <select
+                    name="branch"
+                    value={formData.branch}
+                    onChange={handleChange}
+                    className="w-full p-4 rounded-xl bg-[#2c2f4a]/80 text-white border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 appearance-none cursor-pointer backdrop-blur-sm"
+                    disabled={formData.repoName === "Select a repo"}
                   >
-                    {branch}
-                  </option>
-                ))}
-              </select>
-              <GitBranch className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-            </div>
-          </div>
+                    <option value="Select a branch" disabled>
+                      Select a branch
+                    </option>
+                    {branches.map((branch, i) => (
+                      <option
+                        key={i}
+                        value={branch}
+                        className="bg-[#2c2f4a] text-white"
+                      >
+                        {branch}
+                      </option>
+                    ))}
+                  </select>
+                  <GitBranch className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                </div>
+              </div>
 
-          <div className="space-y-2">
-            <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
-              <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-              Folder{" "}
-              <span className="text-gray-500 text-xs normal-case">
-                (optional)
-              </span>
-            </label>
-            <div className="relative">
-              <input
-                value={formData.folder}
-                onChange={handleChange}
-                name="folder"
-                type="text"
-                placeholder="Folder path (leave empty if not needed)"
-                className="w-full p-4 rounded-xl bg-[#2c2f4a]/80 text-white border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 placeholder-gray-400 backdrop-blur-sm"
-              />
-              <Folder className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            </div>
-          </div>
+              {/* Folder */}
+              <div className="space-y-2">
+                <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
+                  <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                  Folder{" "}
+                  <span className="text-gray-500 text-xs normal-case">
+                    (optional)
+                  </span>
+                </label>
+                <div className="relative">
+                  <input
+                    value={formData.folder}
+                    onChange={handleChange}
+                    name="folder"
+                    type="text"
+                    placeholder="Folder path (leave empty if not needed)"
+                    className="w-full p-4 rounded-xl bg-[#2c2f4a]/80 text-white border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 placeholder-gray-400 backdrop-blur-sm"
+                  />
+                  <Folder className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                </div>
+              </div>
+            </>
+          )}
 
+          {/* File Upload Section */}
+          {creationMethod === "upload" && (
+            <div className="space-y-4">
+              {/* Upload Instructions */}
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-blue-300 font-semibold mb-2">
+                      File Upload Requirements
+                    </h4>
+                    <ul className="text-blue-200 text-sm space-y-1">
+                      <li>
+                        • Upload an HTML file (.html, .htm) or a ZIP archive
+                        (.zip)
+                      </li>
+                      <li>
+                        • For ZIP files of static sites: ensure there's an{" "}
+                        <code className="bg-blue-900/30 px-1 rounded">
+                          index.html
+                        </code>{" "}
+                        file in the main folder
+                      </li>
+                      <li>• Maximum file size: 50MB</li>
+                      <li>
+                        • The index.html file will be used as the entry point
+                        for your static application
+                      </li>
+                      <li>
+                        • For zip files of framework website, ensure you're not adding node_modules
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* File Upload Area */}
+              <div className="space-y-2">
+                <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
+                  <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                  Upload Files
+                </label>
+
+                {!uploadedFile ? (
+                  <div
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer hover:border-purple-500/50 ${
+                      dragActive
+                        ? "border-purple-500 bg-purple-500/10"
+                        : "border-gray-600/50 bg-[#2c2f4a]/30"
+                    }`}
+                  >
+                    <input
+                      type="file"
+                      accept=".html,.htm,.zip"
+                      onChange={handleFileInputChange}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-full flex items-center justify-center border border-purple-500/30">
+                        <Upload className="w-8 h-8 text-purple-400" />
+                      </div>
+                      <div>
+                        <p className="text-white font-semibold text-lg mb-2">
+                          Drop your files here or click to browse
+                        </p>
+                        <p className="text-gray-400 text-sm">
+                          Supports HTML files and ZIP archives
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-[#2c2f4a]/80 rounded-xl p-4 border border-gray-600/30">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {getFileIcon(uploadedFile.name)}
+                        <div>
+                          <p className="text-white font-medium">
+                            {uploadedFile.name}
+                          </p>
+                          <p className="text-gray-400 text-sm">
+                            {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={removeFile}
+                        className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 transition-colors"
+                        title="Remove file"
+                      >
+                        <X className="w-4 h-4 text-red-400" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Create Button */}
           <div className="pt-4">
             <button
               onClick={cloneRepo}
@@ -440,7 +668,11 @@ const CreateProject = () => {
                 </>
               ) : (
                 <>
-                  <Github className="w-6 h-6" />
+                  {creationMethod === "github" ? (
+                    <Github className="w-6 h-6" />
+                  ) : (
+                    <Upload className="w-6 h-6" />
+                  )}
                   Create Project
                 </>
               )}
@@ -448,15 +680,18 @@ const CreateProject = () => {
           </div>
         </div>
 
+        {/* Progress Indicator */}
         <div className="mt-8 flex justify-center space-x-2">
-          {[1, 2, 3, 4].map((step) => (
+          {[1, 2, 3].map((step) => (
             <div
               key={step}
               className={`w-2 h-2 rounded-full transition-all duration-300 ${
                 (step === 1 && formData.name && isNameOk) ||
-                (step === 2 && formData.repoName !== "Select a repo") ||
-                (step === 3 && formData.branch !== "Select a branch") ||
-                (step === 4 && isFormValid)
+                (step === 2 &&
+                  (creationMethod === "github"
+                    ? formData.repoName !== "Select a repo"
+                    : uploadedFile !== null)) ||
+                (step === 3 && isFormValid)
                   ? "bg-gradient-to-r from-blue-400 to-purple-500"
                   : "bg-gray-600"
               }`}

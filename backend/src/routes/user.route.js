@@ -17,9 +17,9 @@ userRouter
   .post(upload.fields([{ name: "profilePicture", maxCount: 1 }]), registerUser);
 
 userRouter.route("/login").post(loginUser);
+userRouter.route("/refreshToken").get(refreshAccessToken);
 
 // Secured routes
-userRouter.route("/refreshToken").post(verifyJWT, refreshAccessToken);
 userRouter.route("/profile").get(verifyJWT, getUserProfile);
 userRouter.route("/getUserRepos").get(verifyJWT, getUserRepos);
 userRouter.route("/logout").post(verifyJWT, logoutUser);
