@@ -30,6 +30,7 @@ const ProjectDetails = () => {
   const [project, setProject] = useState(null);
   const [logs, setLogs] = useState([]);
   const [isBuilding, setIsBuilding] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     const getProject = async () => {
@@ -112,7 +113,11 @@ const ProjectDetails = () => {
                 setIsBuilding(false);
                 updateDeployment(deploymentId);
               }
-              if (error) CustomToast("Error building the docker image");
+              if (error) {
+                setIsBuilding(false);
+                setIsError(true);
+                CustomToast("Error running the docker contanier");
+              }
 
               readChunk();
             });
@@ -217,7 +222,11 @@ const ProjectDetails = () => {
                 let deploymentId = await createDeployment(fullImageName);
                 runDockerContainer(projectName, fullImageName, deploymentId);
               }
-              if (error) CustomToast("Error building the docker image");
+              if (error) {
+                setIsBuilding(false);
+                setIsError(true);
+                CustomToast("Error building the docker image");
+              }
 
               readChunk();
             });
@@ -566,7 +575,7 @@ const ProjectDetails = () => {
               </div>
 
               <div className="xl:col-span-3">
-                <EnhancedLogDisplay logs={logs} isBuilding={isBuilding} />
+                <EnhancedLogDisplay logs={logs} isBuilding={isBuilding} isError={isError} />
               </div>
             </div>
           )}

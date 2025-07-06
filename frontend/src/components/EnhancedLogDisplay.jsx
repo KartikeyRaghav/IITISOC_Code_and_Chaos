@@ -18,7 +18,11 @@ import {
 } from "lucide-react";
 import { LogParser } from "@/utils/logParser";
 
-const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
+const EnhancedLogDisplay = ({
+  logs = [],
+  isBuilding = false,
+  isError = false,
+}) => {
   const [events, setEvents] = useState([]);
   const [expandedSections, setExpandedSections] = useState(new Set(["major"]));
   const [overallProgress, setOverallProgress] = useState(0);
@@ -140,6 +144,8 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
                   ? "Deployed Successfully"
                   : isBuilding
                   ? "Building..."
+                  : isError
+                  ? "Error"
                   : "Ready"}
               </div>
             </div>
@@ -254,12 +260,6 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
                   </div>
                 )}
               </button>
-              {LogParser.hasErrors(events) && (
-                <div className="bg-red-600/20 text-red-300 border border-red-500/30 rounded-xl px-4 py-3 text-sm font-medium shadow">
-                  🚨 Deployment encountered critical errors. Check the logs
-                  above for details.
-                </div>
-              )}
               {expandedSections.has("major") && (
                 <div className="space-y-3 ml-8">
                   {majorEvents.map((event, index) => (
@@ -387,6 +387,12 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+            {LogParser.hasErrors(events) && (
+              <div className="bg-red-600/20 text-red-300 border border-red-500/30 rounded-xl px-4 py-3 text-sm font-medium shadow">
+                🚨 Deployment encountered critical errors. Check the logs above
+                for details.
               </div>
             )}
 
