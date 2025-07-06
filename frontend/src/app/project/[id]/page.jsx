@@ -105,12 +105,14 @@ const ProjectDetails = () => {
               setLogs((prev) => [...prev, text]);
 
               const match = text.match(/\[RUN_COMPLETE\] (.*)/);
+              const error = text.match(/\[ERROR\] (.*)/);
               if (match) {
                 let url = match[1];
                 setLogs((prev) => [...prev, "Run complete"]);
                 setIsBuilding(false);
                 updateDeployment(deploymentId);
               }
+              if (error) CustomToast("Error building the docker image");
 
               readChunk();
             });
@@ -208,12 +210,14 @@ const ProjectDetails = () => {
               setLogs((prev) => [...prev, text]);
 
               const match = text.match(/\[BUILD_COMPLETE\] (.*)/);
+              const error = text.match(/\[ERROR\] (.*)/);
               if (match) {
                 let fullImageName = match[1];
                 setLogs((prev) => [...prev, "Build complete"]);
                 let deploymentId = await createDeployment(fullImageName);
                 runDockerContainer(projectName, fullImageName, deploymentId);
               }
+              if (error) CustomToast("Error building the docker image");
 
               readChunk();
             });
@@ -283,6 +287,10 @@ const ProjectDetails = () => {
           project.name || "",
           clonedPath || "",
           project.framework || ""
+        );
+      } else {
+        CustomToast(
+          "Couldn't detect tech stack. Please choose a different repository"
         );
       }
     } catch (error) {

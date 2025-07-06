@@ -14,6 +14,7 @@ import {
   Rocket,
   Copy,
   Check,
+  AlertCircle,
 } from "lucide-react";
 import { LogParser } from "@/utils/logParser";
 
@@ -26,12 +27,16 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
   const [urlCopied, setUrlCopied] = useState(false);
   const detailedLogsRef = useRef(null);
 
+  const errorCount = events.filter((e) => e.type === "error").length;
+
   useEffect(() => {
     const parsedEvents = LogParser.parseLogs(logs);
     setEvents(parsedEvents);
     setOverallProgress(LogParser.getOverallProgress(parsedEvents));
     setDeploymentUrl(LogParser.getDeploymentUrl(parsedEvents));
-    setIsComplete(LogParser.isDeploymentComplete(parsedEvents));
+    const hasError = LogParser.hasErrors(parsedEvents);
+    setIsComplete(!hasError && LogParser.isDeploymentComplete(parsedEvents));
+    // setIsComplete(LogParser.isDeploymentComplete(parsedEvents));
   }, [logs]);
 
   useEffect(() => {
@@ -39,6 +44,12 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
       detailedLogsRef.current.scrollTop = detailedLogsRef.current.scrollHeight;
     }
   }, [events, expandedSections]);
+
+  useEffect(() => {
+    if (isComplete && deploymentUrl && detailedLogsRef.current) {
+      detailedLogsRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [isComplete]);
 
   const toggleSection = (section) => {
     const newExpanded = new Set(expandedSections);
@@ -192,7 +203,15 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
           </div>
         </div>
       )}
-
+      {errorCount > 0 && (
+        <div className="px-8 py-4 bg-red-600/10 border-b border-red-500/20 text-red-300 flex items-center gap-3">
+          <AlertCircle className="w-5 h-5" />
+          <span>
+            {errorCount} error{errorCount > 1 ? "s" : ""} found during
+            deployment
+          </span>
+        </div>
+      )}
       <div className="p-6">
         {events.length === 0 ? (
           <div className="text-center py-12">
@@ -235,7 +254,12 @@ const EnhancedLogDisplay = ({ logs = [], isBuilding = false }) => {
                   </div>
                 )}
               </button>
-
+              {LogParser.hasErrors(events) && (
+                <div className="bg-red-600/20 text-red-300 border border-red-500/30 rounded-xl px-4 py-3 text-sm font-medium shadow">
+                  🚨 Deployment encountered critical errors. Check the logs
+                  above for details.
+                </div>
+              )}
               {expandedSections.has("major") && (
                 <div className="space-y-3 ml-8">
                   {majorEvents.map((event, index) => (

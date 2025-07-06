@@ -218,7 +218,11 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
 
     build.on("close", (code) => {
       res.write(`Docker image build exited with code ${code}\n\n`);
-      res.write(`[BUILD_COMPLETE] ${imageName}\n\n`);
+      if (code === 0) {
+        res.write(`[BUILD_COMPLETE] ${imageName}\n\n`);
+      } else {
+        res.write(`[ERROR] Step failed with code ${code}\n\n`);
+      }
       res.end();
     });
 

@@ -127,13 +127,24 @@ export class LogParser {
       description: "Your application is now accessible",
     },
     {
-      pattern: /ERROR:/i,
+      pattern: /^ERROR: (.+)/i,
       type: "error",
-      category: "deployment",
-      title: "Error found",
-      description: "Some error occured",
+      category: "system",
+      title: "Unhandled Error",
+      description: "An error was captured from stderr",
+    },
+    {
+      pattern: /\[ERROR\] (.+)/i,
+      type: "error",
+      category: "system",
+      title: "Critical Error",
+      description: "A fatal error occurred during deployment",
     },
   ];
+
+  static hasErrors(events) {
+    return events.some((e) => e.type === "error");
+  }
 
   static parseLog(logLine, index) {
     const trimmedLog = logLine.trim();
