@@ -78,7 +78,7 @@ const CreateProject = () => {
       try {
         const username = localStorage.getItem("githubUsername");
         const response = await fetch(
-          `http://localhost:3001/api/v1/github/getBranches?username=${username}&repoName=${formData.repoName}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/github/getBranches?username=${username}&repoName=${formData.repoName}`,
           {
             credentials: "include",
           }
@@ -95,7 +95,7 @@ const CreateProject = () => {
     const getUserRepos = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/api/v1/users/getUserRepos`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/getUserRepos`,
           {
             credentials: "include",
           }
@@ -128,7 +128,7 @@ const CreateProject = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/v1/project/checkName`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/checkName`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -227,7 +227,7 @@ const CreateProject = () => {
       try {
         if (creationMethod === "github") {
           const response = await fetch(
-            `http://localhost:3001/api/v1/project/createByGithub`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/createByGithub`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -260,7 +260,7 @@ const CreateProject = () => {
           const formData = new FormData();
           formData.append("zip", uploadedFile);
           const response = await fetch(
-            `http://localhost:3001/api/v1/users/createByZip`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/createByZip`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -283,7 +283,7 @@ const CreateProject = () => {
     try {
       setLogs((prev) => [...prev, "Detecting tech stack"]);
       const response = await fetch(
-        `http://localhost:3001/api/v1/build/detectTechStack`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/build/detectTechStack`,
         {
           credentials: "include",
           method: "POST",
@@ -313,7 +313,7 @@ const CreateProject = () => {
       try {
         const controller = new AbortController();
 
-        fetch(`http://localhost:3001/api/v1/build/cloneRepo`, {
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/build/cloneRepo`, {
           method: "POST",
           credentials: "include",
           signal: controller.signal,

@@ -35,7 +35,7 @@ const ProjectDetails = () => {
     const getProject = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/api/v1/project/getProject?projectName=${projectName}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/getProject?projectName=${projectName}`,
           { credentials: "include" }
         );
         const data = await response.json();
@@ -64,7 +64,7 @@ const ProjectDetails = () => {
   const updateDeployment = async (deploymentId) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/v1/deployment/update`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/deployment/update`,
         {
           credentials: "include",
           headers: { "Content-Type": "application/json" },
@@ -80,18 +80,21 @@ const ProjectDetails = () => {
       setLogs((prev) => [...prev, "Starting docker container run"]);
       const controller = new AbortController();
 
-      fetch(`http://localhost:3001/api/v1/build/dockerContainer`, {
-        method: "POST",
-        credentials: "include",
-        signal: controller.signal,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          projectName,
-          imageName,
-        }),
-      })
+      fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/build/dockerContainer`,
+        {
+          method: "POST",
+          credentials: "include",
+          signal: controller.signal,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            projectName,
+            imageName,
+          }),
+        }
+      )
         .then((response) => {
           const reader = response.body.getReader();
           const decoder = new TextDecoder();
@@ -128,7 +131,7 @@ const ProjectDetails = () => {
   const getVersion = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/v1/deployment/version`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/deployment/version`,
         {
           credentials: "include",
           method: "POST",
@@ -149,7 +152,7 @@ const ProjectDetails = () => {
       const prevVersion = await getVersion();
       const version = (Number(prevVersion) + 1).toString();
       const response = await fetch(
-        `http://localhost:3001/api/v1/deployment/create`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/deployment/create`,
         {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -183,7 +186,7 @@ const ProjectDetails = () => {
       setLogs((prev) => [...prev, "Starting docker image build"]);
       const controller = new AbortController();
 
-      fetch(`http://localhost:3001/api/v1/build/dockerImage`, {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/build/dockerImage`, {
         method: "POST",
         credentials: "include",
         signal: controller.signal,
@@ -232,7 +235,7 @@ const ProjectDetails = () => {
     try {
       setLogs((prev) => [...prev, "Generating dockerfile"]);
       const response = await fetch(
-        `http://localhost:3001/api/v1/build/dockerFile`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/build/dockerFile`,
         {
           credentials: "include",
           method: "POST",
@@ -260,7 +263,7 @@ const ProjectDetails = () => {
     try {
       setLogs((prev) => [...prev, "Detecting tech stack"]);
       const response = await fetch(
-        `http://localhost:3001/api/v1/build/detectTechStack`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/build/detectTechStack`,
         {
           credentials: "include",
           method: "POST",
@@ -293,7 +296,7 @@ const ProjectDetails = () => {
     try {
       const controller = new AbortController();
 
-      fetch(`http://localhost:3001/api/v1/build/cloneRepo`, {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/build/cloneRepo`, {
         method: "POST",
         credentials: "include",
         signal: controller.signal,

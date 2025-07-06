@@ -26,7 +26,7 @@ const Project = () => {
     const getProjects = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/api/v1/project/getAllProjects`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/getAllProjects`,
           {
             credentials: "include",
           }
