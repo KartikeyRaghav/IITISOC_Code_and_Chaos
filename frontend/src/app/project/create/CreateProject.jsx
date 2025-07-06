@@ -225,31 +225,51 @@ const CreateProject = () => {
     if (isNameOk) {
       setIsCreating(true);
       try {
-        const response = await fetch(
-          `http://localhost:3001/api/v1/project/create`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: formData.name,
-              branch: formData.branch,
-              folder: formData.folder,
-              framework: stack,
-              repositoryUrl: selectedRepo.html_url,
-              repoName: selectedRepo.name,
-              clonedPath,
-            }),
-            credentials: "include",
+        if (creationMethod === "github") {
+          const response = await fetch(
+            `http://localhost:3001/api/v1/project/createByGithub`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name: formData.name,
+                branch: formData.branch,
+                folder: formData.folder,
+                framework: stack,
+                repositoryUrl: selectedRepo.html_url,
+                repoName: selectedRepo.name,
+                clonedPath,
+              }),
+              credentials: "include",
+            }
+          );
+          const data = await response.json();
+          if (response.status === 409) {
+            CustomToast("A project for this repo already exists");
           }
-        );
-
-        const data = await response.json();
-        if (response.status === 409) {
-          CustomToast("A project for this repo already exists");
-        }
-        if (response.ok) {
-          setIsCreating(false);
-          router.push(`/project/${formData.name}`);
+          if (response.ok) {
+            setIsCreating(false);
+            router.push(`/project/${formData.name}`);
+          }
+        } else {
+          if (!uploadedFile) {
+            CustomToast("Please upload a file");
+            setIsCreating(false);
+            return;
+          }
+          const formData = new FormData();
+          formData.append("zip", uploadedFile);
+          const response = await fetch(
+            `http://localhost:3001/api/v1/users/createByZip`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: formData,
+            }
+          );
+          const data = await response.json();
+          console.log(data);
         }
       } catch (error) {
         console.error(error);
@@ -345,8 +365,10 @@ const CreateProject = () => {
   const isFormValid =
     formData.name &&
     isNameOk &&
-    formData.repoName !== "Select a repo" &&
-    formData.branch !== "Select a branch";
+    (creationMethod === "github"
+      ? formData.repoName !== "Select a repo" &&
+        formData.branch !== "Select a branch"
+      : uploadedFile !== null);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3] flex items-center justify-center py-8 px-4">
@@ -576,7 +598,8 @@ const CreateProject = () => {
                         for your static application
                       </li>
                       <li>
-                        • For zip files of framework website, ensure you're not adding node_modules
+                        • For zip files of framework website, ensure you're not
+                        adding node_modules
                       </li>
                     </ul>
                   </div>
@@ -652,7 +675,7 @@ const CreateProject = () => {
           {/* Create Button */}
           <div className="pt-4">
             <button
-              onClick={cloneRepo}
+              onClick={creationMethod === "github" ? cloneRepo : createProject}
               type="button"
               disabled={!isFormValid || isCreating}
               className={`w-full py-4 rounded-xl font-bold text-lg shadow-xl transition-all duration-500 flex items-center justify-center gap-3 ${

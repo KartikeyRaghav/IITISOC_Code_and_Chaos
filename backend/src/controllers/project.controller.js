@@ -55,7 +55,7 @@ export const checkName = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "No project with this name found" });
 });
 
-export const createProject = asyncHandler(async (req, res) => {
+export const createProjectByGithub = asyncHandler(async (req, res) => {
   const {
     name,
     branch,
@@ -89,12 +89,10 @@ export const createProject = asyncHandler(async (req, res) => {
     // Create a new project entry
     const project = await Project.create({
       name,
-      branch,
-      folder,
-      repositoryUrl,
+      isGithub: true,
+      github: { branch, folder, repositoryUrl, repoName },
       framework,
       createdBy: user,
-      repoName,
       clonedPath,
     });
 
@@ -103,4 +101,18 @@ export const createProject = asyncHandler(async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Error creating the project" });
   }
+});
+
+export const createProjectByZip = asyncHandler(async (req, res) => {
+  const file = req.file;
+
+  if (!file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+  res.status(200).json({
+    message: "File uploaded successfully",
+    filePath: req.file.path,
+    originalName: req.file.originalname,
+  });
 });

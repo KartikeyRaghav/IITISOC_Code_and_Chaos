@@ -2,10 +2,12 @@ import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   checkName,
-  createProject,
+  createProjectByGithub,
+  createProjectByZip,
   getAllProjects,
   getProject,
 } from "../controllers/project.controller.js";
+import { upload } from "../middlewares/multer.middleware.js";
 
 const projectRouter = Router();
 
@@ -14,6 +16,9 @@ projectRouter.use(verifyJWT);
 projectRouter.route("/getAllProjects").get(getAllProjects);
 projectRouter.route("/getProject").get(getProject);
 projectRouter.route("/checkName").post(checkName);
-projectRouter.route("/create").post(createProject);
+projectRouter.route("/createByGithub").post(createProjectByGithub);
+projectRouter
+  .route("/createByZip")
+  .post(upload.single("file"), createProjectByZip);
 
 export default projectRouter;

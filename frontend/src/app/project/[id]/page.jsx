@@ -57,6 +57,10 @@ const ProjectDetails = () => {
     getProject();
   }, [projectName]);
 
+  useEffect(() => {
+    console.log(logs);
+  }, [logs]);
+
   const updateDeployment = async (deploymentId) => {
     try {
       const response = await fetch(
@@ -71,7 +75,7 @@ const ProjectDetails = () => {
     } catch (error) {}
   };
 
-  const runDockerContainer = async (repoName, imageName, deploymentId) => {
+  const runDockerContainer = async (projectName, imageName, deploymentId) => {
     try {
       setLogs((prev) => [...prev, "Starting docker container run"]);
       const controller = new AbortController();
@@ -84,9 +88,8 @@ const ProjectDetails = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          repoName,
-          imageName,
           projectName,
+          imageName,
         }),
       })
         .then((response) => {
@@ -175,7 +178,7 @@ const ProjectDetails = () => {
     }
   };
 
-  const generateDockerImage = async (repoName, clonedPath) => {
+  const generateDockerImage = async (projectName, clonedPath) => {
     try {
       setLogs((prev) => [...prev, "Starting docker image build"]);
       const controller = new AbortController();
@@ -188,7 +191,7 @@ const ProjectDetails = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          repoName: repoName,
+          projectName,
           clonedPath,
         }),
       })
@@ -206,7 +209,7 @@ const ProjectDetails = () => {
                 let fullImageName = match[1];
                 setLogs((prev) => [...prev, "Build complete"]);
                 let deploymentId = await createDeployment(fullImageName);
-                runDockerContainer(repoName, fullImageName, deploymentId);
+                runDockerContainer(projectName, fullImageName, deploymentId);
               }
 
               readChunk();
@@ -225,7 +228,7 @@ const ProjectDetails = () => {
     }
   };
 
-  const generateDockerfile = async (repoName, clonedPath, techStack) => {
+  const generateDockerfile = async (projectName, clonedPath, techStack) => {
     try {
       setLogs((prev) => [...prev, "Generating dockerfile"]);
       const response = await fetch(
@@ -245,7 +248,7 @@ const ProjectDetails = () => {
       );
       const data = await response.json();
       setLogs((prev) => [...prev, "Dockerfile generated"]);
-      generateDockerImage(repoName, clonedPath);
+      generateDockerImage(projectName, clonedPath);
     } catch (error) {
       console.error(error);
       CustomToast("Error while generating dockerfile");
@@ -274,8 +277,8 @@ const ProjectDetails = () => {
       setLogs((prev) => [...prev, "Tech stack detected " + data.stack]);
       if (data.stack !== "unknown") {
         generateDockerfile(
-          project.repoName || "",
-          project.clonedPath || "",
+          project.name || "",
+          clonedPath || "",
           project.framework || ""
         );
       }
@@ -298,9 +301,9 @@ const ProjectDetails = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          repoName: project.repoName,
-          cloneUrl: project.repositoryUrl + ".git",
-          branch: project.branch,
+          repoName: project.github.repoName,
+          cloneUrl: project.github.repositoryUrl + ".git",
+          branch: project.github.branch,
         }),
       })
         .then((response) => {
@@ -426,21 +429,21 @@ const ProjectDetails = () => {
                           Repository
                         </span>
                       </div>
-                      {project.repositoryUrl ? (
+                      {project.github.repositoryUrl ? (
                         <a
-                          href={project.repositoryUrl}
+                          href={project.github.repositoryUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-2 text-white hover:text-blue-300 transition-colors duration-200 group"
                         >
                           <span className="truncate">
-                            {project.repositoryUrl}
+                            {project.github.repositoryUrl}
                           </span>
                           <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                         </a>
                       ) : (
                         <span className="text-gray-400">
-                          {project.repositoryName || "N/A"}
+                          {project.github.repositoryName || "N/A"}
                         </span>
                       )}
                     </div>
@@ -455,11 +458,11 @@ const ProjectDetails = () => {
                         </span>
                       </div>
                       <span className="text-white font-mono bg-gray-800/50 px-3 py-1 rounded-lg text-sm">
-                        {project.branch || "N/A"}
+                        {project.github.branch || "N/A"}
                       </span>
                     </div>
 
-                    {project.folder && (
+                    {project.github.folder && (
                       <div className="bg-[#2c2f4a]/50 rounded-2xl p-5 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300">
                         <div className="flex items-center gap-3 mb-2">
                           <div className="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
@@ -470,7 +473,7 @@ const ProjectDetails = () => {
                           </span>
                         </div>
                         <span className="text-white font-mono bg-gray-800/50 px-3 py-1 rounded-lg text-sm">
-                          {project.folder}
+                          {project.github.folder}
                         </span>
                       </div>
                     )}

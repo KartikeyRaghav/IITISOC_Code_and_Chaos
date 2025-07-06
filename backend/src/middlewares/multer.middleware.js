@@ -26,4 +26,20 @@ const storage = multer.diskStorage({
 });
 
 // Export a configured multer instance for use in routes
-export const upload = multer({ storage });
+export const upload = multer({
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 }, // 10MB
+  fileFilter: (req, file, cb) => {
+    const allowed = [
+      "image/png",
+      "image/jpeg",
+      "application/zip",
+      "application/x-tar",
+    ];
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Unsupported file type"), false);
+    }
+  },
+});

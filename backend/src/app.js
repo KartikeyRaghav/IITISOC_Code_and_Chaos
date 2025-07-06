@@ -15,7 +15,13 @@ app.use(
 );
 
 // Middleware to parse JSON bodies (up to 50MB)
-app.use(express.json({ limit: "50mb" }));
+app.use((req, res, next) => {
+  if (req.is("multipart/form-data")) {
+    next(); // Skip JSON parsing
+  } else {
+    express.json({ limit: "50mb" })(req, res, next);
+  }
+});
 
 // Middleware to parse URL-encoded data (form data)
 app.use(express.urlencoded({ limit: "50mb", extended: true }));

@@ -9,9 +9,29 @@ const projectSchema = new Schema(
       unique: true,
       index: true,
     },
-    repoName: {
-      type: String,
-      required: true,
+    isGithub: {
+      type: Boolean,
+      default: false,
+    },
+    github: {
+      repoName: {
+        type: String,
+        required: true,
+      },
+      repositoryUrl: {
+        type: String,
+        trim: true,
+      },
+      branch: {
+        type: String,
+        default: "main",
+        trim: true,
+      },
+      folder: {
+        type: String,
+        default: null,
+        trim: true,
+      },
     },
     clonedPath: {
       type: String,
@@ -57,20 +77,6 @@ const projectSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Webhook",
       default: null,
-    },
-    repositoryUrl: {
-      type: String,
-      trim: true,
-    },
-    branch: {
-      type: String,
-      default: "main",
-      trim: true,
-    },
-    folder: {
-      type: String,
-      default: null,
-      trim: true,
     },
   },
   {

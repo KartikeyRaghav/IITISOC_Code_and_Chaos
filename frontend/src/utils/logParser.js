@@ -126,6 +126,13 @@ export class LogParser {
       title: "Application Live",
       description: "Your application is now accessible",
     },
+    {
+      pattern: /ERROR:/i,
+      type: "error",
+      category: "deployment",
+      title: "Error found",
+      description: "Some error occured",
+    },
   ];
 
   static parseLog(logLine, index) {

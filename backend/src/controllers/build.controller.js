@@ -188,15 +188,15 @@ export const generateDockerFile = asyncHandler(async (req, res) => {
 
 // Route handler to build Docker image
 export const generateDockerImage = asyncHandler(async (req, res) => {
-  const { repoName, clonedPath } = req.body;
-
-  if (!repoName || !clonedPath) {
+  const { projectName, clonedPath } = req.body;
+  console.log(projectName, clonedPath);
+  if (!projectName || !clonedPath) {
     return res
       .status(400)
       .json({ message: "Missing repo name or cloned path" });
   }
 
-  const imageName = `app-${repoName.toLowerCase()}-${Date.now()}`;
+  const imageName = `app-${projectName.toLowerCase()}-${Date.now()}`;
 
   try {
     // Set headers for chunked streaming
@@ -255,10 +255,10 @@ function writeNginxConfig(subdomain, port) {
 
 // Route handler to run a Docker container and setup reverse proxy via nginx
 export const runDockerContainer = asyncHandler(async (req, res) => {
-  const { imageName, repoName, projectName } = req.body;
+  const { imageName, projectName } = req.body;
 
   const port = await getPort(); // Get free port
-  const containerName = `container-${repoName.toLowerCase()}-${Date.now()}`;
+  const containerName = `container-${projectName.toLowerCase()}-${Date.now()}`;
 
   try {
     res.setHeader("Content-Type", "text/plain");
@@ -286,7 +286,7 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
     writeNginxConfig(projectName, port); // Configure nginx for subdomain
 
     run.stderr.on("data", (data) => {
-      res.write(`${data.toString()}\n\n`);
+      res.write(`ERROR: ${data.toString()}\n\n`);
     });
 
     run.on("close", (code) => {
