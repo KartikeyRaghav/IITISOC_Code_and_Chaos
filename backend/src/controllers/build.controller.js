@@ -201,7 +201,10 @@ const removePreviousDeployment = async (projectName) => {
     )
       .toString()
       .trim();
-    console.log(containerName);
+    const port = execSync(`sudo docker port ${containerName}`)
+      .toString()
+      .trim();
+    console.log(port);
   }
 };
 
@@ -215,7 +218,7 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
       .json({ message: "Missing repo name or cloned path" });
   }
 
-  await removePreviousDeployment(projectName);
+  const port = await removePreviousDeployment(projectName);
   return res.json({ message: "done" });
 
   const imageName = `app-${projectName.toLowerCase()}-${Date.now()}`;
