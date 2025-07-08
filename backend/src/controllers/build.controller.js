@@ -206,7 +206,9 @@ const removePreviousDeployment = async (projectName) => {
       .trim()
       .split(":")
       .pop();
-    console.log(port);
+
+    const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
+    return port;
   }
 };
 
@@ -221,6 +223,7 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
   }
 
   const port = await removePreviousDeployment(projectName);
+  console.log(port);
   return res.json({ message: "done" });
 
   const imageName = `app-${projectName.toLowerCase()}-${Date.now()}`;
