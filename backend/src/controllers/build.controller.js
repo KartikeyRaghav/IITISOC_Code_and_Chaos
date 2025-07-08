@@ -197,7 +197,7 @@ const removePreviousDeployment = async (projectName) => {
     });
     const imageName = prevDeployment.imageName;
     const containerName = execSync(
-      `sudo docker ps -a --filter ancestor=<${imageName}> --format "{{.Names}}"`
+      `sudo docker ps -a --filter ancestor=${imageName} --format "{{.Names}}"`
     );
     console.log(containerName);
   }
