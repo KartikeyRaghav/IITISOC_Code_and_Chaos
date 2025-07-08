@@ -7,6 +7,8 @@ import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import getPort from "get-port";
 import fs from "fs";
+import { Project } from "../models/project.model.js";
+import { Deployment } from "../models/deployment.model.js";
 
 // Get the current directory of the file (for ES Modules)
 const __filename = fileURLToPath(import.meta.url);
@@ -186,15 +188,33 @@ export const generateDockerFile = asyncHandler(async (req, res) => {
   });
 });
 
+const removePreviousDeployment = async (projectName) => {
+  const project = await Project.findOne({ name: projectName });
+
+  if (project.deploymentHistory.length > 0) {
+    const prevDeployment = await Deployment.findOne({
+      _id: project.deploymentHistory[project.deploymentHistory.length - 1],
+    });
+    const imageName = prevDeployment.imageName;
+    const containerName = execSync(
+      `sudo docker ps -a --filter ancestor=<${imageName}> --format "{{.Names}}"`
+    );
+    console.log(containerName);
+  }
+};
+
 // Route handler to build Docker image
 export const generateDockerImage = asyncHandler(async (req, res) => {
   const { projectName, clonedPath } = req.body;
-  console.log(projectName, clonedPath);
+  console.log(projectName);
   if (!projectName || !clonedPath) {
     return res
       .status(400)
       .json({ message: "Missing repo name or cloned path" });
   }
+
+  await removePreviousDeployment(projectName);
+  return res.json({ message: "done" });
 
   const imageName = `app-${projectName.toLowerCase()}-${Date.now()}`;
 

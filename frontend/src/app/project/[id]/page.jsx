@@ -110,8 +110,8 @@ const ProjectDetails = () => {
               if (match) {
                 let url = match[1];
                 setLogs((prev) => [...prev, "Run complete"]);
-                setIsBuilding(false);
                 updateDeployment(deploymentId);
+                setIsBuilding(false);
               }
               if (error) {
                 setIsBuilding(false);
@@ -219,8 +219,8 @@ const ProjectDetails = () => {
               if (match) {
                 let fullImageName = match[1];
                 setLogs((prev) => [...prev, "Build complete"]);
-                let deploymentId = await createDeployment(fullImageName);
-                runDockerContainer(projectName, fullImageName, deploymentId);
+                // let deploymentId = await createDeployment(fullImageName);
+                // runDockerContainer(projectName, fullImageName, deploymentId);
               }
               if (error) {
                 setIsBuilding(false);
@@ -360,8 +360,9 @@ const ProjectDetails = () => {
   };
 
   const handleBuildAndPreview = async () => {
-    if (!project || !generateDockerfile) return;
-
+    setIsError(false);
+    // if (!project || !generateDockerfile) return;
+    generateDockerImage(project.name, "");
     setIsBuilding(true);
     try {
       await cloneRepo();
@@ -575,7 +576,11 @@ const ProjectDetails = () => {
               </div>
 
               <div className="xl:col-span-3">
-                <EnhancedLogDisplay logs={logs} isBuilding={isBuilding} isError={isError} />
+                <EnhancedLogDisplay
+                  logs={logs}
+                  isBuilding={isBuilding}
+                  isError={isError}
+                />
               </div>
             </div>
           )}
