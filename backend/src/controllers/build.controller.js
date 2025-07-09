@@ -209,7 +209,7 @@ const removePreviousDeployment = async (projectName) => {
 
     const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
     return port;
-  }
+  } else return null;
 };
 
 // Route handler to build Docker image
@@ -223,8 +223,6 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
   }
 
   const port = await removePreviousDeployment(projectName);
-  console.log(port);
-  return res.json({ message: "done" });
 
   const imageName = `app-${projectName.toLowerCase()}-${Date.now()}`;
 
@@ -250,6 +248,9 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
       res.write(`Docker image build exited with code ${code}\n\n`);
       if (code === 0) {
         res.write(`[BUILD_COMPLETE] ${imageName}\n\n`);
+        if (port) {
+          res.write(`[PREV_PORT] ${port}\n\n`);
+        }
       } else {
         res.write(`[ERROR] Step failed with code ${code}\n\n`);
       }
@@ -289,9 +290,11 @@ function writeNginxConfig(subdomain, port) {
 
 // Route handler to run a Docker container and setup reverse proxy via nginx
 export const runDockerContainer = asyncHandler(async (req, res) => {
-  const { imageName, projectName } = req.body;
+  const { imageName, projectName, prevPort } = req.body;
 
-  const port = await getPort(); // Get free port
+  let port = null;
+  if (prevPort) port = prevPort;
+  else port = await getPort();
   const containerName = `container-${projectName.toLowerCase()}-${Date.now()}`;
 
   try {
@@ -317,7 +320,7 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
       );
     });
 
-    writeNginxConfig(projectName, port); // Configure nginx for subdomain
+    if (!prevPort) writeNginxConfig(projectName, port);
 
     run.stderr.on("data", (data) => {
       res.write(`ERROR: ${data.toString()}\n\n`);

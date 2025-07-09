@@ -76,7 +76,12 @@ const ProjectDetails = () => {
     } catch (error) {}
   };
 
-  const runDockerContainer = async (projectName, imageName, deploymentId) => {
+  const runDockerContainer = async (
+    projectName,
+    imageName,
+    deploymentId,
+    prevPort = null
+  ) => {
     try {
       setLogs((prev) => [...prev, "Starting docker container run"]);
       const controller = new AbortController();
@@ -93,6 +98,7 @@ const ProjectDetails = () => {
           body: JSON.stringify({
             projectName,
             imageName,
+            prevPort,
           }),
         }
       )
@@ -216,11 +222,18 @@ const ProjectDetails = () => {
 
               const match = text.match(/\[BUILD_COMPLETE\] (.*)/);
               const error = text.match(/\[ERROR\] (.*)/);
+              const prevPort = text.match(/\[PREV_PORT\] (.*)/);
               if (match) {
                 let fullImageName = match[1];
                 setLogs((prev) => [...prev, "Build complete"]);
-                // let deploymentId = await createDeployment(fullImageName);
-                // runDockerContainer(projectName, fullImageName, deploymentId);
+                let deploymentId = await createDeployment(fullImageName);
+                if (prevPort)
+                  runDockerContainer(
+                    projectName,
+                    fullImageName,
+                    deploymentId,
+                    prevPort
+                  );
               }
               if (error) {
                 setIsBuilding(false);
