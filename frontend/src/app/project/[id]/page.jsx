@@ -31,6 +31,7 @@ const ProjectDetails = () => {
   const [logs, setLogs] = useState([]);
   const [isBuilding, setIsBuilding] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [deployments, setDeployments] = useState([]);
 
   useEffect(() => {
     const getProject = async () => {
@@ -56,6 +57,24 @@ const ProjectDetails = () => {
       }
     };
     getProject();
+  }, [projectName]);
+
+  useEffect(() => {
+    const getDeployments = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/deployment/all?projectName=${projectName}`,
+          { credentials: "include" }
+        );
+        const data = await response.json();
+        setDeployments(data);
+        console.log(data);
+      } catch (error) {
+        console.error(error);
+        CustomToast("Error fetching project");
+      }
+    };
+    getDeployments();
   }, [projectName]);
 
   useEffect(() => {
@@ -115,17 +134,14 @@ const ProjectDetails = () => {
 
               const match = text.match(/\[RUN_COMPLETE\] (.*)/);
               const error = text.match(/\[ERROR\] (.*)/);
-              if (match) {
-                let url = match[1];
-                setLogs((prev) => [...prev, "Run complete"]);
-                updateDeployment(deploymentId);
-                setIsBuilding(false);
-              }
               if (error) {
                 setIsBuilding(false);
                 setIsError(true);
                 CustomToast("Error running the docker contanier");
               }
+              setLogs((prev) => [...prev, "Run complete"]);
+              updateDeployment(deploymentId);
+              setIsBuilding(false);
 
               readChunk();
             });

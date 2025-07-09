@@ -120,3 +120,17 @@ export const updateDeployment = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Failed to update deployment status" });
   }
 });
+
+export const getAllDeployments = asyncHandler(async (req, res) => {
+  const { projectName } = req.query;
+
+  const project = await Project.findOne({ name: projectName });
+
+  if (!project) {
+    return res.status(404).json({ message: "Project not found" });
+  }
+
+  const deployments = await Deployment.find({ project: project._id });
+
+  res.status(200).json(deployments);
+});
