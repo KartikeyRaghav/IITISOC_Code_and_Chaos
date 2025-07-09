@@ -201,6 +201,7 @@ const removePreviousDeployment = async (projectName) => {
     )
       .toString()
       .trim();
+    console.log(containerName);
     const port = execSync(`sudo docker port ${containerName}`)
       .toString()
       .trim()

@@ -236,6 +236,8 @@ const ProjectDetails = () => {
                     deploymentId,
                     prevPort
                   );
+                else
+                  runDockerContainer(projectName, fullImageName, deploymentId);
               }
               if (error) {
                 setIsBuilding(false);
