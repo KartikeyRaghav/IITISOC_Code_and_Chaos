@@ -234,7 +234,7 @@ const ProjectDetails = () => {
                     projectName,
                     fullImageName,
                     deploymentId,
-                    prevPort
+                    prevPort[1]
                   );
                 else
                   runDockerContainer(projectName, fullImageName, deploymentId);
