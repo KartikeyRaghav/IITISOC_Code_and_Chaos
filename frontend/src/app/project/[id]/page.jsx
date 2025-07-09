@@ -73,6 +73,8 @@ const ProjectDetails = () => {
           body: JSON.stringify({ _id: deploymentId }),
         }
       );
+      const data = await response.json();
+      console.log(data);
     } catch (error) {}
   };
 
@@ -374,8 +376,8 @@ const ProjectDetails = () => {
 
   const handleBuildAndPreview = async () => {
     setIsError(false);
-    // if (!project || !generateDockerfile) return;
-    generateDockerImage(project.name, "");
+    if (!project || !generateDockerfile) return;
+    // generateDockerImage(project.name, "");
     setIsBuilding(true);
     try {
       await cloneRepo();
