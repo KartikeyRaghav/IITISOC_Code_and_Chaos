@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { ToastContainer } from "react-toastify";
 import dotenv from "dotenv";
+import Navbar from "@/components/Navbar";
 
 dotenv.config();
 
@@ -377,7 +378,8 @@ const CreateProject = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3] flex items-center justify-center py-8 px-4">
       <ToastContainer />
-      <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-8 w-full max-w-3xl border border-purple-500/20 backdrop-blur-sm">
+      <Navbar />
+      <div className="bg-gradient-to-br mt-[100px] from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-8 w-full max-w-3xl border border-purple-500/20 backdrop-blur-sm">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-full mb-4 shadow-lg">
             <Github className="w-8 h-8 text-white" />

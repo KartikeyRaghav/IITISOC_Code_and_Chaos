@@ -70,7 +70,7 @@ const Project = () => {
     <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3]">
       <ToastContainer />
       <Navbar />
-      <div className="p-6">
+      <div className="p-6 mt-[83px]">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-12">

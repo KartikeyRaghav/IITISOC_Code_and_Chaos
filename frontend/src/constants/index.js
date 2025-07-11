@@ -1,13 +1,17 @@
+import { Home, Rocket } from "lucide-react";
+
 export const navLinks = [
   {
-    id: "0",
+    id: "1",
     title: "Dashboard",
     url: "/dashboard",
+    icon: <Home className="w-4 h-4" />,
   },
   {
-    id: "1",
+    id: "2",
     title: "Projects",
     url: "/project",
+    icon: <Rocket className="w-4 h-4" />,
   },
   // {
   //     id: '1',

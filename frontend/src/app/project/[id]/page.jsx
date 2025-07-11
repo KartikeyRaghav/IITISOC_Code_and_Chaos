@@ -461,24 +461,27 @@ const ProjectDetails = () => {
   };
 
   const formatDuration = (startTime, endTime) => {
-    if (!endTime) return "In progress...";
     const start = new Date(startTime);
-    const end = new Date(endTime);
+    const end = endTime ? new Date(endTime) : new Date();
     const duration = Math.round((end.getTime() - start.getTime()) / 1000);
 
     if (duration < 60) return `${duration}s`;
     if (duration < 3600)
       return `${Math.floor(duration / 60)}m ${duration % 60}s`;
-    return `${Math.floor(duration / 3600)}h ${Math.floor(
-      (duration % 3600) / 60
-    )}m`;
+    if (duration < 3600 * 24)
+      return `${Math.floor(duration / 3600)}h ${Math.floor(
+        (duration % 3600) / 60
+      )}m`;
+    return `${Math.floor(duration / 86400)} day${
+      Math.floor(duration / 86400) > 1 ? "s" : ""
+    } ${Math.floor((duration % 86400) / 3600)}h`;
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3]">
       <ToastContainer />
       <Navbar />
-      <div className="p-6">
+      <div className="p-6 mt-100">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">
