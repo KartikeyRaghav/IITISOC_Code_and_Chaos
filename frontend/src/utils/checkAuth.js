@@ -7,20 +7,23 @@ export const checkAuth = async () => {
       }
     );
     const data = await response.json();
-
-    localStorage.setItem("githubUsername", data.user.githubUsername);
-    localStorage.setItem("hasGithubPermission", data.user.hasGithubPermission);
-    localStorage.setItem("email", data.user.email);
-    localStorage.setItem("repos", data.user.repos);
-    localStorage.setItem("fullName", data.user.fullName);
-
     if (response.ok) {
+      localStorage.setItem("githubUsername", data.user.githubUsername);
+      localStorage.setItem(
+        "hasGithubPermission",
+        data.user.hasGithubPermission
+      );
+      localStorage.setItem("email", data.user.email);
+      localStorage.setItem("repos", JSON.stringify(data.user.repos));
+      localStorage.setItem("fullName", data.user.fullName);
+      localStorage.setItem("count", data.projectCount);
       return { data: data, status: 200 };
     } else {
+      console.log("logging out");
       return { status: 400, message: "User logged out" };
     }
   } catch (error) {
-    console.error("Error");
+    console.error(error);
     return { status: 400, message: "User logged out" };
   }
 };

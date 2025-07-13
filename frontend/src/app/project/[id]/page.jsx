@@ -25,10 +25,13 @@ import dotenv from "dotenv";
 import EnhancedLogDisplay from "@/components/EnhancedLogDisplay";
 import Navbar from "@/components/Navbar";
 import { ToastContainer } from "react-toastify";
+import { checkAuth } from "@/utils/checkAuth";
+import CustomLoader from "@/components/CustomLoader";
 
 dotenv.config();
 
 const ProjectDetails = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
   const projectName = usePathname().split("/")[2];
   const router = useRouter();
   const [project, setProject] = useState(null);
@@ -37,6 +40,18 @@ const ProjectDetails = () => {
   const [isError, setIsError] = useState(false);
   const [deployments, setDeployments] = useState([]);
   const [copiedUrl, setCopiedUrl] = useState(null);
+
+  useEffect(() => {
+    const verifyAuth = async () => {
+      const data = await checkAuth();
+      if (data.status === 400) {
+        router.replace("/auth/login");
+        return;
+      }
+    };
+    verifyAuth();
+    setIsAuthenticated(true);
+  }, []);
 
   useEffect(() => {
     const getProject = async () => {
@@ -471,6 +486,10 @@ const ProjectDetails = () => {
       Math.floor(duration / 86400) > 1 ? "s" : ""
     } ${Math.floor((duration % 86400) / 3600)}h`;
   };
+
+  if (isAuthenticated === null) {
+    return <CustomLoader />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3]">

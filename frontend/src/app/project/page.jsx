@@ -15,12 +15,27 @@ import {
   Rocket,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { checkAuth } from "@/utils/checkAuth";
+import CustomLoader from "@/components/CustomLoader";
 
 dotenv.config();
 
 const Project = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [repos, setRepos] = useState([]);
   const router = useRouter();
+
+  useEffect(() => {
+    const verifyAuth = async () => {
+      const data = await checkAuth();
+      if (data.status === 400) {
+        router.replace("/auth/login");
+        return;
+      }
+    };
+    verifyAuth();
+    setIsAuthenticated(true);
+  }, []);
 
   useEffect(() => {
     const getProjects = async () => {
@@ -65,6 +80,10 @@ const Project = () => {
         return <Folder className="w-3 h-3" />;
     }
   };
+
+  if (isAuthenticated === null) {
+    return <CustomLoader />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3]">

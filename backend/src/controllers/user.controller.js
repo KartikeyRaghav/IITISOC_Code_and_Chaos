@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.util.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.util.js";
 import jwt from "jsonwebtoken";
+import { Project } from "../models/project.model.js";
 
 const generateAccessandRefreshTokens = async (user) => {
   try {
@@ -180,7 +181,9 @@ export const getUserProfile = asyncHandler(async (req, res) => {
     return res.status(401).json({ message: "User not authenticated" });
   }
 
-  res.status(200).json({ user });
+  const projectCount = await Project.countDocuments({ createdBy: user._id });
+
+  res.status(200).json({ user, projectCount });
 });
 
 export const getUserRepos = asyncHandler(async (req, res) => {
