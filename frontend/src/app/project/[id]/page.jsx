@@ -308,7 +308,7 @@ const ProjectDetails = () => {
       );
       const data = await response.json();
       setLogs((prev) => [...prev, "Dockerfile generated"]);
-      let deploymentId = await createDeployment(fullImageName);
+      let deploymentId = await createDeployment();
       generateDockerImage(projectName, clonedPath, deploymentId);
     } catch (error) {
       console.error(error);
