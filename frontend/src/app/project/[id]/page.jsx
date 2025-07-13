@@ -137,6 +137,7 @@ const ProjectDetails = () => {
             projectName,
             imageName,
             prevPort,
+            deploymentId,
           }),
         }
       )
@@ -867,7 +868,11 @@ const ProjectDetails = () => {
               )}
 
               <div>
-                <EnhancedLogDisplay logs={logs} isBuilding={isBuilding} />
+                <EnhancedLogDisplay
+                  logs={logs}
+                  isBuilding={isBuilding}
+                  isError={isError}
+                />
               </div>
             </div>
           )}

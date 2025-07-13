@@ -277,7 +277,7 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
         newDeployment.status = "failed";
         res.write(`[ERROR] Step failed with code ${code}\n\n`);
       }
-      await newDeployment.save();
+      await newDeployment.save({ validateBeforeSave: false });
       res.end();
     });
 
@@ -314,12 +314,13 @@ function writeNginxConfig(subdomain, port) {
 
 // Route handler to run a Docker container and setup reverse proxy via nginx
 export const runDockerContainer = asyncHandler(async (req, res) => {
-  const { imageName, projectName, prevPort } = req.body;
+  const { imageName, projectName, prevPort, deploymentId } = req.body;
 
   let port = null;
   if (prevPort) port = prevPort;
   else port = await getPort();
   const containerName = `container-${projectName.toLowerCase()}-${Date.now()}`;
+  const deployment = await Deployment.findById({ deploymentId });
 
   try {
     res.setHeader("Content-Type", "text/plain");
@@ -339,22 +340,44 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
 
     run.stdout.on("data", (data) => {
       res.write(`${data.toString()}\n\n`);
+      deployment.logs = [
+        ...deployment.logs,
+        { log: `${data.toString()}\n\n`, timestamp: new Date() },
+      ];
     });
     res.write(
       `[RUN_COMPLETE] http://${projectName}.deploy.princecodes.online\n\n`
     );
+    deployment.logs = [
+      ...deployment.logs,
+      {
+        log: `[RUN_COMPLETE] http://${projectName}.deploy.princecodes.online\n\n`,
+        timestamp: new Date(),
+      },
+    ];
 
     if (!prevPort) writeNginxConfig(projectName, port);
 
     run.stderr.on("data", (data) => {
       res.write(`ERROR: ${data.toString()}\n\n`);
+      deployment.logs = [
+        ...deployment.logs,
+        { log: `ERROR: ${data.toString()}\n\n`, timestamp: new Date() },
+      ];
     });
 
     run.on("close", (code) => {
       res.write(`Docker container run exited with code ${code}\n\n`);
+      deployment.logs = [
+        ...deployment.logs,
+        {
+          log: `Docker container run exited with code ${code}\n\n`,
+          timestamp: new Date(),
+        },
+      ];
       res.end();
     });
-
+    await deployment.save({ validateBeforeSave: false });
     req.on("close", () => {
       run.kill();
     });
