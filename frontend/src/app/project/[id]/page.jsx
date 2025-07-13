@@ -20,6 +20,7 @@ import {
   Activity,
   Copy,
   Check,
+
 } from "lucide-react";
 import dotenv from "dotenv";
 import EnhancedLogDisplay from "@/components/EnhancedLogDisplay";
@@ -61,7 +62,6 @@ const ProjectDetails = () => {
           { credentials: "include" }
         );
         const data = await response.json();
-        console.log(data);
         if (data) setProject(data);
         else {
           CustomToast("Error fetching project");
@@ -89,7 +89,6 @@ const ProjectDetails = () => {
         );
         const data = await response.json();
         setDeployments(data);
-        console.log(data);
       } catch (error) {
         console.error(error);
         CustomToast("Error fetching project");
@@ -110,7 +109,6 @@ const ProjectDetails = () => {
         }
       );
       const data = await response.json();
-      console.log(data);
     } catch (error) {}
   };
 
@@ -308,7 +306,7 @@ const ProjectDetails = () => {
       );
       const data = await response.json();
       setLogs((prev) => [...prev, "Dockerfile generated"]);
-      let deploymentId = await createDeployment();
+      const deploymentId = await createDeployment();
       generateDockerImage(projectName, clonedPath, deploymentId);
     } catch (error) {
       console.error(error);
@@ -769,9 +767,15 @@ const ProjectDetails = () => {
                               </div>
                               {deployment.endTime && (
                                 <div className="flex items-center gap-2 text-sm">
-                                  <CheckCircle className="w-4 h-4 text-green-400" />
+                                  {deployment.status === "failed" ? (
+                                    <AlertCircle className="w-4 h-4 text-red-400" />
+                                  ) : (
+                                    <CheckCircle className="w-4 h-4 text-green-400" />
+                                  )}
                                   <span className="text-gray-400">
-                                    Completed:
+                                    {deployment.status === "failed"
+                                      ? "Ended:"
+                                      : "Completed:"}
                                   </span>
                                   <span className="text-white">
                                     {new Date(
@@ -822,36 +826,35 @@ const ProjectDetails = () => {
                                 </div>
                               )}
 
-                            {deployment.logUrl &&
-                              deployment.logUrl !==
-                                "undefined/logsTiptea/2" && (
-                                <div className="flex items-center gap-2">
-                                  <a
-                                    href={deployment.logUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 font-medium transition-colors"
-                                  >
-                                    <Code className="w-4 h-4" />
-                                    View Logs
-                                    <ExternalLink className="w-3 h-3" />
-                                  </a>
-                                  <button
-                                    onClick={() =>
-                                      copyToClipboard(deployment.logUrl, "logs")
-                                    }
-                                    className="p-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 transition-colors"
-                                    title="Copy logs URL"
-                                  >
-                                    {copiedUrl ===
-                                    `logs-${deployment.logUrl}` ? (
-                                      <Check className="w-4 h-4 text-blue-400" />
-                                    ) : (
-                                      <Copy className="w-4 h-4 text-blue-400" />
-                                    )}
-                                  </button>
-                                </div>
-                              )}
+                            <div className="flex items-center gap-2">
+                              <a
+                                href={`/logs/${project.name}/${deployment._id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 font-medium transition-colors"
+                              >
+                                <Code className="w-4 h-4" />
+                                View Logs
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                              <button
+                                onClick={() =>
+                                  copyToClipboard(
+                                    `/logs/${project.name}/${deployment._id}`,
+                                    "logs"
+                                  )
+                                }
+                                className="p-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 transition-colors"
+                                title="Copy logs URL"
+                              >
+                                {copiedUrl ===
+                                `logs-${`/logs/${project.name}/${deployment._id}`}` ? (
+                                  <Check className="w-4 h-4 text-blue-400" />
+                                ) : (
+                                  <Copy className="w-4 h-4 text-blue-400" />
+                                )}
+                              </button>
+                            </div>
 
                             {deployment.rollbackAvailable && (
                               <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/30 text-yellow-300 font-medium transition-colors ml-auto">

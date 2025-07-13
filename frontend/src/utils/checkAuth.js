@@ -19,7 +19,6 @@ export const checkAuth = async () => {
       localStorage.setItem("count", data.projectCount);
       return { data: data, status: 200 };
     } else {
-      console.log("logging out");
       return { status: 400, message: "User logged out" };
     }
   } catch (error) {

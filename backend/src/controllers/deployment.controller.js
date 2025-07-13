@@ -40,11 +40,10 @@ export const getVersion = asyncHandler(async (req, res) => {
 });
 
 export const createDeployment = asyncHandler(async (req, res) => {
-  const { projectName, imageName, version, status, logUrl, previewUrl } =
-    req.body;
+  const { projectName, version, status } = req.body;
 
   // Validate required fields
-  if (!projectName || !imageName) {
+  if (!projectName) {
     return res
       .status(400)
       .json({ message: "Project and image names are required" });
@@ -71,12 +70,9 @@ export const createDeployment = asyncHandler(async (req, res) => {
     const deployment = await Deployment.create({
       version,
       status,
-      imageName,
       project,
       startTime: new Date(),
       deployedBy: projectUser,
-      logUrl,
-      previewUrl,
     });
 
     // Append to deployment history and save
@@ -112,6 +108,11 @@ export const updateDeployment = asyncHandler(async (req, res) => {
 
     // Update the status and save
     deployment.status = status;
+    if (status === "failed") {
+      deployment.rollbackAvailable = false;
+      deployment.endTime = new Date();
+      deployment.imageName = "not-available";
+    }
     await deployment.save();
 
     res.status(200).json({ message: "Deployment status updated" });
