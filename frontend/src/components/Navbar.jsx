@@ -174,9 +174,9 @@ const Navbar = () => {
             <div className="px-6 py-4 border-t border-gray-700/50">
               <div className="text-center text-gray-400 text-sm">
                 <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent font-semibold">
-                  ProjectHub
+                  Ignitia
                 </span>{" "}
-                - Build. Deploy. Scale.
+                - Ignite your web presence.
               </div>
             </div>
           </div>

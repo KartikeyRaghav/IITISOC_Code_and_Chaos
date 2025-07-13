@@ -193,38 +193,39 @@ const removePreviousDeployment = async (projectName) => {
 
   if (project.deploymentHistory.length > 0) {
     const prevDeployment = await Deployment.findOne({
-      _id: project.deploymentHistory[project.deploymentHistory.length - 1],
+      project: project._id,
+      status: "in-progress",
     });
-    const imageName = prevDeployment.imageName;
-    const containerName = execSync(
-      `sudo docker ps -a --filter ancestor=${imageName} --format "{{.Names}}"`
-    )
-      .toString()
-      .trim();
-    console.log(containerName);
-    const port = execSync(`sudo docker port ${containerName}`)
-      .toString()
-      .trim()
-      .split(":")
-      .pop();
+    if (prevDeployment) {
+      const imageName = prevDeployment.imageName;
+      const containerName = execSync(
+        `sudo docker ps -a --filter ancestor=${imageName} --format "{{.Names}}"`
+      )
+        .toString()
+        .trim();
+      const port = execSync(`sudo docker port ${containerName}`)
+        .toString()
+        .trim()
+        .split(":")
+        .pop();
 
-    const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
-    return port;
+      const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
+      return port;
+    } else return null;
   } else return null;
 };
 
 // Route handler to build Docker image
 export const generateDockerImage = asyncHandler(async (req, res) => {
-  const { projectName, clonedPath } = req.body;
-  console.log(projectName);
-  if (!projectName || !clonedPath) {
+  const { projectName, clonedPath, deploymentId } = req.body;
+  if (!projectName || !clonedPath || !deploymentId) {
     return res
       .status(400)
       .json({ message: "Missing repo name or cloned path" });
   }
 
   const port = await removePreviousDeployment(projectName);
-
+  const newDeployment = await Deployment.findById(deploymentId);
   const imageName = `app-${projectName.toLowerCase()}-${Date.now()}`;
 
   try {
@@ -238,23 +239,45 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
     const build = spawn("docker", ["build", "-t", imageName, clonedPath]);
 
     build.stdout.on("data", (data) => {
+      newDeployment.logs = [
+        ...newDeployment.logs,
+        { log: data.toString(), timestamp: new Date() },
+      ];
       res.write(`${data.toString()}\n\n`);
     });
 
     build.stderr.on("data", (data) => {
+      newDeployment.logs = [
+        ...newDeployment.logs,
+        { log: data.toString(), timestamp: new Date() },
+      ];
       res.write(`${data.toString()}\n\n`);
     });
 
-    build.on("close", (code) => {
+    build.on("close", async (code) => {
       res.write(`Docker image build exited with code ${code}\n\n`);
       if (code === 0) {
+        newDeployment.logs = [
+          ...newDeployment.logs,
+          { log: `[BUILD_COMPLETE] ${imageName}\n\n`, timestamp: new Date() },
+        ];
+        newDeployment.imageName = imageName;
         res.write(`[BUILD_COMPLETE] ${imageName}\n\n`);
         if (port) {
           res.write(`[PREV_PORT] ${port}\n\n`);
         }
       } else {
+        newDeployment.logs = [
+          ...newDeployment.logs,
+          {
+            log: `[ERROR] Step failed with code ${code}\n\n`,
+            timestamp: new Date(),
+          },
+        ];
+        newDeployment.status = "failed";
         res.write(`[ERROR] Step failed with code ${code}\n\n`);
       }
+      await newDeployment.save();
       res.end();
     });
 

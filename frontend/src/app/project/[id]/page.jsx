@@ -46,6 +46,7 @@ const ProjectDetails = () => {
           { credentials: "include" }
         );
         const data = await response.json();
+        console.log(data);
         if (data) setProject(data);
         else {
           CustomToast("Error fetching project");
@@ -82,7 +83,7 @@ const ProjectDetails = () => {
     getDeployments();
   }, [projectName]);
 
-  const updateDeployment = async (deploymentId) => {
+  const updateDeployment = async (deploymentId, status) => {
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/deployment/update`,
@@ -90,7 +91,7 @@ const ProjectDetails = () => {
           credentials: "include",
           headers: { "Content-Type": "application/json" },
           method: "PUT",
-          body: JSON.stringify({ _id: deploymentId }),
+          body: JSON.stringify({ _id: deploymentId, status }),
         }
       );
       const data = await response.json();
@@ -128,7 +129,7 @@ const ProjectDetails = () => {
           const reader = response.body.getReader();
           const decoder = new TextDecoder();
           const readChunk = () => {
-            reader.read().then(({ done, value }) => {
+            reader.read().then(async ({ done, value }) => {
               if (done) return;
               const text = decoder.decode(value);
               setLogs((prev) => [...prev, text]);
@@ -141,7 +142,7 @@ const ProjectDetails = () => {
                 CustomToast("Error running the docker contanier");
               }
               setLogs((prev) => [...prev, "Run complete"]);
-              updateDeployment(deploymentId);
+              await updateDeployment(deploymentId, "pending");
               setIsBuilding(false);
 
               readChunk();
@@ -179,7 +180,7 @@ const ProjectDetails = () => {
     } catch (error) {}
   };
 
-  const createDeployment = async (imageName) => {
+  const createDeployment = async () => {
     try {
       const prevVersion = await getVersion();
       const version = (Number(prevVersion) + 1).toString();
@@ -189,17 +190,8 @@ const ProjectDetails = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             projectName,
-            imageName,
             version,
             status: "pending",
-            logUrl:
-              `${process.env.FRONTEND_URL}` +
-              "/logs" +
-              projectName +
-              "/" +
-              version,
-            previewUrl:
-              `${process.env.FRONTEND_URL}` + "/" + projectName + "/" + version,
           }),
           method: "POST",
           credentials: "include",
@@ -213,7 +205,7 @@ const ProjectDetails = () => {
     }
   };
 
-  const generateDockerImage = async (projectName, clonedPath) => {
+  const generateDockerImage = async (projectName, clonedPath, deploymentId) => {
     try {
       setLogs((prev) => [...prev, "Starting docker image build"]);
       const controller = new AbortController();
@@ -228,6 +220,7 @@ const ProjectDetails = () => {
         body: JSON.stringify({
           projectName,
           clonedPath,
+          deploymentId,
         }),
       })
         .then((response) => {
@@ -245,7 +238,7 @@ const ProjectDetails = () => {
               if (match) {
                 let fullImageName = match[1];
                 setLogs((prev) => [...prev, "Build complete"]);
-                let deploymentId = await createDeployment(fullImageName);
+                await updateDeployment(deploymentId, "pending");
                 if (prevPort)
                   runDockerContainer(
                     projectName,
@@ -258,6 +251,7 @@ const ProjectDetails = () => {
               }
               if (error) {
                 setIsBuilding(false);
+                await updateDeployment(deploymentId, "failed");
                 setIsError(true);
                 CustomToast("Error building the docker image");
               }
@@ -298,7 +292,8 @@ const ProjectDetails = () => {
       );
       const data = await response.json();
       setLogs((prev) => [...prev, "Dockerfile generated"]);
-      generateDockerImage(projectName, clonedPath);
+      let deploymentId = await createDeployment(fullImageName);
+      generateDockerImage(projectName, clonedPath, deploymentId);
     } catch (error) {
       console.error(error);
       CustomToast("Error while generating dockerfile");
@@ -481,7 +476,7 @@ const ProjectDetails = () => {
     <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3]">
       <ToastContainer />
       <Navbar />
-      <div className="p-6 mt-100">
+      <div className="p-6 mt-[80px]">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">
@@ -516,7 +511,7 @@ const ProjectDetails = () => {
                           </div>
                           <div>
                             <h2 className="text-3xl font-bold text-white">
-                              {project.project_name || project.name}
+                              {project.name}
                             </h2>
                             <div className="flex items-center gap-2 mt-1">
                               {getStatusIcon()}
@@ -543,21 +538,21 @@ const ProjectDetails = () => {
                             Repository
                           </span>
                         </div>
-                        {project.repositoryUrl ? (
+                        {project.github.repositoryUrl ? (
                           <a
-                            href={project.repositoryUrl}
+                            href={project.github.repositoryUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 text-white hover:text-blue-300 transition-colors duration-200 group"
                           >
                             <span className="truncate">
-                              {project.repositoryUrl}
+                              {project.github.repositoryUrl}
                             </span>
                             <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                           </a>
                         ) : (
                           <span className="text-gray-400">
-                            {project.repositoryName || "N/A"}
+                            {project.github.repoName || "N/A"}
                           </span>
                         )}
                       </div>
@@ -572,11 +567,11 @@ const ProjectDetails = () => {
                           </span>
                         </div>
                         <span className="text-white font-mono bg-gray-800/50 px-3 py-1 rounded-lg text-sm">
-                          {project.branch || "N/A"}
+                          {project.github.branch || "N/A"}
                         </span>
                       </div>
 
-                      {project.folder && (
+                      {project.github.folder && (
                         <div className="bg-[#2c2f4a]/50 rounded-2xl p-5 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300">
                           <div className="flex items-center gap-3 mb-2">
                             <div className="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
@@ -587,7 +582,7 @@ const ProjectDetails = () => {
                             </span>
                           </div>
                           <span className="text-white font-mono bg-gray-800/50 px-3 py-1 rounded-lg text-sm">
-                            {project.folder}
+                            {project.github.folder}
                           </span>
                         </div>
                       )}

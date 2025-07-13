@@ -32,7 +32,7 @@ export const getVersion = asyncHandler(async (req, res) => {
     }
 
     // Default version if no deployments found
-    res.status(200).json({ version: "1" });
+    res.status(200).json({ version: "0" });
   } catch (error) {
     console.error("Error in getVersion:", error);
     res.status(500).json({ message: "Internal server error" });

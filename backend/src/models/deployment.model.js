@@ -14,12 +14,7 @@ const deploymentSchema = new Schema(
     },
     imageName: {
       type: String,
-      required: true,
-      trim: true,
-    },
-    logUrl: {
-      type: String,
-      required: true,
+      default: null,
       trim: true,
     },
     startTime: {
@@ -31,14 +26,15 @@ const deploymentSchema = new Schema(
       type: Date,
       default: null,
     },
-    previewUrl: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    logs: [
+      {
+        log: { type: String, default: null },
+        timestamp: { type: Date, default: null },
+      },
+    ],
     rollbackAvailable: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     deployedBy: {
       type: Schema.Types.ObjectId,
