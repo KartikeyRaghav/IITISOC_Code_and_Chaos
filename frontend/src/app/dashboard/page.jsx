@@ -70,7 +70,7 @@ const Dashboard = () => {
   const getUserRepos = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/getUserRepos`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/getUserRepos`,
         {
           credentials: "include",
         }

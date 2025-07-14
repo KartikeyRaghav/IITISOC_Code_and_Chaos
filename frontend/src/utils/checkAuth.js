@@ -1,7 +1,7 @@
 export const checkAuth = async () => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/profile`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/profile`,
       {
         credentials: "include",
       }

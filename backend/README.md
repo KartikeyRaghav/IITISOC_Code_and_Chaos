@@ -140,10 +140,10 @@ npm run dev
 
 ### Users
 
-- `POST /api/v1/users/register`
-- `POST /api/v1/users/login`
-- `GET /api/v1/users/logout`
-- `GET /api/v1/users/profile`
+- `POST /api/v1/user/register`
+- `POST /api/v1/user/login`
+- `GET /api/v1/user/logout`
+- `GET /api/v1/user/profile`
 
 ### GitHub
 

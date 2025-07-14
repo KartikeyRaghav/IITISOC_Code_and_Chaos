@@ -37,7 +37,7 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
     // Handle specific JWT errors
     if (error.name === "TokenExpiredError") {
       const response = await fetch(
-        `http://localhost:3000/api/v1/users/refreshToken`
+        `http://localhost:3000/api/v1/user/refreshToken`
       );
       if (response.ok) {
         const data = await response.json();
@@ -68,7 +68,7 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
     }
     if (error.name === "JsonWebTokenError") {
       const response = await fetch(
-        `http://localhost:3000/api/v1/users/refreshToken`
+        `http://localhost:3000/api/v1/user/refreshToken`
       );
       if (response.ok) {
         const data = await response.json();

@@ -135,3 +135,18 @@ export const getAllDeployments = asyncHandler(async (req, res) => {
 
   res.status(200).json(deployments);
 });
+
+export const getDeployment = asyncHandler(async (req, res) => {
+  const { deploymentId } = req.query;
+
+  const deployment = await Deployment.findOne({ _id: deploymentId });
+
+  if (req.user._id.toString() !== deployment.deployedBy.toString())
+    return res.status(401).json({ message: "Not authorized" });
+
+  if (!deployment) {
+    return res.status(404).json({ message: "Deployment not found" });
+  }
+
+  res.status(200).json(deployment);
+});

@@ -56,7 +56,7 @@ const Navbar = () => {
     setShowProfileDropdown(false);
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/logout`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/logout`,
         { credentials: "include", method: "POST" }
       );
       if (response.ok) {

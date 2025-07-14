@@ -31,7 +31,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/login`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/login`,
         {
           method: "POST",
           headers: {

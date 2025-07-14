@@ -37,7 +37,7 @@ export default function SignupPage() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/register`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/register`,
         {
           method: "POST",
           headers: {

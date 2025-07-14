@@ -40,7 +40,7 @@ import projectRouter from "./routes/project.route.js";
 import deploymentRouter from "./routes/deployment.route.js";
 
 // Route Middleware Setup
-app.use("/api/v1/users", userRouter);
+app.use("/api/v1/user", userRouter);
 app.use("/api/v1/github", githubRouter);
 app.use("/api/v1/build", buildRouter);
 app.use("/api/v1/project", projectRouter);

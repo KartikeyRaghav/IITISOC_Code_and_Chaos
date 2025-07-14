@@ -96,7 +96,7 @@ const CreateProject = () => {
     const getUserRepos = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/getUserRepos`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/getUserRepos`,
           {
             credentials: "include",
           }
@@ -261,7 +261,7 @@ const CreateProject = () => {
           const formData = new FormData();
           formData.append("zip", uploadedFile);
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/createByZip`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/createByZip`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },

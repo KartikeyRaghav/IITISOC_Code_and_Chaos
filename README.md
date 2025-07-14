@@ -85,12 +85,12 @@ Think of it as your **Vercel alternative** with full visibility and control. �
 ## Architecture
 
 ```
-Frontend (Next.js + Tailwind) 
-          ↓ 
-Backend (Express + MongoDB) 
-          ↓ 
+Frontend (Next.js + Tailwind)
+          ↓
+Backend (Express + MongoDB)
+          ↓
 Docker Engine (Build & Run)
-          ↓ 
+          ↓
 NGINX (Reverse Proxy)
 ```
 
@@ -196,7 +196,7 @@ For full API docs, see [backend/README.md](backend/README.md)
 
 | Area       | Base Path            | Features                                        |
 | ---------- | -------------------- | ----------------------------------------------- |
-| User       | `/api/v1/users`      | Login, register, logout, token refresh, profile |
+| User       | `/api/v1/user`       | Login, register, logout, token refresh, profile |
 | GitHub     | `/api/v1/github`     | OAuth login, repos, branches                    |
 | Build      | `/api/v1/build`      | Clone repo, detect stack, docker build/run      |
 | Project    | `/api/v1/project`    | CRUD project, check names                       |
