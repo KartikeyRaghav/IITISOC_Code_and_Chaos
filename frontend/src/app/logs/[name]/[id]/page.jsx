@@ -44,7 +44,24 @@ const page = () => {
     return <CustomLoader />;
   }
 
-  return <div>{deployment._id}</div>;
+  return (
+    <div>
+      <h2>Deployment ID: {deployment._id}</h2>
+      <h3>Logs:</h3>
+      {deployment.logs && deployment.logs.length > 0 ? (
+        <ul>
+          {deployment.logs.map((log) => (
+            <li key={log.id || log._id}>
+              {log.message}
+            </li>
+          ))}
+        </ul>
+      ):(
+        <p>No logs available.</p>
+      )}
+    </div>
+  )
+  ;
 };
 
 export default page;
