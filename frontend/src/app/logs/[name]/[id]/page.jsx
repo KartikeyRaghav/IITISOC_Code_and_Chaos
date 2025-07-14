@@ -5,7 +5,7 @@ import { checkAuth } from "@/utils/checkAuth";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
-import {Code, History, HistoryIcon } from "lucide-react";
+import {Code, HistoryIcon } from "lucide-react";
 
 const page = () => {
   const pathName = usePathname();
@@ -60,7 +60,7 @@ const page = () => {
                     </div>
                     <div className="h-1 w-24 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"></div>
                   </div>
-                  <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-8 border border-purple-500/20 backdrop-blue-sm mb-8">
+                  <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-8 border border-purple-500/20 backdrop-blur-sm mb-8">
                     <div className="flex items-center gap-3 mb-3">
                       <Code className="w-6 h-6 text-blue-400"/>
                       <span className="text-lg font-semibold text-white">Deployment ID:</span>
@@ -68,8 +68,8 @@ const page = () => {
                     </div>
                   </div>
 
-                  <div className="bg-[#2c2f4a]/50 rounded-2xl p-6 border border-gray-600/20 background-blum-sm">
-                    <h3 className="text-xl font-bond text-white mb-4 flex items-center gap-2">
+                  <div className="bg-[#2c2f4a]/50 rounded-2xl p-6 border border-gray-600/20 background-blur-sm">
+                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                       <HistoryIcon className="w-5 h-5 text-purple-400" />
                       Logs 
                     </h3>
