@@ -20,7 +20,7 @@ import {
   Activity,
   Copy,
   Check,
-
+  Rocket,
 } from "lucide-react";
 import dotenv from "dotenv";
 import EnhancedLogDisplay from "@/components/EnhancedLogDisplay";
@@ -28,6 +28,7 @@ import Navbar from "@/components/Navbar";
 import { ToastContainer } from "react-toastify";
 import { checkAuth } from "@/utils/checkAuth";
 import CustomLoader from "@/components/CustomLoader";
+import Footer from "@/components/Footer";
 
 dotenv.config();
 
@@ -156,7 +157,7 @@ const ProjectDetails = () => {
                 CustomToast("Error running the docker contanier");
               }
               setLogs((prev) => [...prev, "Run complete"]);
-              await updateDeployment(deploymentId, "pending");
+              await updateDeployment(deploymentId, "in-preview");
               setIsBuilding(false);
 
               readChunk();
@@ -171,6 +172,7 @@ const ProjectDetails = () => {
     } catch (error) {
       console.error(error);
       CustomToast("Error while running docker container");
+      await updateDeployment(deploymentId, "failed");
       setLogs((prev) => [...prev, "Error while running docker container"]);
     }
   };
@@ -409,7 +411,9 @@ const ProjectDetails = () => {
     setIsBuilding(true);
     try {
       await cloneRepo();
-    } catch {}
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const getStatusIcon = () => {
@@ -431,7 +435,7 @@ const ProjectDetails = () => {
 
   const getDeploymentStatusColor = (status) => {
     switch (status) {
-      case "in-progress":
+      case "in-preview":
         return "bg-green-500/20 text-green-400 border-green-500/30";
       case "completed":
         return "bg-blue-500/20 text-blue-400 border-blue-500/30";
@@ -448,7 +452,7 @@ const ProjectDetails = () => {
     switch (status) {
       case "completed":
         return <CheckCircle className="w-4 h-4" />;
-      case "in-progress":
+      case "in-preview":
         return <Activity className="w-4 h-4 animate-pulse" />;
       case "failed":
         return <AlertCircle className="w-4 h-4" />;
@@ -494,7 +498,7 @@ const ProjectDetails = () => {
     <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3]">
       <ToastContainer />
       <Navbar />
-      <div className="p-6 mt-[80px]">
+      <div className="p-6 pt-[104px]">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">
@@ -683,7 +687,7 @@ const ProjectDetails = () => {
               </div>
 
               {deployments && deployments.length > 0 && (
-                <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl border border-purple-500/20 backdrop-blur-sm overflow-hidden">
+                <div className="bg-gradient-to-br max-h-screen overflow-y-auto from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl border border-purple-500/20 backdrop-blur-sm overflow-hidden">
                   <div className="bg-gradient-to-r from-[#2c2f4a] to-[#1e1f3a] px-8 py-6 border-b border-gray-600/30">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -707,7 +711,7 @@ const ProjectDetails = () => {
                           key={deployment._id}
                           className="bg-[#2c2f4a]/50 rounded-2xl p-6 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300 hover:scale-[1.01]"
                         >
-                          <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-start flex-wrap justify-between mb-4">
                             <div className="flex items-center gap-3">
                               <div
                                 className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium border ${getDeploymentStatusColor(
@@ -721,7 +725,7 @@ const ProjectDetails = () => {
                                 Version {deployment.version}
                               </span>
                             </div>
-                            <div className="text-right">
+                            <div className="ml-auto p-2 text-right">
                               <div className="text-sm text-white font-medium">
                                 {formatDuration(
                                   deployment.startTime,
@@ -738,7 +742,7 @@ const ProjectDetails = () => {
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div className="space-y-2">
-                              <div className="flex items-center gap-2 text-sm">
+                              <div className="flex flex-wrap items-center gap-2 text-sm">
                                 <Clock className="w-4 h-4 text-purple-400" />
                                 <span className="text-gray-400">Started:</span>
                                 <span className="text-white">
@@ -769,49 +773,82 @@ const ProjectDetails = () => {
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-3 pt-4 border-t border-gray-600/20">
-                            {deployment.previewUrl &&
-                              deployment.previewUrl !==
-                                "undefined/tiptea/2" && (
-                                <div className="flex items-center gap-2">
-                                  <a
-                                    href={
-                                      deployment.previewUrl.startsWith("http")
-                                        ? deployment.previewUrl
-                                        : `http://${deployment.previewUrl}`
-                                    }
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 font-medium transition-colors"
-                                  >
-                                    <Globe className="w-4 h-4" />
-                                    View Live
-                                    <ExternalLink className="w-3 h-3" />
-                                  </a>
-                                  <button
-                                    onClick={() =>
-                                      copyToClipboard(
-                                        deployment.previewUrl,
-                                        "preview"
-                                      )
-                                    }
-                                    className="p-2 rounded-lg bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 transition-colors"
-                                    title="Copy preview URL"
-                                  >
-                                    {copiedUrl ===
-                                    `preview-${deployment.previewUrl}` ? (
-                                      <Check className="w-4 h-4 text-green-400" />
-                                    ) : (
-                                      <Copy className="w-4 h-4 text-green-400" />
-                                    )}
-                                  </button>
-                                </div>
-                              )}
+                          <div className="flex items-center gap-3 flex-wrap pt-4 border-t border-gray-600/20">
+                            {/* Preview Status Actions */}
+                            {deployment.status === "in-preview" && (
+                              <div className="flex items-center gap-2">
+                                <a
+                                  href={`http://${deployment.previewUrl}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 font-medium transition-colors"
+                                >
+                                  <Globe className="w-4 h-4" />
+                                  View Preview
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                                <button
+                                  onClick={() =>
+                                    copyToClipboard(
+                                      deployment.previewUrl,
+                                      "preview"
+                                    )
+                                  }
+                                  className="p-2 rounded-lg bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 transition-colors"
+                                  title="Copy preview URL"
+                                >
+                                  {copiedUrl ===
+                                  `preview-${deployment.previewUrl}` ? (
+                                    <Check className="w-4 h-4 text-green-400" />
+                                  ) : (
+                                    <Copy className="w-4 h-4 text-green-400" />
+                                  )}
+                                </button>
+                              </div>
+                            )}
+
+                            {deployment.status === "in-preview" && (
+                              <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 text-purple-300 font-medium transition-colors">
+                                <Rocket className="w-4 h-4" />
+                                Deploy to Production
+                              </button>
+                            )}
+
+                            {deployment.status === "deployed" && (
+                              <div className="flex items-center gap-2">
+                                <a
+                                  href={`http://${deployment.previewUrl}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 font-medium transition-colors"
+                                >
+                                  <Globe className="w-4 h-4" />
+                                  View Live
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                                <button
+                                  onClick={() =>
+                                    copyToClipboard(
+                                      deployment.previewUrl,
+                                      "preview"
+                                    )
+                                  }
+                                  className="p-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 transition-colors"
+                                  title="Copy live URL"
+                                >
+                                  {copiedUrl ===
+                                  `preview-${deployment.previewUrl}` ? (
+                                    <Check className="w-4 h-4 text-emerald-400" />
+                                  ) : (
+                                    <Copy className="w-4 h-4 text-emerald-400" />
+                                  )}
+                                </button>
+                              </div>
+                            )}
 
                             <div className="flex items-center gap-2">
                               <a
                                 href={`/logs/${project.name}/${deployment._id}`}
-                                target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 font-medium transition-colors"
                               >
@@ -838,12 +875,15 @@ const ProjectDetails = () => {
                               </button>
                             </div>
 
-                            {deployment.rollbackAvailable && (
-                              <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/30 text-yellow-300 font-medium transition-colors ml-auto">
-                                <History className="w-4 h-4" />
-                                Rollback Available
-                              </button>
-                            )}
+                            {deployment.rollbackAvailable &&
+                              project.deployments?.some(
+                                (d) => d.status === "deployed"
+                              ) && (
+                                <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/30 text-yellow-300 font-medium transition-colors ml-auto">
+                                  <History className="w-4 h-4" />
+                                  Rollback Available
+                                </button>
+                              )}
                           </div>
                         </div>
                       ))}
@@ -863,6 +903,7 @@ const ProjectDetails = () => {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

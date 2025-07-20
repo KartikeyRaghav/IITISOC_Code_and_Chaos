@@ -1,5 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 import { User } from "../models/user.model.js";
+import { Deployment } from "../models/deployment.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.util.js";
 import jwt from "jsonwebtoken";
 import { Project } from "../models/project.model.js";
@@ -194,4 +195,11 @@ export const getUserRepos = asyncHandler(async (req, res) => {
   }
 
   res.status(200).json(user.repos);
+});
+
+export const getStats = asyncHandler(async (_, res) => {
+  const userCount = await User.countDocuments({});
+  const deploymentCount = await Deployment.countDocuments({});
+
+  res.status(200).json({ userCount, deploymentCount });
 });

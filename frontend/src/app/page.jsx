@@ -7,6 +7,7 @@ import { checkAuth } from "@/utils/checkAuth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import dotenv from "dotenv";
+import Footer from "@/components/Footer";
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ export default function Home() {
       <main className="px-4 py-8">
         <Hero />
         <Grid />
+        <Footer />
       </main>
     </div>
   );

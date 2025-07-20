@@ -1,11 +1,16 @@
 import { useRouter } from "next/navigation";
 
-const DashboardMain = ({ repos, logs, url, repoRef }) => {
+const DashboardMain = ({ repos, url, repoRef }) => {
   const router = useRouter();
+
+  if (repos.length === 0) {
+    return null;
+  }
+
   return (
-    <div 
+    <div
       ref={repoRef}
-      className="flex-1 p-4 sm:p-8 space-y-8 min-h-screen bg-gradient-to-br from-[#003047] to-[#37005c]"
+      className="flex-1 p-4 sm:p-8 space-y-8 bg-gradient-to-br from-[#003047] to-[#37005c]"
     >
       <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-4">
         Your GitHub Repositories
@@ -17,7 +22,9 @@ const DashboardMain = ({ repos, logs, url, repoRef }) => {
             className="relative group border border-[#7b00cc] rounded-2xl p-4 sm:p-6 shadow-xl bg-gradient-to-br from-[#1a0033]/80 via-[#003047]/90 to-[#2d004e]/90 hover:scale-105 hover:shadow-purple-900/70 hover:border-[#ad65dd] transition-all duration-300 cursor-pointer backdrop-blur-md"
             onClick={() => router.push(`/project/create?repo=${repo.name}`)}
           >
-            <h3 className="font-bold text-lg sm:text-xl text-white mb-2">{repo.name}</h3>
+            <h3 className="font-bold text-lg sm:text-xl text-white mb-2">
+              {repo.name}
+            </h3>
             <p className="text-sm text-gray-400">
               {repo.description || "No description"}
             </p>

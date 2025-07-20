@@ -10,6 +10,7 @@ import ActionPanel from "@/components/ActionPanel";
 import DashboardMain from "@/components/DashboardMain";
 import AppIntro from "@/components/AppIntro";
 import dotenv from "dotenv";
+import Footer from "@/components/Footer";
 
 dotenv.config();
 
@@ -110,6 +111,7 @@ const Dashboard = () => {
       <main className="w-full">
         <DashboardMain repos={repos} url={url} repoRef={repoRef} />
       </main>
+      <Footer />
     </>
   );
 };
