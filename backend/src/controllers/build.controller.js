@@ -285,7 +285,7 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
 
   const project = Project.findOne({ name: projectName });
   const containerName = `container-${projectName.toLowerCase()}-${Date.now()}`;
-  const deployment = await Deployment.findById({ deploymentId });
+  const deployment = await Deployment.findOne({ _id: deploymentId });
 
   try {
     res.setHeader("Content-Type", "text/plain");

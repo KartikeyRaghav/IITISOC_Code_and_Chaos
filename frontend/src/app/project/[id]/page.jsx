@@ -96,7 +96,7 @@ const ProjectDetails = () => {
       }
     };
     getDeployments();
-  }, [projectName]);
+  }, [projectName, isBuilding]);
 
   const updateDeployment = async (deploymentId, status) => {
     try {
@@ -797,7 +797,7 @@ const ProjectDetails = () => {
                             {deployment.status === "in-preview" && (
                               <div className="flex items-center gap-2">
                                 <a
-                                  href={`http://${deployment.imageName}.deploy.princecodes.online`}
+                                  href={`http://${projectName}-preview.deploy.princecodes.online`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 font-medium transition-colors"
@@ -809,7 +809,7 @@ const ProjectDetails = () => {
                                 <button
                                   onClick={() =>
                                     copyToClipboard(
-                                      `http://${deployment.imageName}.deploy.princecodes.online`,
+                                      `http://${projectName}-preview.deploy.princecodes.online`,
                                       "preview"
                                     )
                                   }
@@ -817,7 +817,7 @@ const ProjectDetails = () => {
                                   title="Copy preview URL"
                                 >
                                   {copiedUrl ===
-                                  `preview-http://${deployment.imageName}.deploy.princecodes.online` ? (
+                                  `preview-http://${projectName}-preview.deploy.princecodes.online` ? (
                                     <Check className="w-4 h-4 text-green-400" />
                                   ) : (
                                     <Copy className="w-4 h-4 text-green-400" />

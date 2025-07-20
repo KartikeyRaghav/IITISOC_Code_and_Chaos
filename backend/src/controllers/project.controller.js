@@ -74,7 +74,6 @@ function generateNginxConfig(subdomain, port) {
 
 // Helper: Write and reload nginx config
 function writeNginxConfig(subdomain, port) {
-  console.log(subdomain, port);
   const configPath = `/etc/nginx/conf.d/projects/${subdomain}.conf`;
   const content = generateNginxConfig(subdomain, port);
   fs.writeFileSync(configPath, content);
