@@ -74,6 +74,7 @@ function generateNginxConfig(subdomain, port) {
 
 // Helper: Write and reload nginx config
 function writeNginxConfig(subdomain, port) {
+  console.log(subdomain, port);
   const configPath = `/etc/nginx/conf.d/projects/${subdomain}.conf`;
   const content = generateNginxConfig(subdomain, port);
   fs.writeFileSync(configPath, content);
@@ -113,8 +114,8 @@ export const createProjectByGithub = asyncHandler(async (req, res) => {
     const livePort = await getPort();
     const previewPort = await getPort();
 
-    writeNginxConfig(name, livePort);
-    writeNginxConfig(name + "-preview", previewPort);
+    await writeNginxConfig(name, livePort);
+    await writeNginxConfig(name + "-preview", previewPort);
 
     // Create a new project entry
     const project = await Project.create({
