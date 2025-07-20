@@ -739,24 +739,6 @@ const ProjectDetails = () => {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div className="space-y-2">
                               <div className="flex items-center gap-2 text-sm">
-                                <Package className="w-4 h-4 text-blue-400" />
-                                <span className="text-gray-400">Image:</span>
-                                <code className="text-blue-300 bg-gray-800/50 px-2 py-1 rounded text-xs font-mono">
-                                  {deployment.imageName}
-                                </code>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm">
-                                <Github className="w-4 h-4 text-green-400" />
-                                <span className="text-gray-400">
-                                  Deployed by:
-                                </span>
-                                <span className="text-green-300 font-medium">
-                                  {deployment.deployedBy}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2 text-sm">
                                 <Clock className="w-4 h-4 text-purple-400" />
                                 <span className="text-gray-400">Started:</span>
                                 <span className="text-white">

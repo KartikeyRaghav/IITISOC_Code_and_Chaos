@@ -9,7 +9,7 @@ const deploymentSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "in-progress", "completed", "failed"],
+      enum: ["pending", "in-preview", "deployed", "completed", "failed"],
       default: "pending",
     },
     imageName: {
