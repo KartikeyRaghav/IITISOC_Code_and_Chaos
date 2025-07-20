@@ -24,7 +24,6 @@ import Navbar from "@/components/Navbar";
 dotenv.config();
 
 const CreateProject = () => {
-  const [logs, setLogs] = useState([]);
   const searchParams = useSearchParams();
   const repoName = searchParams.get("repo");
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -121,7 +120,6 @@ const CreateProject = () => {
   const checkProjectName = async () => {
     if (formData.name.length < 5) {
       setIsNameOk(false);
-      CustomToast("Project name should be atleast 5 letters");
       return;
     }
 
@@ -139,7 +137,6 @@ const CreateProject = () => {
       );
       const data = await response.json();
       if (data.message === "Already exists") {
-        CustomToast("Project Name already exists");
         setIsNameOk(false);
         setIsChecking(false);
         return;
@@ -281,7 +278,6 @@ const CreateProject = () => {
 
   const detectTechStack = async (clonedPath) => {
     try {
-      setLogs((prev) => [...prev, "Detecting tech stack"]);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/build/detectTechStack`,
         {
@@ -297,7 +293,6 @@ const CreateProject = () => {
         }
       );
       const data = await response.json();
-      setLogs((prev) => [...prev, "Tech stack detected " + data.stack]);
       if (data.stack !== "unknown") {
         createProject(data.stack, clonedPath);
       } else {
@@ -308,7 +303,6 @@ const CreateProject = () => {
     } catch (error) {
       console.error(error);
       CustomToast("Error while detecting tech stack");
-      setLogs((prev) => [...prev, "Error while detecting tech stack"]);
     }
   };
 
@@ -333,17 +327,14 @@ const CreateProject = () => {
           .then((response) => {
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
-            setLogs((prev) => [...prev, "Starting to clone the repository"]);
             const readChunk = () => {
               reader.read().then(({ done, value }) => {
                 if (done) return;
                 const text = decoder.decode(value);
-                setLogs((prev) => [...prev, text]);
-
+            
                 const match = text.match(/\[CLONE_COMPLETE\] (.*)/);
                 if (match) {
                   let fullTargetDir = match[1];
-                  setLogs((prev) => [...prev, "Cloning complete"]);
                   detectTechStack(fullTargetDir);
                 }
 
@@ -359,7 +350,6 @@ const CreateProject = () => {
       } catch (error) {
         console.error(error);
         CustomToast("Error while cloning");
-        setLogs((prev) => [...prev, "Error while cloning the repo"]);
       }
     } else {
       CustomToast("Enter a valid project name");

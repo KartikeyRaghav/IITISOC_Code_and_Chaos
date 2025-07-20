@@ -59,9 +59,12 @@ const projectSchema = new Schema(
       trim: true,
       default: null,
     },
-    subdomain: {
-      type: String,
-      trim: true,
+    livePort: {
+      type: Number,
+      default: null,
+    },
+    previewPort: {
+      type: Number,
       default: null,
     },
     isLive: {

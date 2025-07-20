@@ -5,7 +5,6 @@ import { asyncHandler } from "../utils/asyncHandler.util.js";
 import { execSync, spawn } from "child_process";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-import getPort from "get-port";
 import fs from "fs";
 import { Project } from "../models/project.model.js";
 import { Deployment } from "../models/deployment.model.js";
@@ -194,7 +193,7 @@ const removePreviousDeployment = async (projectName) => {
   if (project.deploymentHistory.length > 0) {
     const prevDeployment = await Deployment.findOne({
       project: project._id,
-      status: "in-progress",
+      status: "deployed",
     });
     if (prevDeployment) {
       const imageName = prevDeployment.imageName;
@@ -203,16 +202,9 @@ const removePreviousDeployment = async (projectName) => {
       )
         .toString()
         .trim();
-      const port = execSync(`sudo docker port ${containerName}`)
-        .toString()
-        .trim()
-        .split(":")
-        .pop();
-
       const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
-      return port;
-    } else return null;
-  } else return null;
+    }
+  }
 };
 
 // Route handler to build Docker image
@@ -224,7 +216,7 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
       .json({ message: "Missing repo name or cloned path" });
   }
 
-  const port = await removePreviousDeployment(projectName);
+  await removePreviousDeployment(projectName);
   const newDeployment = await Deployment.findById(deploymentId);
   const imageName = `app-${projectName.toLowerCase()}-${Date.now()}`;
 
@@ -263,9 +255,6 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
         ];
         newDeployment.imageName = imageName;
         res.write(`[BUILD_COMPLETE] ${imageName}\n\n`);
-        if (port) {
-          res.write(`[PREV_PORT] ${port}\n\n`);
-        }
       } else {
         newDeployment.logs = [
           ...newDeployment.logs,
@@ -290,35 +279,11 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
   }
 });
 
-// Helper: Generate nginx config for subdomain reverse proxy
-function generateNginxConfig(subdomain, port) {
-  return `server {
-  listen 80;
-  server_name ${subdomain}.deploy.princecodes.online;
-
-  location / {
-    proxy_pass http://localhost:${port};
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-  }
-}`;
-}
-
-// Helper: Write and reload nginx config
-function writeNginxConfig(subdomain, port) {
-  const configPath = `/etc/nginx/conf.d/projects/${subdomain}.conf`;
-  const content = generateNginxConfig(subdomain, port);
-  fs.writeFileSync(configPath, content);
-  execSync("sudo nginx -s reload");
-}
-
 // Route handler to run a Docker container and setup reverse proxy via nginx
 export const runDockerContainer = asyncHandler(async (req, res) => {
-  const { imageName, projectName, prevPort, deploymentId } = req.body;
+  const { imageName, projectName, deploymentId } = req.body;
 
-  let port = null;
-  if (prevPort) port = prevPort;
-  else port = await getPort();
+  const project = Project.findOne({ name: projectName });
   const containerName = `container-${projectName.toLowerCase()}-${Date.now()}`;
   const deployment = await Deployment.findById({ deploymentId });
 
@@ -332,7 +297,7 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
     const run = spawn("docker", [
       "run",
       "-p",
-      port + ":80",
+      project.previewPort + project.framework === "next" ? ":3000" : ":80",
       "--name",
       containerName,
       imageName,
@@ -346,17 +311,15 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
       ];
     });
     res.write(
-      `[RUN_COMPLETE] http://${projectName}.deploy.princecodes.online\n\n`
+      `[RUN_COMPLETE] http://${imageName}.deploy.princecodes.online\n\n`
     );
     deployment.logs = [
       ...deployment.logs,
       {
-        log: `[RUN_COMPLETE] http://${projectName}.deploy.princecodes.online\n\n`,
+        log: `[RUN_COMPLETE] http://${imageName}.deploy.princecodes.online\n\n`,
         timestamp: new Date(),
       },
     ];
-
-    if (!prevPort) writeNginxConfig(projectName, port);
 
     run.stderr.on("data", (data) => {
       res.write(`ERROR: ${data.toString()}\n\n`);

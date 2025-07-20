@@ -416,6 +416,25 @@ const ProjectDetails = () => {
     }
   };
 
+  const deployToProduction = async (deployment) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/deployment/deploy`,
+        {
+          credentials: "include",
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ deploymentId: deployment._id, projectName }),
+        }
+      );
+      const data = await response.json();
+      await updateDeployment(deployment._id, "deployed");
+    } catch (error) {
+      console.error(error);
+      CustomToast("Error deploying to production");
+    }
+  };
+
   const getStatusIcon = () => {
     if (isBuilding)
       return <Loader2 className="w-5 h-5 animate-spin text-blue-400" />;
@@ -778,7 +797,7 @@ const ProjectDetails = () => {
                             {deployment.status === "in-preview" && (
                               <div className="flex items-center gap-2">
                                 <a
-                                  href={`http://${deployment.previewUrl}`}
+                                  href={`http://${deployment.imageName}.deploy.princecodes.online`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 font-medium transition-colors"
@@ -790,7 +809,7 @@ const ProjectDetails = () => {
                                 <button
                                   onClick={() =>
                                     copyToClipboard(
-                                      deployment.previewUrl,
+                                      `http://${deployment.imageName}.deploy.princecodes.online`,
                                       "preview"
                                     )
                                   }
@@ -798,7 +817,7 @@ const ProjectDetails = () => {
                                   title="Copy preview URL"
                                 >
                                   {copiedUrl ===
-                                  `preview-${deployment.previewUrl}` ? (
+                                  `preview-http://${deployment.imageName}.deploy.princecodes.online` ? (
                                     <Check className="w-4 h-4 text-green-400" />
                                   ) : (
                                     <Copy className="w-4 h-4 text-green-400" />
@@ -808,7 +827,10 @@ const ProjectDetails = () => {
                             )}
 
                             {deployment.status === "in-preview" && (
-                              <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 text-purple-300 font-medium transition-colors">
+                              <button
+                                onClick={() => deployToProduction(deployment)}
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 text-purple-300 font-medium transition-colors"
+                              >
                                 <Rocket className="w-4 h-4" />
                                 Deploy to Production
                               </button>

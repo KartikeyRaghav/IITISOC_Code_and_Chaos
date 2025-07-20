@@ -1,6 +1,9 @@
+import getPort from "get-port";
 import { Project } from "../models/project.model.js";
 import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
+import fs from "fs";
+import { execSync } from "child_process";
 
 export const getAllProjects = asyncHandler(async (req, res) => {
   try {
@@ -55,6 +58,28 @@ export const checkName = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "No project with this name found" });
 });
 
+// Helper: Generate nginx config for subdomain reverse proxy
+function generateNginxConfig(subdomain, port) {
+  return `server {
+  listen 80;
+  server_name ${subdomain}.deploy.princecodes.online;
+
+  location / {
+    proxy_pass http://localhost:${port};
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+  }
+}`;
+}
+
+// Helper: Write and reload nginx config
+function writeNginxConfig(subdomain, port) {
+  const configPath = `/etc/nginx/conf.d/projects/${subdomain}.conf`;
+  const content = generateNginxConfig(subdomain, port);
+  fs.writeFileSync(configPath, content);
+  execSync("sudo nginx -s reload");
+}
+
 export const createProjectByGithub = asyncHandler(async (req, res) => {
   const {
     name,
@@ -85,6 +110,11 @@ export const createProjectByGithub = asyncHandler(async (req, res) => {
 
     // Get user data
     const user = await User.findById(req.user._id);
+    const livePort = await getPort();
+    const previewPort = await getPort();
+
+    writeNginxConfig(livePort);
+    writeNginxConfig(previewPort);
 
     // Create a new project entry
     const project = await Project.create({
@@ -94,6 +124,8 @@ export const createProjectByGithub = asyncHandler(async (req, res) => {
       framework,
       createdBy: user,
       clonedPath,
+      livePort,
+      previewPort,
     });
 
     res.status(200).json({ message: "Project created" });

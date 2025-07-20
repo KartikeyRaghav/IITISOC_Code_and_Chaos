@@ -104,9 +104,7 @@ const Footer = () => {
               {[
                 { name: "Dashboard", href: "/dashboard" },
                 { name: "Projects", href: "/projects" },
-                { name: "Deployments", href: "/deployments" },
                 { name: "Analytics", href: "/analytics" },
-                { name: "Settings", href: "/settings" },
               ].map((link) => (
                 <li key={link.name}>
                   <a
@@ -131,8 +129,6 @@ const Footer = () => {
                 { name: "Documentation", href: "/docs" },
                 { name: "API Reference", href: "/api" },
                 { name: "Tutorials", href: "/tutorials" },
-                { name: "Community", href: "/community" },
-                { name: "Support", href: "/support" },
               ].map((link) => (
                 <li key={link.name}>
                   <a

@@ -1,6 +1,7 @@
 // Import Mongoose models
 import { Deployment } from "../models/deployment.model.js";
 import { Project } from "../models/project.model.js";
+import { execSync, spawn } from "child_process";
 
 // Utility for centralized async error handling
 import { asyncHandler } from "../utils/asyncHandler.util.js";
@@ -141,12 +142,43 @@ export const getDeployment = asyncHandler(async (req, res) => {
 
   const deployment = await Deployment.findOne({ _id: deploymentId });
 
-  if (req.user._id.toString() !== deployment.deployedBy.toString())
-    return res.status(401).json({ message: "Not authorized" });
-
   if (!deployment) {
     return res.status(404).json({ message: "Deployment not found" });
   }
 
+  if (req.user._id.toString() !== deployment.deployedBy.toString())
+    return res.status(401).json({ message: "Not authorized" });
+
   res.status(200).json(deployment);
+});
+
+export const deploytoProduction = asyncHandler(async (req, res) => {
+  const { deploymentId, projectName } = req.body;
+
+  try {
+    const deployment = await Deployment.findOne({ _id: deploymentId });
+    const project = await Project.findOne({ name: projectName });
+
+    if (!deployment) {
+      return res.status(404).json({ message: "Deployment not found" });
+    }
+
+    if (req.user._id.toString() !== deployment.deployedBy.toString())
+      return res.status(401).json({ message: "Not authorized" });
+
+    const containerName = `container-${projectName}-${Date.now()}`;
+
+    execSync("docker", [
+      "run",
+      "-p",
+      project.livePort + project.framework === "next" ? ":3000" : ":80",
+      "--name",
+      containerName,
+      deployment.imageName,
+    ]);
+
+    res.status(200).json({ message: "complete" });
+  } catch (error) {
+    res.status(400).json({ message: "Error while deploying" });
+  }
 });
