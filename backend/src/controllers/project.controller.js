@@ -113,8 +113,8 @@ export const createProjectByGithub = asyncHandler(async (req, res) => {
     const livePort = await getPort();
     const previewPort = await getPort();
 
-    writeNginxConfig(livePort);
-    writeNginxConfig(previewPort);
+    writeNginxConfig(name, livePort);
+    writeNginxConfig(name + "-preview", previewPort);
 
     // Create a new project entry
     const project = await Project.create({
