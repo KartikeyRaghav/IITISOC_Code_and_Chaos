@@ -283,7 +283,7 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
 export const runDockerContainer = asyncHandler(async (req, res) => {
   const { imageName, projectName, deploymentId } = req.body;
 
-  const project = Project.findOne({ name: projectName });
+  const project = await Project.findOne({ name: projectName });
   const containerName = `container-${projectName.toLowerCase()}-${Date.now()}`;
   const deployment = await Deployment.findOne({ _id: deploymentId });
 
@@ -311,12 +311,12 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
       ];
     });
     res.write(
-      `[RUN_COMPLETE] http://${imageName}.deploy.princecodes.online\n\n`
+      `[RUN_COMPLETE] http://${projectName}-preview.deploy.princecodes.online\n\n`
     );
     deployment.logs = [
       ...deployment.logs,
       {
-        log: `[RUN_COMPLETE] http://${imageName}.deploy.princecodes.online\n\n`,
+        log: `[RUN_COMPLETE] http://${projectName}-preview.deploy.princecodes.online\n\n`,
         timestamp: new Date(),
       },
     ];
