@@ -48,7 +48,7 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-xl flex items-center justify-center shadow-lg">
-                <Zap className="w-7 h-7 text-white" />
+                <img src={'/logos/logo.png'} className="w-10 h-10 text-white rounded-xl" />
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-white bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text">

@@ -110,7 +110,7 @@ const Project = () => {
 
               {/* Create Project Button */}
               <button
-                onClick={() => router.push("/project/create")}
+                onClick={() => router.push("/projects/create")}
                 className="group relative overflow-hidden bg-gradient-to-r from-[#00aaff] via-[#0099ff] to-[#9a00ff] text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-2xl hover:shadow-purple-500/30 transition-all duration-500 hover:scale-105 transform flex items-center gap-3"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-[#0088cc] to-[#7700cc] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -138,7 +138,7 @@ const Project = () => {
                   </p>
                   <button
                     onClick={() => {
-                      router.push("/project/create");
+                      router.push("/projects/create");
                     }}
                     className="inline-flex items-center gap-3 bg-gradient-to-r from-[#00aaff] to-[#9a00ff] text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-purple-500/30 transition-all duration-300 hover:scale-105 transform"
                   >
@@ -151,7 +151,7 @@ const Project = () => {
               repos.map((project, index) => (
                 <div
                   key={project.name}
-                  onClick={() => router.push(`/project/${project.name}`)}
+                  onClick={() => router.push(`/projects/${project.name}`)}
                   className="group bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-8 border border-purple-500/20 backdrop-blur-sm hover:border-purple-500/40 transition-all duration-500 cursor-pointer hover:scale-[1.02] transform hover:shadow-purple-500/20"
                   style={{
                     animationDelay: `${index * 100}ms`,

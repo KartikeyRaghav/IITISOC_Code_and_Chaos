@@ -20,7 +20,7 @@ const DashboardMain = ({ repos, url, repoRef }) => {
           <div
             key={i}
             className="relative group border border-[#7b00cc] rounded-2xl p-4 sm:p-6 shadow-xl bg-gradient-to-br from-[#1a0033]/80 via-[#003047]/90 to-[#2d004e]/90 hover:scale-105 hover:shadow-purple-900/70 hover:border-[#ad65dd] transition-all duration-300 cursor-pointer backdrop-blur-md"
-            onClick={() => router.push(`/project/create?repo=${repo.name}`)}
+            onClick={() => router.push(`/projects/create?repo=${repo.name}`)}
           >
             <h3 className="font-bold text-lg sm:text-xl text-white mb-2">
               {repo.name}

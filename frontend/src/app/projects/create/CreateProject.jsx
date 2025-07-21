@@ -247,7 +247,7 @@ const CreateProject = () => {
           }
           if (response.ok) {
             setIsCreating(false);
-            router.push(`/project/${formData.name}`);
+            router.push(`/projects/${formData.name}`);
           }
         } else {
           if (!uploadedFile) {

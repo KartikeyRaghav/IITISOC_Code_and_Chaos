@@ -67,14 +67,14 @@ const ProjectDetails = () => {
         else {
           CustomToast("Error fetching project");
           setTimeout(() => {
-            router.replace("/project");
+            router.replace("/projects");
           }, 2000);
         }
       } catch (error) {
         console.error(error);
         CustomToast("Error fetching project");
         setTimeout(() => {
-          router.replace("/project");
+          router.replace("/projects");
         }, 2000);
       }
     };

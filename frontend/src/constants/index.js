@@ -10,7 +10,7 @@ export const navLinks = [
   {
     id: "2",
     title: "Projects",
-    url: "/project",
+    url: "/projects",
     icon: <Rocket className="w-4 h-4" />,
   },
   // {
