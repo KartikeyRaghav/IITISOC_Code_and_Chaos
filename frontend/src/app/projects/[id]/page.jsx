@@ -98,6 +98,10 @@ const ProjectDetails = () => {
     getDeployments();
   }, [projectName, isBuilding]);
 
+  useEffect(() => {
+    console.log(logs);
+  }, [logs]);
+
   const updateDeployment = async (deploymentId, status) => {
     try {
       const response = await fetch(
