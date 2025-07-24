@@ -160,20 +160,27 @@ export const getDeployment = asyncHandler(async (req, res) => {
 });
 
 const removePreviousProductionDeployment = async (projectName) => {
-  const project = await Project.findOne({ name: projectName });
+  try {
+    const project = await Project.findOne({ name: projectName });
 
-  const containerName = execSync(
-    `docker ps --filter "publish=${project.livePort}" --format "{{.Names}}"`
-  )
-    .toString()
-    .trim();
-  if (containerName) {
-    const imageName = `docker inspect --format='{{.Config.Image}}' ${containerName}`;
-    const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
-    const prevDeployment = await Deployment.findOne({ imageName: imageName });
-    prevDeployment.endTime = new Date();
-    prevDeployment.status = "in-preview";
-    prevDeployment.save({ validateBeforeSave: false });
+    const containerName = execSync(
+      `docker ps --filter "publish=${project.livePort}" --format "{{.Names}}"`
+    )
+      .toString()
+      .trim();
+    console.log(containerName);
+    if (containerName) {
+      const imageName = `docker inspect --format='{{.Config.Image}}' ${containerName}`;
+      const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
+      console.log(imageName);
+      const prevDeployment = await Deployment.findOne({ imageName: imageName });
+      console.log(prevDeployment);
+      prevDeployment.endTime = new Date();
+      prevDeployment.status = "in-preview";
+      prevDeployment.save({ validateBeforeSave: false });
+    }
+  } catch (error) {
+    console.error(error);
   }
 };
 
@@ -195,7 +202,7 @@ export const deploytoProduction = asyncHandler(async (req, res) => {
 
     const containerName = `container-${projectName}-${Date.now()}`;
 
-    execSync("docker", [
+    const run = spawn("docker", [
       "run",
       "-p",
       project.framework === "next"
