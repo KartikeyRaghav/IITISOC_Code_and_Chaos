@@ -65,7 +65,7 @@ const ActionButtons = ({
       {deployment.status === "deployed" && (
         <div className="flex items-center gap-2">
           <a
-            href={`http://${deployment.previewUrl}`}
+            href={`http://${projectName}.deploy.princecodes.online`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 font-medium transition-colors"
@@ -75,11 +75,17 @@ const ActionButtons = ({
             <ExternalLink className="w-3 h-3" />
           </a>
           <button
-            onClick={() => onCopyToClipboard(deployment.previewUrl, "preview")}
+            onClick={() =>
+              onCopyToClipboard(
+                `http://${projectName}.deploy.princecodes.online`,
+                "deploy"
+              )
+            }
             className="p-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 transition-colors"
             title="Copy live URL"
           >
-            {copiedUrl === `preview-${deployment.previewUrl}` ? (
+            {copiedUrl ===
+            `deploy-http://${projectName}.deploy.princecodes.online` ? (
               <Check className="w-4 h-4 text-emerald-400" />
             ) : (
               <Copy className="w-4 h-4 text-emerald-400" />

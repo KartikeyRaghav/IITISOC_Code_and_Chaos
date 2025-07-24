@@ -198,7 +198,9 @@ export const deploytoProduction = asyncHandler(async (req, res) => {
     execSync("docker", [
       "run",
       "-p",
-      project.livePort + project.framework === "next" ? ":3000" : ":80",
+      project.framework === "next"
+        ? `${project.livePort}:3000`
+        : `${project.livePort}:80`,
       "--name",
       containerName,
       deployment.imageName,
