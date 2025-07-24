@@ -209,7 +209,6 @@ const removePreviousPreviewDeployment = async (projectName) => {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Previous preview deployment removal error", details: error });
   }
 };
 
