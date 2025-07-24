@@ -204,7 +204,7 @@ const removePreviousDeployment = async (projectName) => {
         .trim();
       const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
       prevDeployment.endTime = new Date();
-      prevDeployment.status = "completed";
+      prevDeployment.status = "in-preview";
       prevDeployment.save({ validateBeforeSave: false });
     }
   }
@@ -303,7 +303,6 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
       project.framework === "next"
         ? `${project.previewPort}:3000`
         : `${project.previewPort}:80`,
-      ,
       "--name",
       containerName,
       imageName,
