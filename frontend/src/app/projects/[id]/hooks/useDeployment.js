@@ -1,5 +1,6 @@
 import CustomToast from "@/components/CustomToast";
 import dotenv from "dotenv";
+import { useProjectDetails } from "./useProjectDetails";
 
 dotenv.config();
 
@@ -9,6 +10,8 @@ export const useDeployment = (
   setIsBuilding,
   setIsError
 ) => {
+  const { getDeployments } = useProjectDetails();
+
   const updateDeployment = async (deploymentId, status) => {
     try {
       const response = await fetch(
@@ -318,6 +321,7 @@ export const useDeployment = (
 
   const deployToProduction = async (deployment) => {
     try {
+      setIsBuilding(true);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/deployment/deploy`,
         {
@@ -329,9 +333,12 @@ export const useDeployment = (
       );
       const data = await response.json();
       await updateDeployment(deployment._id, "deployed");
+      await getDeployments();
     } catch (error) {
       console.error(error);
       CustomToast("Error deploying to production");
+    } finally {
+      setIsBuilding(false);
     }
   };
 
