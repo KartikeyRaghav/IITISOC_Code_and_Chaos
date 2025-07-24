@@ -6,6 +6,7 @@ import { execSync, spawn } from "child_process";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import tcpPortUsed from "tcp-port-used";
 import { Project } from "../models/project.model.js";
 import { Deployment } from "../models/deployment.model.js";
 
@@ -314,21 +315,31 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
       imageName,
     ]);
 
-    let sentRunComplete = false;
-
-    run.stdout.on("data", async (data) => {
-      const logMsg = data.toString();
-
-      if (!sentRunComplete) {
+    run.on("spawn", async () => {
+      try {
+        const port = project.previewPort;
         const previewUrl = `http://${projectName}-preview.deploy.princecodes.online`;
-        const completeMsg = `[RUN_COMPLETE] ${previewUrl}\n\n`;
 
+        await tcpPortUsed.waitUntilUsed(port, 500, 10000);
+
+        const completeMsg = `[RUN_COMPLETE] ${previewUrl}\n\n`;
         res.write(completeMsg);
         res.flush?.();
         deployment.logs.push({ log: completeMsg, timestamp: new Date() });
-        sentRunComplete = true;
+        await deployment.save({ validateBeforeSave: false });
+      } catch (err) {
+        const errorMsg = `[ERROR] Container failed to start within time\n\n`;
+        res.write(errorMsg);
+        res.flush?.();
+        deployment.logs.push({ log: errorMsg, timestamp: new Date() });
+        deployment.status = "failed";
+        await deployment.save({ validateBeforeSave: false });
+        res.end();
       }
+    });
 
+    run.stdout.on("data", async (data) => {
+      const logMsg = data.toString();
       res.write(`${logMsg}\n\n`);
       res.flush?.();
       deployment.logs.push({ log: logMsg, timestamp: new Date() });
