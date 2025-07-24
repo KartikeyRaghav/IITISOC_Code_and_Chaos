@@ -310,47 +310,39 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
       imageName,
     ]);
 
-    run.on("spawn", () => {
-      res.write(
-        `[RUN_COMPLETE] http://${projectName}-preview.deploy.princecodes.online\n\n`
-      );
-      deployment.logs = [
-        ...deployment.logs,
-        {
-          log: `[RUN_COMPLETE] http://${projectName}-preview.deploy.princecodes.online\n\n`,
-          timestamp: new Date(),
-        },
-      ];
+    run.on("spawn", async () => {
+      const logMsg = `[RUN_COMPLETE] http://${projectName}-preview.deploy.princecodes.online\n\n`;
+      res.write(logMsg);
+      res.flush?.();
+      deployment.logs.push({ log: logMsg, timestamp: new Date() });
+      await deployment.save({ validateBeforeSave: false });
     });
 
-    run.stdout.on("data", (data) => {
-      res.write(`${data.toString()}\n\n`);
-      deployment.logs = [
-        ...deployment.logs,
-        { log: `${data.toString()}\n\n`, timestamp: new Date() },
-      ];
+    run.stdout.on("data", async (data) => {
+      const logMsg = data.toString();
+      res.write(`${logMsg}\n\n`);
+      res.flush?.();
+      deployment.logs.push({ log: logMsg, timestamp: new Date() });
+      await deployment.save({ validateBeforeSave: false });
     });
 
-    run.stderr.on("data", (data) => {
-      res.write(`ERROR: ${data.toString()}\n\n`);
-      deployment.logs = [
-        ...deployment.logs,
-        { log: `ERROR: ${data.toString()}\n\n`, timestamp: new Date() },
-      ];
+    run.stderr.on("data", async (data) => {
+      const logMsg = `ERROR: ${data.toString()}`;
+      res.write(`${logMsg}\n\n`);
+      res.flush?.();
+      deployment.logs.push({ log: logMsg, timestamp: new Date() });
+      await deployment.save({ validateBeforeSave: false });
     });
 
-    run.on("close", (code) => {
-      res.write(`Docker container run exited with code ${code}\n\n`);
-      deployment.logs = [
-        ...deployment.logs,
-        {
-          log: `Docker container run exited with code ${code}\n\n`,
-          timestamp: new Date(),
-        },
-      ];
+    run.on("close", async (code) => {
+      const msg = `Docker container run exited with code ${code}\n\n`;
+      res.write(msg);
+      res.flush?.();
+      deployment.logs.push({ log: msg, timestamp: new Date() });
+      await deployment.save({ validateBeforeSave: false });
       res.end();
     });
-    await deployment.save({ validateBeforeSave: false });
+
     req.on("close", () => {
       run.kill();
     });
