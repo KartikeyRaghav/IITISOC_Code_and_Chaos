@@ -300,6 +300,8 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("Cache-Control", "no-cache");
 
+    res.flushHeaders();
+
     // Run Docker container
     const run = spawn("docker", [
       "run",
@@ -312,15 +314,21 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
       imageName,
     ]);
 
-    run.on("spawn", async () => {
-      const logMsg = `[RUN_COMPLETE] http://${projectName}-preview.deploy.princecodes.online\n\n`;
-      res.write(logMsg);
-      res.flush?.();
-      deployment.logs.push({ log: logMsg, timestamp: new Date() });
-    });
+    let sentRunComplete = false;
 
     run.stdout.on("data", async (data) => {
       const logMsg = data.toString();
+
+      if (!sentRunComplete) {
+        const previewUrl = `http://${projectName}-preview.deploy.princecodes.online`;
+        const completeMsg = `[RUN_COMPLETE] ${previewUrl}\n\n`;
+
+        res.write(completeMsg);
+        res.flush?.();
+        deployment.logs.push({ log: completeMsg, timestamp: new Date() });
+        sentRunComplete = true;
+      }
+
       res.write(`${logMsg}\n\n`);
       res.flush?.();
       deployment.logs.push({ log: logMsg, timestamp: new Date() });

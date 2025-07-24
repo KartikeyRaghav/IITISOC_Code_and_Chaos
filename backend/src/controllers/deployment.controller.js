@@ -119,6 +119,7 @@ export const updateDeployment = asyncHandler(async (req, res) => {
 
     if (status === "deployed") {
       deployment.startTime = new Date();
+      deployment.endTime = null;
     }
 
     await deployment.save();

@@ -48,19 +48,19 @@ export default function ResetPasswordPage() {
                         New Password 
                     </label>
                     <div className='relative'>
-                        <input
+                        <input 
                             type='password'
                             placeholder='Enter your new password'
-                            className='w-full p-4 pl-12 pr-12 rounded-xl bg-[#2c2f4a]/80 text-white border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-400 backdrop-blur-sm'
+                            className='w-full p-4 pl-12 pr-12 rounded-xl bg-[#2c2f4a]/80 text-white border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-400 background-blur-sm'
                             disabled 
                         />
-                        <Lock className='absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400'/>
+                        <Lock className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400'/>
                         <button
                             type='button'
                             className='absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400'
                             disabled 
                         >
-                            <Eye className='w-5 h-5'/>
+                            <EyeOff className='w-5 h-5'/>
                         </button>
                     </div>
                 </div>
