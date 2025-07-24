@@ -170,7 +170,9 @@ const removePreviousProductionDeployment = async (projectName) => {
       .trim();
     console.log(containerName);
     if (containerName) {
-      const imageName = `docker inspect --format='{{.Config.Image}}' ${containerName}`;
+      const imageName = execSync(
+        `docker inspect --format='{{.Config.Image}}' ${containerName}`
+      );
       const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
       console.log(imageName);
       const prevDeployment = await Deployment.findOne({ imageName: imageName });
