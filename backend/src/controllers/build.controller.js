@@ -297,6 +297,8 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
     res.setHeader("Transfer-Encoding", "chunked");
     res.setHeader("Access-Control-Allow-Origin", `${process.env.FRONTEND_URL}`);
     res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("Cache-Control", "no-cache");
 
     // Run Docker container
     const run = spawn("docker", [
