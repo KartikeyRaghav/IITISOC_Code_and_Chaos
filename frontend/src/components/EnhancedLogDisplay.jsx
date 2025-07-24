@@ -175,7 +175,7 @@ const EnhancedLogDisplay = ({
                   🎉 Deployment Successful!
                 </h5>
                 <p className="text-emerald-400/80 text-xs">
-                  Your application is now live
+                  Your application is now in preview
                 </p>
               </div>
             </div>

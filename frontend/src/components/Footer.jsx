@@ -48,7 +48,10 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-xl flex items-center justify-center shadow-lg">
-                <img src={'/logos/logo.png'} className="w-10 h-10 text-white rounded-xl" />
+                <img
+                  src={"/logos/logo.png"}
+                  className="w-10 h-10 text-white rounded-xl"
+                />
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-white bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text">
@@ -69,25 +72,29 @@ const Footer = () => {
             {/* Social Links */}
             <div className="flex items-center gap-4">
               <a
-                href="#"
+                href="https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos"
+                target="_blank"
                 className="w-10 h-10 bg-[#2c2f4a]/50 hover:bg-blue-500/20 rounded-xl flex items-center justify-center text-gray-400 hover:text-blue-400 transition-all duration-300 hover:scale-110 border border-gray-600/30 hover:border-blue-500/30"
               >
                 <Github className="w-5 h-5" />
               </a>
               <a
-                href="#"
+                href="https://x.com/k_raghav_"
+                target="_blank"
                 className="w-10 h-10 bg-[#2c2f4a]/50 hover:bg-blue-500/20 rounded-xl flex items-center justify-center text-gray-400 hover:text-blue-400 transition-all duration-300 hover:scale-110 border border-gray-600/30 hover:border-blue-500/30"
               >
                 <Twitter className="w-5 h-5" />
               </a>
               <a
-                href="#"
+                href="https://www.linkedin.com/in/k-raghav-"
+                target="_blank"
                 className="w-10 h-10 bg-[#2c2f4a]/50 hover:bg-blue-500/20 rounded-xl flex items-center justify-center text-gray-400 hover:text-blue-400 transition-all duration-300 hover:scale-110 border border-gray-600/30 hover:border-blue-500/30"
               >
                 <Linkedin className="w-5 h-5" />
               </a>
               <a
-                href="#"
+                href="mailto:sse240021008@iiti.ac.in"
+                target="_blank"
                 className="w-10 h-10 bg-[#2c2f4a]/50 hover:bg-blue-500/20 rounded-xl flex items-center justify-center text-gray-400 hover:text-blue-400 transition-all duration-300 hover:scale-110 border border-gray-600/30 hover:border-blue-500/30"
               >
                 <Mail className="w-5 h-5" />

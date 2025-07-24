@@ -13,7 +13,7 @@ const AppIntro = () => {
                 <span className="bg-gradient-to-r from-[#005b83] via-[#0077ab] to-purple-500 bg-clip-text text-transparent">IGNITIA</span>
             </h1>
             <p className='text-sm sm:text-base lg:text-lg text-purple-100 mb-4 text-center max-w-xl'>From commit to cloud<br/>
-            <span className='text-blue-200 font-semibold'> effortless project launches, every time.</span>
+            <span className='text-blue-200 font-semibold'> Effortless Project Launches, Every Time.</span>
             </p>
         </section>
     )
