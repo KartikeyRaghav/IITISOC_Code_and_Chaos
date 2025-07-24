@@ -124,8 +124,8 @@ RUN npm install && npm run build
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-CMD ["echo", "Application started on port 80"]`;
+CMD ["echo", "Application started on port 80"]
+CMD ["nginx", "-g", "daemon off;"]`;
 
     case "next":
       return `FROM node:18
@@ -133,8 +133,8 @@ WORKDIR /app
 COPY . .
 RUN npm install && npm run build
 EXPOSE 3000
-CMD ["npm", "start"]
-CMD ["echo", "Application started on port 80"]`;
+CMD ["echo", "Application started on port 80"]
+CMD ["npm", "start"]`;
 
     case "angular":
       return `FROM node:18 AS builder
@@ -145,8 +145,8 @@ RUN npm install && npm run build --prod
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-CMD ["echo", "Application started on port 80"]`;
+CMD ["echo", "Application started on port 80"]
+CMD ["nginx", "-g", "daemon off;"]`;
 
     case "node-api":
       return `FROM node:18
@@ -154,15 +154,15 @@ WORKDIR /app
 COPY . .
 RUN npm install
 EXPOSE 3000
-CMD ["node", "index.js"]
-CMD ["echo", "Application started on port 80"]`;
+CMD ["echo", "Application started on port 80"]
+CMD ["node", "index.js"]`;
 
     case "static":
       return `FROM nginx:alpine
 COPY . /usr/share/nginx/html
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-CMD ["echo", "Application started on port 80"]`;
+CMD ["echo", "Application started on port 80"]
+CMD ["nginx", "-g", "daemon off;"]`;
 
     default:
       return `# Unknown stack\n# Manual Dockerfile creation required.`;
@@ -208,6 +208,8 @@ const removePreviousDeployment = async (projectName) => {
         .toString()
         .trim();
       const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
+      prevDeployment.endTime = new Date();
+      prevDeployment.save({ validateBeforeSave: false });
     }
   }
 };
@@ -302,7 +304,10 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
     const run = spawn("docker", [
       "run",
       "-p",
-      project.previewPort + project.framework === "next" ? ":3000" : ":80",
+      project.framework === "next"
+        ? `${project.previewPort}:3000`
+        : `${project.previewPort}:80`,
+      ,
       "--name",
       containerName,
       imageName,
