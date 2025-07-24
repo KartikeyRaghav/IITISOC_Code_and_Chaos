@@ -6,23 +6,14 @@ import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import {
-  Code,
   HistoryIcon,
   Clock,
   CheckCircle,
   AlertCircle,
   Package,
-  User,
-  Calendar,
-  Activity,
   Terminal,
-  Container,
   Rocket,
-  Copy,
-  Check,
-  ExternalLink,
   ArrowLeft,
-  Zap,
   FileText,
   Globe,
 } from "lucide-react";
@@ -224,7 +215,9 @@ const page = () => {
                     </span>
                   </div>
                   <div className="text-white text-sm">
-                    {new Date(deployment.startTime).toLocaleString()}
+                    {deployment.startTime
+                      ? new Date(deployment.startTime).toLocaleString()
+                      : "-"}
                   </div>
                 </div>
 
@@ -241,7 +234,7 @@ const page = () => {
                   <div className="text-white text-sm">
                     {deployment.endTime
                       ? new Date(deployment.endTime).toLocaleString()
-                      : "In progress..."}
+                      : "-"}
                   </div>
                 </div>
 

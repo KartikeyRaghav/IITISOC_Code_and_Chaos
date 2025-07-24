@@ -39,7 +39,9 @@ const DeploymentCard = ({
         </div>
         <div className="ml-auto p-2 text-right">
           <div className="text-sm text-white font-medium">
-            {formatDuration(deployment.startTime, deployment.endTime)}
+            {deployment.startTime
+              ? formatDuration(deployment.startTime, deployment.endTime)
+              : "Preview"}
           </div>
           <div className="text-xs text-gray-400">
             {new Date(deployment.createdAt).toLocaleString()}
@@ -53,24 +55,26 @@ const DeploymentCard = ({
             <Clock className="w-4 h-4 text-purple-400" />
             <span className="text-gray-400">Started:</span>
             <span className="text-white">
-              {new Date(deployment.startTime).toLocaleString()}
+              {deployment.startTime
+                ? new Date(deployment.startTime).toLocaleString()
+                : "-"}
             </span>
           </div>
-          {deployment.endTime && (
-            <div className="flex items-center gap-2 text-sm">
-              {deployment.status === "failed" ? (
-                <AlertCircle className="w-4 h-4 text-red-400" />
-              ) : (
-                <CheckCircle className="w-4 h-4 text-green-400" />
-              )}
-              <span className="text-gray-400">
-                {deployment.status === "failed" ? "Ended:" : "Completed:"}
-              </span>
-              <span className="text-white">
-                {new Date(deployment.endTime).toLocaleString()}
-              </span>
-            </div>
-          )}
+          <div className="flex items-center gap-2 text-sm">
+            {deployment.status === "failed" ? (
+              <AlertCircle className="w-4 h-4 text-red-400" />
+            ) : (
+              <CheckCircle className="w-4 h-4 text-green-400" />
+            )}
+            <span className="text-gray-400">
+              {deployment.status === "failed" ? "Ended:" : "Completed:"}
+            </span>
+            <span className="text-white">
+              {deployment.endTime
+                ? new Date(deployment.endTime).toLocaleString()
+                : "-"}
+            </span>
+          </div>
         </div>
       </div>
 

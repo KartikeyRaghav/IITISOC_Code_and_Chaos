@@ -72,7 +72,6 @@ export const createDeployment = asyncHandler(async (req, res) => {
       version,
       status,
       project,
-      startTime: new Date(),
       deployedBy: projectUser,
     });
 
@@ -111,9 +110,17 @@ export const updateDeployment = asyncHandler(async (req, res) => {
     deployment.status = status;
     if (status === "failed") {
       deployment.rollbackAvailable = false;
-      deployment.endTime = new Date();
       deployment.imageName = "not-available";
     }
+
+    if (deployment.status === "deployed" && status === "in-preview") {
+      deployment.endTime = new Date();
+    }
+
+    if (status === "deployed") {
+      deployment.startTime = new Date();
+    }
+
     await deployment.save();
 
     res.status(200).json({ message: "Deployment status updated" });
@@ -152,6 +159,24 @@ export const getDeployment = asyncHandler(async (req, res) => {
   res.status(200).json(deployment);
 });
 
+const removePreviousProductionDeployment = async (projectName) => {
+  const project = await Project.findOne({ name: projectName });
+
+  const containerName = execSync(
+    `docker ps --filter "publish=${project.livePort}" --format "{{.Names}}"`
+  )
+    .toString()
+    .trim();
+  if (containerName) {
+    const imageName = `docker inspect --format='{{.Config.Image}}' ${containerName}`;
+    const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
+    const prevDeployment = await Deployment.findOne({ imageName: imageName });
+    prevDeployment.endTime = new Date();
+    prevDeployment.status = "in-preview";
+    prevDeployment.save({ validateBeforeSave: false });
+  }
+};
+
 export const deploytoProduction = asyncHandler(async (req, res) => {
   const { deploymentId, projectName } = req.body;
 
@@ -165,6 +190,8 @@ export const deploytoProduction = asyncHandler(async (req, res) => {
 
     if (req.user._id.toString() !== deployment.deployedBy.toString())
       return res.status(401).json({ message: "Not authorized" });
+
+    await removePreviousProductionDeployment(projectName);
 
     const containerName = `container-${projectName}-${Date.now()}`;
 

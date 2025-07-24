@@ -187,26 +187,21 @@ export const generateDockerFile = asyncHandler(async (req, res) => {
   });
 });
 
-const removePreviousDeployment = async (projectName) => {
+const removePreviousPreviewDeployment = async (projectName) => {
   const project = await Project.findOne({ name: projectName });
 
-  if (project.deploymentHistory.length > 0) {
-    const prevDeployment = await Deployment.findOne({
-      project: project._id,
-      status: "deployed",
-    });
-    if (prevDeployment) {
-      const imageName = prevDeployment.imageName;
-      const containerName = execSync(
-        `sudo docker ps -a --filter ancestor=${imageName} --format "{{.Names}}"`
-      )
-        .toString()
-        .trim();
-      const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
-      prevDeployment.endTime = new Date();
-      prevDeployment.status = "in-preview";
-      prevDeployment.save({ validateBeforeSave: false });
-    }
+  const containerName = execSync(
+    `docker ps --filter "publish=${project.previewPort}" --format "{{.Names}}"`
+  )
+    .toString()
+    .trim();
+  if (containerName) {
+    const imageName = `docker inspect --format='{{.Config.Image}}' ${containerName}`;
+    const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
+    const prevDeployment = await Deployment.findOne({ imageName: imageName });
+    prevDeployment.endTime = new Date();
+    prevDeployment.status = "in-preview";
+    prevDeployment.save({ validateBeforeSave: false });
   }
 };
 
@@ -219,7 +214,7 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
       .json({ message: "Missing repo name or cloned path" });
   }
 
-  await removePreviousDeployment(projectName);
+  await removePreviousPreviewDeployment(projectName);
   const newDeployment = await Deployment.findById(deploymentId);
   const imageName = `app-${projectName.toLowerCase()}-${Date.now()}`;
 

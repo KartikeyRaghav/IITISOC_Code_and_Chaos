@@ -197,7 +197,7 @@ const Footer = () => {
               <span>for developers worldwide.</span>
             </div>
 
-            <div className="flex items-center gap-6 text-sm">
+            {/* <div className="flex items-center gap-6 text-sm">
               <a
                 href="/privacy"
                 className="text-gray-400 hover:text-white transition-colors duration-300"
@@ -216,7 +216,7 @@ const Footer = () => {
               >
                 Cookie Policy
               </a>
-            </div>
+            </div> */}
 
             <button
               onClick={scrollToTop}

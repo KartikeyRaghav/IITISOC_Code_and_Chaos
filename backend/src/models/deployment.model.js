@@ -19,8 +19,7 @@ const deploymentSchema = new Schema(
     },
     startTime: {
       type: Date,
-      default: Date.now(),
-      required: true,
+      default: null,
     },
     endTime: {
       type: Date,
