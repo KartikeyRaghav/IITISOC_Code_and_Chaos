@@ -56,6 +56,7 @@ export const useDeployment = (
           const decoder = new TextDecoder();
           const readChunk = () => {
             reader.read().then(async ({ done, value }) => {
+              console.log(done, value);
               if (done) return;
               const text = decoder.decode(value);
               setLogs((prev) => [...prev, text]);
