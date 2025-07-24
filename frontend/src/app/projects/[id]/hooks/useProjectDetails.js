@@ -42,20 +42,21 @@ export const useProjectDetails = () => {
     getProject();
   }, [projectName]);
 
+  const getDeployments = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/deployment/all?projectName=${projectName}`,
+        { credentials: "include" }
+      );
+      const data = await response.json();
+      setDeployments(data.reverse());
+    } catch (error) {
+      console.error(error);
+      CustomToast("Error fetching project");
+    }
+  };
+
   useEffect(() => {
-    const getDeployments = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/deployment/all?projectName=${projectName}`,
-          { credentials: "include" }
-        );
-        const data = await response.json();
-        setDeployments(data.reverse());
-      } catch (error) {
-        console.error(error);
-        CustomToast("Error fetching project");
-      }
-    };
     getDeployments();
   }, [projectName, isBuilding]);
 
@@ -82,5 +83,6 @@ export const useProjectDetails = () => {
     copyToClipboard,
     projectName,
     router,
+    getDeployments,
   };
 };

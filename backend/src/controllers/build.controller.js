@@ -188,20 +188,27 @@ export const generateDockerFile = asyncHandler(async (req, res) => {
 });
 
 const removePreviousPreviewDeployment = async (projectName) => {
-  const project = await Project.findOne({ name: projectName });
+  try {
+    const project = await Project.findOne({ name: projectName });
 
-  const containerName = execSync(
-    `docker ps --filter "publish=${project.previewPort}" --format "{{.Names}}"`
-  )
-    .toString()
-    .trim();
-  if (containerName) {
-    const imageName = `docker inspect --format='{{.Config.Image}}' ${containerName}`;
-    const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
-    const prevDeployment = await Deployment.findOne({ imageName: imageName });
-    prevDeployment.endTime = new Date();
-    prevDeployment.status = "in-preview";
-    prevDeployment.save({ validateBeforeSave: false });
+    const containerName = execSync(
+      `docker ps --filter "publish=${project.previewPort}" --format "{{.Names}}"`
+    )
+      .toString()
+      .trim();
+    console.log(containerName);
+    if (containerName) {
+      const imageName = `docker inspect --format='{{.Config.Image}}' ${containerName}`;
+      const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
+      console.log(imageName);
+      const prevDeployment = await Deployment.findOne({ imageName: imageName });
+      console.log(prevDeployment);
+      prevDeployment.endTime = new Date();
+      prevDeployment.status = "in-preview";
+      prevDeployment.save({ validateBeforeSave: false });
+    }
+  } catch (error) {
+    console.error(error);
   }
 };
 
@@ -290,6 +297,8 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
     res.setHeader("Transfer-Encoding", "chunked");
     res.setHeader("Access-Control-Allow-Origin", `${process.env.FRONTEND_URL}`);
     res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("Cache-Control", "no-cache");
 
     // Run Docker container
     const run = spawn("docker", [
@@ -303,43 +312,35 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
       imageName,
     ]);
 
-    run.stdout.on("data", (data) => {
-      res.write(`${data.toString()}\n\n`);
-      deployment.logs = [
-        ...deployment.logs,
-        { log: `${data.toString()}\n\n`, timestamp: new Date() },
-      ];
-    });
-    res.write(
-      `[RUN_COMPLETE] http://${projectName}-preview.deploy.princecodes.online\n\n`
-    );
-    deployment.logs = [
-      ...deployment.logs,
-      {
-        log: `[RUN_COMPLETE] http://${projectName}-preview.deploy.princecodes.online\n\n`,
-        timestamp: new Date(),
-      },
-    ];
-
-    run.stderr.on("data", (data) => {
-      res.write(`ERROR: ${data.toString()}\n\n`);
-      deployment.logs = [
-        ...deployment.logs,
-        { log: `ERROR: ${data.toString()}\n\n`, timestamp: new Date() },
-      ];
+    run.on("spawn", async () => {
+      const logMsg = `[RUN_COMPLETE] http://${projectName}-preview.deploy.princecodes.online\n\n`;
+      res.write(logMsg);
+      res.flush?.();
+      deployment.logs.push({ log: logMsg, timestamp: new Date() });
     });
 
-    run.on("close", (code) => {
-      res.write(`Docker container run exited with code ${code}\n\n`);
-      deployment.logs = [
-        ...deployment.logs,
-        {
-          log: `Docker container run exited with code ${code}\n\n`,
-          timestamp: new Date(),
-        },
-      ];
+    run.stdout.on("data", async (data) => {
+      const logMsg = data.toString();
+      res.write(`${logMsg}\n\n`);
+      res.flush?.();
+      deployment.logs.push({ log: logMsg, timestamp: new Date() });
+    });
+
+    run.stderr.on("data", async (data) => {
+      const logMsg = `ERROR: ${data.toString()}`;
+      res.write(`${logMsg}\n\n`);
+      res.flush?.();
+      deployment.logs.push({ log: logMsg, timestamp: new Date() });
+    });
+
+    run.on("close", async (code) => {
+      const msg = `Docker container run exited with code ${code}\n\n`;
+      res.write(msg);
+      res.flush?.();
+      deployment.logs.push({ log: msg, timestamp: new Date() });
       res.end();
     });
+
     await deployment.save({ validateBeforeSave: false });
     req.on("close", () => {
       run.kill();
