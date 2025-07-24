@@ -125,7 +125,7 @@ FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
-ECHO "[CONTAINER_READY] Application started on port 80"`;
+CMD ["echo", "Application started on port 80"]`;
 
     case "next":
       return `FROM node:18
@@ -134,7 +134,7 @@ COPY . .
 RUN npm install && npm run build
 EXPOSE 3000
 CMD ["npm", "start"]
-ECHO "[CONTAINER_READY] Application started on port 3000"`;
+CMD ["echo", "Application started on port 80"]`;
 
     case "angular":
       return `FROM node:18 AS builder
@@ -146,7 +146,7 @@ FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
-ECHO "[CONTAINER_READY] Application started on port 80"`;
+CMD ["echo", "Application started on port 80"]`;
 
     case "node-api":
       return `FROM node:18
@@ -155,14 +155,14 @@ COPY . .
 RUN npm install
 EXPOSE 3000
 CMD ["node", "index.js"]
-ECHO "[CONTAINER_READY] Application started on port 80"`;
+CMD ["echo", "Application started on port 80"]`;
 
     case "static":
       return `FROM nginx:alpine
 COPY . /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
-ECHO "[CONTAINER_READY] Application started on port 80"`;
+CMD ["echo", "Application started on port 80"]`;
 
     default:
       return `# Unknown stack\n# Manual Dockerfile creation required.`;
