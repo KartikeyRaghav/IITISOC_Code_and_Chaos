@@ -124,7 +124,6 @@ RUN npm install && npm run build
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
-CMD ["echo", "Application started on port 80"]
 CMD ["nginx", "-g", "daemon off;"]`;
 
     case "next":
@@ -133,7 +132,6 @@ WORKDIR /app
 COPY . .
 RUN npm install && npm run build
 EXPOSE 3000
-CMD ["echo", "Application started on port 80"]
 CMD ["npm", "start"]`;
 
     case "angular":
@@ -145,7 +143,6 @@ RUN npm install && npm run build --prod
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
-CMD ["echo", "Application started on port 80"]
 CMD ["nginx", "-g", "daemon off;"]`;
 
     case "node-api":
@@ -154,14 +151,12 @@ WORKDIR /app
 COPY . .
 RUN npm install
 EXPOSE 3000
-CMD ["echo", "Application started on port 80"]
 CMD ["node", "index.js"]`;
 
     case "static":
       return `FROM nginx:alpine
 COPY . /usr/share/nginx/html
 EXPOSE 80
-CMD ["echo", "Application started on port 80"]
 CMD ["nginx", "-g", "daemon off;"]`;
 
     default:
@@ -209,6 +204,7 @@ const removePreviousDeployment = async (projectName) => {
         .trim();
       const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
       prevDeployment.endTime = new Date();
+      prevDeployment.status = "completed";
       prevDeployment.save({ validateBeforeSave: false });
     }
   }
