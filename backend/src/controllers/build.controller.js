@@ -317,7 +317,6 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
       res.write(logMsg);
       res.flush?.();
       deployment.logs.push({ log: logMsg, timestamp: new Date() });
-      await deployment.save({ validateBeforeSave: false });
     });
 
     run.stdout.on("data", async (data) => {
@@ -325,7 +324,6 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
       res.write(`${logMsg}\n\n`);
       res.flush?.();
       deployment.logs.push({ log: logMsg, timestamp: new Date() });
-      await deployment.save({ validateBeforeSave: false });
     });
 
     run.stderr.on("data", async (data) => {
@@ -333,7 +331,6 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
       res.write(`${logMsg}\n\n`);
       res.flush?.();
       deployment.logs.push({ log: logMsg, timestamp: new Date() });
-      await deployment.save({ validateBeforeSave: false });
     });
 
     run.on("close", async (code) => {
@@ -341,10 +338,10 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
       res.write(msg);
       res.flush?.();
       deployment.logs.push({ log: msg, timestamp: new Date() });
-      await deployment.save({ validateBeforeSave: false });
       res.end();
     });
 
+    await deployment.save({ validateBeforeSave: false });
     req.on("close", () => {
       run.kill();
     });
