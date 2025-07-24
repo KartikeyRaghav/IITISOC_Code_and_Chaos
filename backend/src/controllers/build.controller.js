@@ -303,13 +303,6 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
       imageName,
     ]);
 
-    run.stdout.on("data", (data) => {
-      res.write(`${data.toString()}\n\n`);
-      deployment.logs = [
-        ...deployment.logs,
-        { log: `${data.toString()}\n\n`, timestamp: new Date() },
-      ];
-    });
     res.write(
       `[RUN_COMPLETE] http://${projectName}-preview.deploy.princecodes.online\n\n`
     );
@@ -320,6 +313,14 @@ export const runDockerContainer = asyncHandler(async (req, res) => {
         timestamp: new Date(),
       },
     ];
+    
+    run.stdout.on("data", (data) => {
+      res.write(`${data.toString()}\n\n`);
+      deployment.logs = [
+        ...deployment.logs,
+        { log: `${data.toString()}\n\n`, timestamp: new Date() },
+      ];
+    });
 
     run.stderr.on("data", (data) => {
       res.write(`ERROR: ${data.toString()}\n\n`);
