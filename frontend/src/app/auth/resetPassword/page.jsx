@@ -20,7 +20,7 @@ export default function ResetPasswordPage() {
                 <div className='inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-full mb-4 shadow-lg'>
                     <Lock className='w-8 h-8 text-white'/>
                 </div>
-                <h2 className='text-3xl font-blod text-white mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-purple-600 bg-clip-text'>
+                <h2 className='text-3xl font-bold text-white mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-purple-600 bg-clip-text'>
                     Reset Password
                 </h2>
                 <p className='text-gray-400'>Enter your new password below</p>
