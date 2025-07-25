@@ -4,6 +4,9 @@ import CustomToast from "@/components/CustomToast";
 import { Lock, EyeOff, AlertCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const ResetPasswordPage = () => {
   const searchParams = useSearchParams();

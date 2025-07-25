@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import { Sparkles, KeyRound, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export default function OtpVerificationPage() {
   const [timeLeft, setTimeLeft] = useState(60);
