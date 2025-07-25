@@ -27,21 +27,7 @@ export default function ResetPasswordPage() {
             </div>
 
             <form className='space-y-6'>
-                <div className='space-y-2'>
-                    <label className='text-gray-300 font-medium text-sm flex items-center gap-2'>
-                        <Mail className='w-4 h-4 text-green-400'/>
-                        Email Address
-                    </label>
-                    <div className='relative'>
-                        <input
-                            type='email'
-                            placeholder='Enter your email'
-                            className='w-full p-4 pl-12 rounded-xl bg-[#2c2f4a]/80 text-white border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-400 backdrop-blur-sm'
-                            disabled
-                        />
-                        <Mail className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400'/>
-                    </div>
-                </div>
+                
                 <div className='space-y-2'>
                     <label className='text-gray-300 font-medium text-sm flex items-center gap-2'>
                         <Lock className='w-4 h-4 text-purple-400'/>
@@ -68,7 +54,7 @@ export default function ResetPasswordPage() {
                 <div className='space-y-2'>
                     <label className='text-gray-300 font-medium text-sm flex items-center gap-2'>
                         <Lock className='w-4 h-4 text-yellow-400'/>
-                        Confirm Password 
+                        Confirm New Password 
                     </label>
                     <div className='relative'>
                         <input 
@@ -85,22 +71,6 @@ export default function ResetPasswordPage() {
                         >
                             <EyeOff className='w-5 h-5'/>
                         </button>
-                    </div>
-                </div>
-
-                <div className='space-y-2'>
-                    <label className='text-gray-300 font-medium text-sm flex items-center gap-2'>
-                        <Sparkles className='w-4 h-4 text-yellow-400'/>
-                        Reset Token 
-                    </label>
-                    <div className='relative'>
-                        <input
-                            type='text'
-                            placeholder='Paste your reset token'
-                            className='w-full p-4 pl-12 rounded-xl bg-[#2c2f4a]/80 text-white border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-400 backdrop-blur-sm'
-                            disabled 
-                        />
-                        <Sparkles className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                     </div>
                 </div>
 
