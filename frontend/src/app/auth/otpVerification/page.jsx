@@ -6,7 +6,11 @@ import { useRouter } from "next/navigation";
 
 export default function OtpVerificationPage() {
   const [timeLeft, setTimeLeft] = useState(60);
-  const formData = JSON.parse(localStorage.getItem("formData"));
+  const [formData, setFormData] = useState({
+    email: "",
+    fullName: "",
+    password: "",
+  });
   const [otp, setOtp] = useState("");
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -49,6 +53,7 @@ export default function OtpVerificationPage() {
 
   const handleSubmit = async () => {
     setIsLoading(true);
+    setFormData(JSON.parse(localStorage.getItem("formData")));
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/verifyOtp`,
