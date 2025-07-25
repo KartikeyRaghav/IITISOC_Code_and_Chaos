@@ -7,6 +7,10 @@ import {
   logoutUser,
   refreshAccessToken,
   registerUser,
+  requestPasswordReset,
+  resetPassword,
+  sendOtp,
+  verifyOtp,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -16,7 +20,10 @@ const userRouter = Router();
 userRouter
   .route("/register")
   .post(upload.fields([{ name: "profilePicture", maxCount: 1 }]), registerUser);
-
+userRouter.route("/sendOtp").post(sendOtp);
+userRouter.route("/verifyOtp").post(verifyOtp);
+userRouter.route("/requestPasswordReset").post(requestPasswordReset);
+userRouter.route("/resetPassword").post(resetPassword);
 userRouter.route("/login").post(loginUser);
 userRouter.route("/refreshToken").get(refreshAccessToken);
 userRouter.route("/stats").get(getStats);

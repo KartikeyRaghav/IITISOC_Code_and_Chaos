@@ -1,6 +1,5 @@
 "use client";
 import CustomLoader from "@/components/CustomLoader";
-import ProfileUpload from "@/components/ProfileUpload";
 import { checkAuth } from "@/utils/checkAuth";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -34,10 +33,18 @@ export default function SignupPage() {
       return;
     } //checks if psw matches, if not sets error and stops
 
+    const lowerCaseEmail = formData.email.toLowerCase();
+    const [address, domain] = lowerCaseEmail.split("@");
+
+    if (domain != "iiti.ac.in") {
+      setError("Please sign up with your institute email id");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/register`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/sendOtp`,
         {
           method: "POST",
           headers: {
@@ -45,8 +52,6 @@ export default function SignupPage() {
           },
           body: JSON.stringify({
             email: formData.email,
-            password: formData.password,
-            fullName: formData.fullName,
           }),
           credentials: "include",
         }
@@ -54,7 +59,15 @@ export default function SignupPage() {
       const data = await response.json();
 
       if (response.ok) {
-        router.replace("/dashboard");
+        localStorage.setItem(
+          "formData",
+          JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+            fullName: formData.fullName,
+          })
+        );
+        router.push("/auth/otpVerification");
       } else {
         const errorMessage =
           data?.message ||

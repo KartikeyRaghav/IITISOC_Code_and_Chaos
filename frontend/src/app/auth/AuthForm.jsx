@@ -19,6 +19,7 @@ const AuthForms = ({
   onToggleForm,
   error,
   isLoading = false,
+  setShowForgotPasswordModal,
 }) => {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -329,6 +330,7 @@ const AuthForms = ({
               <button
                 type="button"
                 className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
+                onClick={() => setShowForgotPasswordModal(true)}
               >
                 Forgot password?
               </button>
