@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export default function ResetPasswordPage() {
-  const token = useSearchParams().get("token");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -17,6 +16,7 @@ export default function ResetPasswordPage() {
 
   const handlePasswordReset = async (e) => {
     e.preventDefault();
+    const token = useSearchParams().get("token");
     setError("");
     if (password !== confirmPassword) {
       setError("Passwords do not match");
