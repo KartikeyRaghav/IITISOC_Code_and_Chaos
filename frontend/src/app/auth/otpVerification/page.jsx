@@ -29,7 +29,7 @@ export default function OtpVerificationPage() {
 
             <div className="relative bg-gradient-to-r from-[#23243a] to-[#1a1b2e] p-8 rounded-3xl shadow-2xl w-full max-w-md border border-purple-500/20 backdrop-blur-sm z-10">
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center h-16 w-16 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-full mb-4 shadown-lg">
+                    <div className="inline-flex items-center justify-center h-16 w-16 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-full mb-4 shadow-lg">
                         <KeyRound className="w-8 h-8 text-white"/>
                     </div>
                     <h2 className="text-3xl font-bold text-white mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-purple-600 bg-clip-text">
