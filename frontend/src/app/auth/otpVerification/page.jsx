@@ -23,6 +23,10 @@ export default function OtpVerificationPage() {
     }
   }, [timeLeft]);
 
+  useEffect(() => {
+    setFormData(JSON.parse(localStorage.getItem("formData")));
+  });
+
   const handleResend = async () => {
     if (timeLeft === 0) {
       try {
@@ -53,7 +57,6 @@ export default function OtpVerificationPage() {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    setFormData(JSON.parse(localStorage.getItem("formData")));
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/verifyOtp`,
