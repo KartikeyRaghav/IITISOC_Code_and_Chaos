@@ -6,8 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 const ResetPasswordPage = () => {
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -18,6 +16,10 @@ const ResetPasswordPage = () => {
 
   const handlePasswordReset = async (e) => {
     e.preventDefault();
+
+    const searchParams = useSearchParams();
+    const token = searchParams.get("token");
+
     setError("");
     if (password !== confirmPassword) {
       setError("Passwords do not match");
