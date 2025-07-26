@@ -261,7 +261,7 @@ export const useDeployment = (
         }
       );
       const data = await response.json();
-      await updateDeployment(deployment._id, "deployed");
+      if (isLive) await updateDeployment(deployment._id, "deployed");
       await getDeployments();
     } catch (error) {
       console.error(error);
