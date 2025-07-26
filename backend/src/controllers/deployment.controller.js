@@ -213,6 +213,46 @@ export const deploy = asyncHandler(async (req, res) => {
       deployment.imageName,
     ]);
 
+    run.stdout.on("data", (data) => {
+      deployment.logs = [
+        ...deployment.logs,
+        { log: data.toString(), timestamp: new Date() },
+      ];
+    });
+
+    run.stderr.on("data", (data) => {
+      deployment.logs = [
+        ...deployment.logs,
+        { log: data.toString(), timestamp: new Date() },
+      ];
+    });
+
+    run.on("close", async (code) => {
+      deployment.logs = [
+        ...deployment.logs,
+        {
+          log: `Docker container run exited with code ${code}\n\n`,
+          timestamp: new Date(),
+        },
+      ];
+      if (code === 0) {
+        deployment.logs = [
+          ...deployment.logs,
+          { log: `[RUN_COMPLETE] ${containerName}\n\n`, timestamp: new Date() },
+        ];
+      } else {
+        deployment.logs = [
+          ...deployment.logs,
+          {
+            log: `[ERROR] Step failed with code ${code}\n\n`,
+            timestamp: new Date(),
+          },
+        ];
+        deployment.status = "failed";
+      }
+      await deployment.save({ validateBeforeSave: false });
+    });
+
     res.status(200).json({ message: "complete" });
   } catch (error) {
     res.status(400).json({ message: "Error while deploying" });

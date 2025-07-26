@@ -53,6 +53,10 @@ const ProjectDetails = () => {
 
   const onBuildAndPreview = () => {
     handleBuildAndPreview(project);
+    const element = document.getElementById("logs");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   if (isAuthenticated === null) {

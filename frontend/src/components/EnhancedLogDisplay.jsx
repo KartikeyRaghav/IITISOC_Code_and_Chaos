@@ -119,7 +119,10 @@ const EnhancedLogDisplay = ({
   );
 
   return (
-    <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl border border-purple-500/20 backdrop-blur-sm overflow-hidden">
+    <div
+      id="logs"
+      className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl border border-purple-500/20 backdrop-blur-sm overflow-hidden"
+    >
       <div className="bg-gradient-to-r from-[#2c2f4a] to-[#1e1f3a] px-8 py-6 border-b border-gray-600/30">
         <div className="flex flex-wrap items-center justify-between">
           <div className="flex items-center gap-3">
