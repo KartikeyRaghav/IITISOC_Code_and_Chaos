@@ -7,8 +7,8 @@ const DeploymentHistory = ({
   projectName,
   copiedUrl,
   onCopyToClipboard,
-  onDeployToProduction,
-  project
+  onDeploy,
+  project,
 }) => {
   if (!deployments || deployments.length === 0) {
     return null;
@@ -39,7 +39,7 @@ const DeploymentHistory = ({
               projectName={projectName}
               copiedUrl={copiedUrl}
               onCopyToClipboard={onCopyToClipboard}
-              onDeployToProduction={onDeployToProduction}
+              onDeploy={onDeploy}
               project={project}
             />
           ))}

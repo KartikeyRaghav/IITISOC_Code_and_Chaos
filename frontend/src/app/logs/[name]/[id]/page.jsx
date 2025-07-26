@@ -50,7 +50,6 @@ const page = () => {
         );
         const data = await response.json();
         setDeployment(data);
-        console.log(data);
       } catch (error) {
         console.error(error);
       }

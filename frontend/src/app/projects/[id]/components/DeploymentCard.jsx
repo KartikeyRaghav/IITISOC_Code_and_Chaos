@@ -8,7 +8,7 @@ const DeploymentCard = ({
   projectName,
   copiedUrl,
   onCopyToClipboard,
-  onDeployToProduction,
+  onDeploy,
   project,
 }) => {
   const formatDuration = (startTime, endTime) => {
@@ -83,7 +83,7 @@ const DeploymentCard = ({
         projectName={projectName}
         copiedUrl={copiedUrl}
         onCopyToClipboard={onCopyToClipboard}
-        onDeployToProduction={onDeployToProduction}
+        onDeploy={onDeploy}
         project={project}
       />
     </div>

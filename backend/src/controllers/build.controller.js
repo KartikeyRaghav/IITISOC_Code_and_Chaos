@@ -188,31 +188,6 @@ export const generateDockerFile = asyncHandler(async (req, res) => {
   });
 });
 
-const removePreviousPreviewDeployment = async (projectName) => {
-  try {
-    const project = await Project.findOne({ name: projectName });
-
-    const containerName = execSync(
-      `docker ps --filter "publish=${project.previewPort}" --format "{{.Names}}"`
-    )
-      .toString()
-      .trim();
-    console.log(containerName);
-    if (containerName) {
-      const imageName = `docker inspect --format='{{.Config.Image}}' ${containerName}`;
-      const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
-      console.log(imageName);
-      const prevDeployment = await Deployment.findOne({ imageName: imageName });
-      console.log(prevDeployment);
-      prevDeployment.endTime = new Date();
-      prevDeployment.status = "in-preview";
-      prevDeployment.save({ validateBeforeSave: false });
-    }
-  } catch (error) {
-    console.error(error);
-  }
-};
-
 // Route handler to build Docker image
 export const generateDockerImage = asyncHandler(async (req, res) => {
   const { projectName, clonedPath, deploymentId } = req.body;
@@ -222,7 +197,6 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
       .json({ message: "Missing repo name or cloned path" });
   }
 
-  await removePreviousPreviewDeployment(projectName);
   const newDeployment = await Deployment.findById(deploymentId);
   const imageName = `app-${projectName.toLowerCase()}-${Date.now()}`;
 
@@ -282,90 +256,5 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
   } catch (err) {
     console.error("Docker error:", err);
     res.status(500).json({ message: "Docker build failed", details: err });
-  }
-});
-
-// Route handler to run a Docker container and setup reverse proxy via nginx
-export const runDockerContainer = asyncHandler(async (req, res) => {
-  const { imageName, projectName, deploymentId } = req.body;
-
-  const project = await Project.findOne({ name: projectName });
-  const containerName = `container-${projectName.toLowerCase()}-${Date.now()}`;
-  const deployment = await Deployment.findOne({ _id: deploymentId });
-
-  try {
-    res.setHeader("Content-Type", "text/plain");
-    res.setHeader("Transfer-Encoding", "chunked");
-    res.setHeader("Access-Control-Allow-Origin", `${process.env.FRONTEND_URL}`);
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("X-Content-Type-Options", "nosniff");
-    res.setHeader("Cache-Control", "no-cache");
-
-    res.flushHeaders();
-
-    // Run Docker container
-    const run = spawn("docker", [
-      "run",
-      "-p",
-      project.framework === "next"
-        ? `${project.previewPort}:3000`
-        : `${project.previewPort}:80`,
-      "--name",
-      containerName,
-      imageName,
-    ]);
-
-    run.on("spawn", async () => {
-      try {
-        const port = project.previewPort;
-        const previewUrl = `http://${projectName}-preview.deploy.princecodes.online`;
-
-        await tcpPortUsed.waitUntilUsed(port, 500, 10000);
-
-        const completeMsg = `[RUN_COMPLETE] ${previewUrl}\n\n`;
-        res.write(completeMsg);
-        res.flush?.();
-        deployment.logs.push({ log: completeMsg, timestamp: new Date() });
-        await deployment.save({ validateBeforeSave: false });
-      } catch (err) {
-        const errorMsg = `[ERROR] Container failed to start within time\n\n`;
-        res.write(errorMsg);
-        res.flush?.();
-        deployment.logs.push({ log: errorMsg, timestamp: new Date() });
-        deployment.status = "failed";
-        await deployment.save({ validateBeforeSave: false });
-        res.end();
-      }
-    });
-
-    run.stdout.on("data", async (data) => {
-      const logMsg = data.toString();
-      res.write(`${logMsg}\n\n`);
-      res.flush?.();
-      deployment.logs.push({ log: logMsg, timestamp: new Date() });
-    });
-
-    run.stderr.on("data", async (data) => {
-      const logMsg = `ERROR: ${data.toString()}`;
-      res.write(`${logMsg}\n\n`);
-      res.flush?.();
-      deployment.logs.push({ log: logMsg, timestamp: new Date() });
-    });
-
-    run.on("close", async (code) => {
-      const msg = `Docker container run exited with code ${code}\n\n`;
-      res.write(msg);
-      res.flush?.();
-      deployment.logs.push({ log: msg, timestamp: new Date() });
-      res.end();
-    });
-
-    await deployment.save({ validateBeforeSave: false });
-    req.on("close", () => {
-      run.kill();
-    });
-  } catch (err) {
-    console.error("Docker run error:", err);
-    res.status(500).json({ error: "Docker run failed", details: err });
   }
 });

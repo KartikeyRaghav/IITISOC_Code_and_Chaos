@@ -14,7 +14,7 @@ const ActionButtons = ({
   projectName,
   copiedUrl,
   onCopyToClipboard,
-  onDeployToProduction,
+  onDeploy,
   project,
 }) => {
   return (
@@ -23,6 +23,7 @@ const ActionButtons = ({
       {deployment.status === "in-preview" && (
         <div className="flex items-center gap-2">
           <a
+            onClick={() => onDeploy(deployment, false)}
             href={`http://${projectName}-preview.deploy.princecodes.online`}
             target="_blank"
             rel="noopener noreferrer"
@@ -54,7 +55,7 @@ const ActionButtons = ({
 
       {deployment.status === "in-preview" && (
         <button
-          onClick={() => onDeployToProduction(deployment)}
+          onClick={() => onDeploy(deployment, true)}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 text-purple-300 font-medium transition-colors"
         >
           <Rocket className="w-4 h-4" />

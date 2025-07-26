@@ -32,7 +32,7 @@ const ProjectDetails = () => {
     router,
   } = useProjectDetails();
 
-  const { handleBuildAndPreview, deployToProduction } = useDeployment(
+  const { handleBuildAndPreview, deploy } = useDeployment(
     projectName,
     setLogs,
     setIsBuilding,
@@ -50,10 +50,6 @@ const ProjectDetails = () => {
     verifyAuth();
     setIsAuthenticated(true);
   }, []);
-
-  useEffect(() => {
-    console.log(logs);
-  }, [logs]);
 
   const onBuildAndPreview = () => {
     handleBuildAndPreview(project);
@@ -103,7 +99,7 @@ const ProjectDetails = () => {
                 projectName={projectName}
                 copiedUrl={copiedUrl}
                 onCopyToClipboard={copyToClipboard}
-                onDeployToProduction={deployToProduction}
+                onDeploy={deploy}
                 project={project}
               />
 

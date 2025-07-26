@@ -27,71 +27,6 @@ export const useDeployment = (
     } catch (error) {}
   };
 
-  const runDockerContainer = async (
-    projectName,
-    imageName,
-    deploymentId,
-    prevPort = null
-  ) => {
-    try {
-      setLogs((prev) => [...prev, "Starting docker container run"]);
-      const controller = new AbortController();
-
-      fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/build/dockerContainer`,
-        {
-          method: "POST",
-          credentials: "include",
-          signal: controller.signal,
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            projectName,
-            imageName,
-            prevPort,
-            deploymentId,
-          }),
-        }
-      )
-        .then((response) => {
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-          const readChunk = () => {
-            reader.read().then(async ({ done, value }) => {
-              console.log(done, value);
-              if (done) return;
-              const text = decoder.decode(value);
-              setLogs((prev) => [...prev, text]);
-
-              const match = text.match(/\[RUN_COMPLETE\] (.*)/);
-              const error = text.match(/\[ERROR\] (.*)/);
-              if (error) {
-                setIsBuilding(false);
-                setIsError(true);
-                CustomToast("Error running the docker contanier");
-              }
-              setLogs((prev) => [...prev, "Run complete"]);
-              await updateDeployment(deploymentId, "in-preview");
-              setIsBuilding(false);
-
-              readChunk();
-            });
-          };
-
-          readChunk();
-        })
-        .catch((err) => console.error("Streaming error:", err));
-
-      () => controller.abort();
-    } catch (error) {
-      console.error(error);
-      CustomToast("Error while running docker container");
-      await updateDeployment(deploymentId, "failed");
-      setLogs((prev) => [...prev, "Error while running docker container"]);
-    }
-  };
-
   const getVersion = async () => {
     try {
       const response = await fetch(
@@ -165,20 +100,10 @@ export const useDeployment = (
 
               const match = text.match(/\[BUILD_COMPLETE\] (.*)/);
               const error = text.match(/\[ERROR\] (.*)/);
-              const prevPort = text.match(/\[PREV_PORT\] (.*)/);
               if (match) {
                 let fullImageName = match[1];
                 setLogs((prev) => [...prev, "Build complete"]);
-                await updateDeployment(deploymentId, "pending");
-                if (prevPort)
-                  runDockerContainer(
-                    projectName,
-                    fullImageName,
-                    deploymentId,
-                    prevPort[1]
-                  );
-                else
-                  runDockerContainer(projectName, fullImageName, deploymentId);
+                await updateDeployment(deploymentId, "in-preview");
               }
               if (error) {
                 setIsBuilding(false);
@@ -319,7 +244,7 @@ export const useDeployment = (
     }
   };
 
-  const deployToProduction = async (deployment) => {
+  const deploy = async (deployment, isLive) => {
     try {
       setIsBuilding(true);
       const response = await fetch(
@@ -328,7 +253,11 @@ export const useDeployment = (
           credentials: "include",
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ deploymentId: deployment._id, projectName }),
+          body: JSON.stringify({
+            deploymentId: deployment._id,
+            projectName,
+            isLive,
+          }),
         }
       );
       const data = await response.json();
@@ -355,6 +284,6 @@ export const useDeployment = (
 
   return {
     handleBuildAndPreview,
-    deployToProduction,
+    deploy,
   };
 };

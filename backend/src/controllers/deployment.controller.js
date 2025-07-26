@@ -160,24 +160,21 @@ export const getDeployment = asyncHandler(async (req, res) => {
   res.status(200).json(deployment);
 });
 
-const removePreviousProductionDeployment = async (projectName) => {
+const removePreviousDeployment = async (projectName, isLive) => {
   try {
     const project = await Project.findOne({ name: projectName });
 
     const containerName = execSync(
-      `docker ps --filter "publish=${project.livePort}" --format "{{.Names}}"`
+      `docker ps --filter "publish=${isLive ? project.livePort : project.previewPort}" --format "{{.Names}}"`
     )
       .toString()
       .trim();
-    console.log(containerName);
     if (containerName) {
       const imageName = execSync(
         `docker inspect --format='{{.Config.Image}}' ${containerName}`
       );
       const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
-      console.log(imageName);
       const prevDeployment = await Deployment.findOne({ imageName: imageName });
-      console.log(prevDeployment);
       prevDeployment.endTime = new Date();
       prevDeployment.status = "in-preview";
       prevDeployment.save({ validateBeforeSave: false });
@@ -187,8 +184,8 @@ const removePreviousProductionDeployment = async (projectName) => {
   }
 };
 
-export const deploytoProduction = asyncHandler(async (req, res) => {
-  const { deploymentId, projectName } = req.body;
+export const deploy = asyncHandler(async (req, res) => {
+  const { deploymentId, projectName, isLive } = req.body;
 
   try {
     const deployment = await Deployment.findOne({ _id: deploymentId });
@@ -201,7 +198,7 @@ export const deploytoProduction = asyncHandler(async (req, res) => {
     if (req.user._id.toString() !== deployment.deployedBy.toString())
       return res.status(401).json({ message: "Not authorized" });
 
-    await removePreviousProductionDeployment(projectName);
+    await removePreviousDeployment(projectName);
 
     const containerName = `container-${projectName}-${Date.now()}`;
 
@@ -209,8 +206,8 @@ export const deploytoProduction = asyncHandler(async (req, res) => {
       "run",
       "-p",
       project.framework === "next"
-        ? `${project.livePort}:3000`
-        : `${project.livePort}:80`,
+        ? `${isLive ? project.livePort : project.previewPort}:3000`
+        : `${isLive ? project.livePort : project.previewPort}:80`,
       "--name",
       containerName,
       deployment.imageName,

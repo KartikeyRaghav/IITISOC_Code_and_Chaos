@@ -78,55 +78,6 @@ export class LogParser {
       description: "Image ready for deployment",
     },
     {
-      pattern: /Starting docker container run/i,
-      type: "major",
-      category: "container",
-      title: "Container Startup",
-      description: "Launching application container",
-    },
-    {
-      pattern: /\/docker-entrypoint\.sh:/i,
-      type: "info",
-      category: "container",
-      title: "Container Initialization",
-      description: "Running startup scripts",
-    },
-    {
-      pattern: /Configuration complete; ready for start up/i,
-      type: "success",
-      category: "nginx",
-      title: "Server Configuration Ready",
-      description: "Nginx configured and ready to serve",
-    },
-    {
-      pattern: /nginx\/[\d.]+/i,
-      type: "info",
-      category: "nginx",
-      title: "Web Server Started",
-      description: "Nginx web server is running",
-    },
-    {
-      pattern: /start worker process/i,
-      type: "info",
-      category: "nginx",
-      title: "Worker Processes",
-      description: "Starting nginx worker processes",
-    },
-    {
-      pattern: /Docker container run exited with code 137/i,
-      type: "completion",
-      category: "deployment",
-      title: "Deployment Completed",
-      description: "Application successfully deployed and running",
-    },
-    {
-      pattern: /\[RUN_COMPLETE\]/i,
-      type: "completion",
-      category: "deployment",
-      title: "Application Live",
-      description: "Your application is now accessible",
-    },
-    {
       pattern: /^ERROR: (.+)/i,
       type: "error",
       category: "system",
@@ -152,40 +103,7 @@ export class LogParser {
 
     // Extract line number if present
     const lineNumberMatch = trimmedLog.match(/^(\d{3})\s*(.*)/);
-    // const lineNumber = lineNumberMatch ? lineNumberMatch[1] :(index + 1).padStart(3, '0');
     const content = lineNumberMatch ? lineNumberMatch[2] : trimmedLog;
-
-    // Check for completion with URL
-    const completionUrlMatch = content.match(
-      /\[RUN_COMPLETE\]\s+(http?:\/\/[^\s]+)/i
-    );
-    if (completionUrlMatch) {
-      return {
-        id: `completion-${index}`,
-        timestamp: new Date().toISOString(),
-        type: "completion",
-        category: "deployment",
-        title: "Application Live",
-        description: "Your application is now accessible",
-        details: [content],
-        progress: 100,
-        url: completionUrlMatch[1],
-      };
-    }
-
-    // Check for container exit with code 137
-    if (content.includes("Docker container run exited with code 137")) {
-      return {
-        id: `container-exit-${index}`,
-        timestamp: new Date().toISOString(),
-        type: "completion",
-        category: "deployment",
-        title: "Deployment Completed",
-        description: "Container started successfully",
-        details: [content],
-        progress: 99,
-      };
-    }
 
     // Find matching pattern
     for (const pattern of this.eventPatterns) {
@@ -262,11 +180,7 @@ export class LogParser {
       "Copying Application Files": 70,
       "Finalizing Image": 85,
       "Build Completed": 90,
-      "Build Process Finished": 95,
-      "Container Startup": 98,
-      "Server Configuration Ready": 99,
-      "Deployment Completed": 99,
-      "Application Live": 100,
+      "Build Process Finished": 100,
     };
 
     return progressMap[title] || 0;
@@ -305,9 +219,7 @@ export class LogParser {
         event.type === "success" ||
         event.type === "completion" ||
         (event.type === "success" &&
-          ["dockerfile", "build", "container", "deployment"].includes(
-            event.category
-          ))
+          ["dockerfile", "build", "deployment"].includes(event.category))
     );
   }
 
@@ -328,7 +240,8 @@ export class LogParser {
 
   static isDeploymentComplete(events) {
     return events.some(
-      (event) => event.type === "completion" && event.category === "deployment"
+      (event) =>
+        event.type === "success" && event.title === "Build Process Finished"
     );
   }
 }
