@@ -104,6 +104,7 @@ export const useDeployment = (
                 let fullImageName = match[1];
                 setLogs((prev) => [...prev, "Build complete"]);
                 await updateDeployment(deploymentId, "in-preview");
+                setIsBuilding(false);
               }
               if (error) {
                 setIsBuilding(false);
