@@ -105,6 +105,10 @@ export const useDeployment = (
                 setLogs((prev) => [...prev, "Build complete"]);
                 await updateDeployment(deploymentId, "in-preview");
                 setIsBuilding(false);
+                const element = document.getElementById("deployments");
+                if (element) {
+                  element.scrollIntoView({ behavior: "smooth" });
+                }
               }
               if (error) {
                 setIsBuilding(false);
