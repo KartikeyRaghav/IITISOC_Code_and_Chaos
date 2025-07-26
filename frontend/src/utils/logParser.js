@@ -178,9 +178,8 @@ export class LogParser {
       "Fetching Base Image": 30,
       "Base Image Download": 50,
       "Copying Application Files": 70,
-      "Finalizing Image": 85,
-      "Build Completed": 90,
-      "Build Process Finished": 100,
+      "Finalizing Image": 90,
+      "Build Completed": 100,
     };
 
     return progressMap[title] || 0;
