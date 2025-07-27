@@ -9,6 +9,7 @@ export const checkAuth = async () => {
     const data = await response.json();
     if (response.ok) {
       localStorage.setItem("githubUsername", data.user.githubUsername);
+      localStorage.setItem("githubInstallationId", data.user.githubInstallationId);
       localStorage.setItem(
         "hasGithubPermission",
         data.user.hasGithubPermission

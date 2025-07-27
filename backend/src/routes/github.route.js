@@ -5,7 +5,7 @@ import {
   getRepoBranches,
   githubOAuthConsent,
   handleGithubCallback,
-  getRepo
+  getRepo,
 } from "../controllers/github.controller.js";
 
 const githubRouter = Router();

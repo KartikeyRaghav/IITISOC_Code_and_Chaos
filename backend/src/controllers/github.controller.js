@@ -12,7 +12,7 @@ export const githubOAuthConsent = asyncHandler(async (req, res) => {
   }
 
   // Construct GitHub OAuth URL
-  const clientID = process.env.GITHUB_CLIENT_ID;
+  const clientID = process.env.GITHUB_OAUTH_CLIENT_ID;
   const redirectURI = `${process.env.BACKEND_URL}/api/v1/github/callback`;
   const scope = "read:user repo"; // Required scopes
 
@@ -47,8 +47,8 @@ export const handleGithubCallback = asyncHandler(async (req, res) => {
     return res.status(400).send("Missing code parameter.");
   }
 
-  const clientID = process.env.GITHUB_CLIENT_ID;
-  const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+  const clientID = process.env.GITHUB_OAUTH_CLIENT_ID;
+  const clientSecret = process.env.GITHUB_OAUTH_CLIENT_SECRET;
 
   // Exchange the authorization code for an access token
   const tokenResponse = await fetch(
@@ -82,6 +82,7 @@ export const handleGithubCallback = asyncHandler(async (req, res) => {
   const user = await User.findByIdAndUpdate(req.user._id, {
     githubUsername: username,
     hasGithubPermission: true,
+    githubAccessToken: accessToken,
   });
 
   // Send data back to frontend via window.postMessage
@@ -189,7 +190,7 @@ export const getRepo = asyncHandler(async (req, res) => {
     );
 
     const data = await response.json();
-    res.status(200).json(data); // Return complete repo details
+    res.status(200).json(data);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error fetching the repo" });
