@@ -15,6 +15,15 @@ const userSchema = new Schema(
       index: true,
       minlength: 4,
     },
+    githubInstallationId: {
+      type: Number,
+      default: null,
+    },
+    githubAccessToken: {
+      type: String,
+      select: false,
+      default: null,
+    },
     email: {
       type: String,
       required: true,
