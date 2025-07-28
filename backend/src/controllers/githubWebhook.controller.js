@@ -46,14 +46,15 @@ export const githubWebhookHandler = asyncHandler(async (req, res) => {
         payload.action === "closed" &&
         payload.pull_request?.merged === true)
     ) {
-      const repoFullName = payload.repository.full_name; // e.g., "user/repo"
+      console.log("inside push");
+      const repoFullName = payload.repository.full_name;
       const branch =
         event === "push"
           ? payload.ref.replace("refs/heads/", "")
           : payload.pull_request.base.ref;
 
       const [githubUsername, repoName] = repoFullName.split("/");
-
+      console.log(githubUsername, repoName);
       const user = await User.findOne({
         githubUsername: githubUsername.toLowerCase(),
       });
@@ -62,18 +63,19 @@ export const githubWebhookHandler = asyncHandler(async (req, res) => {
         console.log("user not found");
         return res.status(404).json({ message: "User not found" });
       }
-
+      console.log("user found");
       const project = await Project.findOne({
         "github.repoName": repoName,
         createdBy: user,
       });
-      
+
       if (!project) {
         console.log("repo not found");
         return res
           .status(404)
           .json({ message: "Project not found for this repo" });
       }
+      console.log("project found");
 
       // Optional: only auto-build for specific branch
       if (project.github.branch !== branch) {
@@ -82,6 +84,7 @@ export const githubWebhookHandler = asyncHandler(async (req, res) => {
           .status(200)
           .json({ message: `Push to ignored branch: ${branch}` });
       }
+      console.log("branch same found");
 
       // Trigger internal build API
       await fetch(`${process.env.BACKEND_URL}/api/v1/build/full`, {
