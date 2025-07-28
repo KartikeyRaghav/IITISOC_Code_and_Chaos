@@ -15,10 +15,10 @@ export const githubWebhookHandler = asyncHandler(async (req, res) => {
     console.log("error found");
     return res.status(401).json({ message: "Invalid GitHub signature" });
   }
-
+  console.log("out");
   const event = req.headers["x-github-event"];
   const payload = req.body;
-
+  console.log(event, payload);
   // Handle installation event to save installationId if needed
   if (event === "installation" && payload.action === "created") {
     const installationId = payload.installation.id;
