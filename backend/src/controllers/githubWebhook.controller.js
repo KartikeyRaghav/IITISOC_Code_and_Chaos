@@ -12,6 +12,7 @@ export const githubWebhookHandler = asyncHandler(async (req, res) => {
   console.log("Payload:", req.body);
 
   if (!verifyWebhookSignature(req)) {
+    console.log("error found");
     return res.status(401).json({ message: "Invalid GitHub signature" });
   }
 
