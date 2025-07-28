@@ -195,10 +195,14 @@ export const generateDockerFile = asyncHandler(async (req, res) => {
 // Route handler to build Docker image
 export const generateDockerImage = asyncHandler(async (req, res) => {
   const { projectName, clonedPath, deploymentId } = req.body;
-  if (!projectName || !clonedPath || !deploymentId) {
+  if (!projectName || !clonedPath) {
     return res
       .status(400)
       .json({ message: "Missing repo name or cloned path" });
+  }
+
+  if (!deploymentId) {
+    return res.status(400).json({ message: "Missing deployment id" });
   }
 
   const newDeployment = await Deployment.findById(deploymentId);
