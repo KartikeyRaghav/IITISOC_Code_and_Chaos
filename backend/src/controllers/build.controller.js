@@ -6,7 +6,7 @@ import { spawn } from "child_process";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import { deploy } from "./deployment.controller.js";
+import { createDeployment, deploy } from "./deployment.controller.js";
 import { Project } from "../models/project.model.js";
 import { Deployment } from "../models/deployment.model.js";
 
@@ -263,15 +263,29 @@ export const fullBuildHandler = asyncHandler(async (req, res) => {
   const { projectName } = req.body;
   const internalKey = req.headers["x-internal-key"];
 
-  const project = await Project.findOne({ name: projectName });
-  if (!project) return res.status(404).json({ message: "Project not found" });
+  if (!internalKey || internalKey !== process.env.INTERNAL_API_SECRET) {
+    return res.status(401).json({ message: "Unauthorized Access" });
+  }
 
-  const clonedPath = await cloneRepo(project);
-  const techStack = await detectTechStack(clonedPath);
-  await generateDockerfile(clonedPath, techStack);
-  const deploymentId = await createDeployment(projectName);
-  await generateDockerImage(clonedPath, projectName, deploymentId);
-  await deploy(deploymentId, projectName, true);
+  try {
+    const project = await Project.findOne({ name: projectName });
+    if (!project) return res.status(404).json({ message: "Project not found" });
+    console.log("project found");
+    const clonedPath = await cloneRepo(project);
+    console.log("repo cloned");
+    const techStack = await detectTechStack(clonedPath);
+    console.log("tech stack");
+    await generateDockerfile(clonedPath, techStack);
+    console.log("docker file");
+    const deploymentId = await createDeployment(projectName);
+    console.log("deploymet");
+    await generateDockerImage(clonedPath, projectName, deploymentId);
+    console.log("docker image");
+    await deploy(deploymentId, projectName, true);
+    console.log("deployed");
 
-  res.status(200).json({ message: "Build started" });
+    res.status(200).json({ message: "Build started" });
+  } catch (error) {
+    console.error(error);
+  }
 });
