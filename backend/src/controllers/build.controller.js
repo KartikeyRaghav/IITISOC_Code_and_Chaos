@@ -81,6 +81,33 @@ export const cloneRepo = asyncHandler(async (req, res) => {
   });
 });
 
+export const cloneRepositoryAndReturnPath = async (
+  repoName,
+  cloneUrl,
+  branch
+) => {
+  const targetDir = path.join(TEMP_DIR, repoName);
+
+  if (!fs.existsSync(TEMP_DIR)) {
+    fs.mkdirSync(TEMP_DIR, { recursive: true });
+  }
+
+  const cloneExists = await checkCloneExists(targetDir);
+
+  return new Promise((resolve, reject) => {
+    const clone = cloneExists
+      ? spawn("git", ["-C", targetDir, "pull"])
+      : spawn("git", ["clone", "-b", branch, cloneUrl, targetDir]);
+
+    clone.on("close", (code) => {
+      if (code === 0) resolve(targetDir);
+      else reject(new Error("Git clone failed with code " + code));
+    });
+
+    clone.on("error", (err) => reject(err));
+  });
+};
+
 // Route handler to detect the technology stack of the cloned project
 export const detectTechStack = asyncHandler(async (req, res) => {
   const { clonedPath } = req.body;
@@ -281,7 +308,11 @@ export const fullBuildHandler = asyncHandler(async (req, res) => {
     const project = await Project.findOne({ name: projectName });
     if (!project) return res.status(404).json({ message: "Project not found" });
     console.log("project found");
-    const clonedPath = await cloneRepo(project);
+    const clonedPath = await cloneRepositoryAndReturnPath(
+      project.github.repoName,
+      project.github.repositoryUrl + ".git",
+      project.github.branch
+    );
     console.log("repo cloned");
     const techStack = await detectTechStack(clonedPath);
     console.log("tech stack");
