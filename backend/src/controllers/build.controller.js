@@ -6,7 +6,11 @@ import { spawn } from "child_process";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import { createDeployment, deploy } from "./deployment.controller.js";
+import {
+  createDeployment,
+  deploy,
+  getVersion,
+} from "./deployment.controller.js";
 import { Project } from "../models/project.model.js";
 import { Deployment } from "../models/deployment.model.js";
 
@@ -279,8 +283,14 @@ export const fullBuildHandler = asyncHandler(async (req, res) => {
     console.log("tech stack");
     await generateDockerfile(clonedPath, techStack);
     console.log("docker file");
-    const deploymentId = await createDeployment(projectName);
-    console.log("deploymet");
+    const prevVersion = await getVersion(projectName);
+    const version = (Number(prevVersion) + 1).toString();
+    const deploymentId = await createDeployment(
+      projectName,
+      version,
+      "pending"
+    );
+    console.log("deployment");
     await generateDockerImage(clonedPath, projectName, deploymentId);
     console.log("docker image");
     await deploy(deploymentId, projectName, true);
