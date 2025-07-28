@@ -51,6 +51,8 @@ export const githubWebhookHandler = asyncHandler(async (req, res) => {
         event === "push"
           ? payload.ref.replace("refs/heads/", "")
           : payload.pull_request.base.ref;
+      console.log(repoFullName, branch);
+      console.log(repoFullName.split("/")[1]);
       const installationId = payload.installation.id;
 
       const project = await Project.findOne({ repoFullName });
@@ -68,13 +70,15 @@ export const githubWebhookHandler = asyncHandler(async (req, res) => {
       }
 
       // Trigger internal build API
-      await fetch(`${process.env.BACKEND_URL}/api/v1/build`, {
+      await fetch(`${process.env.BACKEND_URL}/api/v1/build/full`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-internal-key": process.env.INTERNAL_API_SECRET,
         },
-        body: JSON.stringify({ projectName: project.projectName }),
+        body: JSON.stringify({
+          projectName: project.name,
+        }),
       });
 
       return res.status(200).json({ message: "Build triggered" });

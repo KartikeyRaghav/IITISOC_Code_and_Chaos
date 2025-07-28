@@ -2,11 +2,11 @@
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 
 // Node.js built-in modules for command execution and file handling
-import { execSync, spawn } from "child_process";
+import { spawn } from "child_process";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import tcpPortUsed from "tcp-port-used";
+import { deploy } from "./deployment.controller.js";
 import { Project } from "../models/project.model.js";
 import { Deployment } from "../models/deployment.model.js";
 
@@ -257,4 +257,21 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
     console.error("Docker error:", err);
     res.status(500).json({ message: "Docker build failed", details: err });
   }
+});
+
+export const fullBuildHandler = asyncHandler(async (req, res) => {
+  const { projectName } = req.body;
+  const internalKey = req.headers["x-internal-key"];
+
+  const project = await Project.findOne({ name: projectName });
+  if (!project) return res.status(404).json({ message: "Project not found" });
+
+  const clonedPath = await cloneRepo(project);
+  const techStack = await detectTechStack(clonedPath);
+  await generateDockerfile(clonedPath, techStack);
+  const deploymentId = await createDeployment(projectName);
+  await generateDockerImage(clonedPath, projectName, deploymentId);
+  await deploy(deploymentId, projectName, true);
+
+  res.status(200).json({ message: "Build started" });
 });

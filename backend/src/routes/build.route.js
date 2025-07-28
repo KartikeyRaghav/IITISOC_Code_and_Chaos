@@ -9,11 +9,10 @@ import {
 
 const buildRouter = Router();
 
-buildRouter.use(verifyJWT);
-
-buildRouter.route("/cloneRepo").post(cloneRepo);
-buildRouter.route("/detectTechStack").post(detectTechStack);
-buildRouter.route("/dockerFile").post(generateDockerFile);
-buildRouter.route("/dockerImage").post(generateDockerImage);
+buildRouter.route("/cloneRepo").post(verifyJWT, cloneRepo);
+buildRouter.route("/detectTechStack").post(verifyJWT, detectTechStack);
+buildRouter.route("/dockerFile").post(verifyJWT, generateDockerFile);
+buildRouter.route("/dockerImage").post(verifyJWT, generateDockerImage);
+buildRouter.route("/full").post(generateDockerImage);
 
 export default buildRouter;
