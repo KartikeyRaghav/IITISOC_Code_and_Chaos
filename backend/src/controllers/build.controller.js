@@ -260,10 +260,12 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
 });
 
 export const fullBuildHandler = asyncHandler(async (req, res) => {
+  console.log("request recieved");
   const { projectName } = req.body;
   const internalKey = req.headers["x-internal-key"];
-
+  console.log(internalKey);
   if (!internalKey || internalKey !== process.env.INTERNAL_API_SECRET) {
+    console.log("Unauthorized Access");
     return res.status(401).json({ message: "Unauthorized Access" });
   }
 
