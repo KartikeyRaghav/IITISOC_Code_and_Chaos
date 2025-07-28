@@ -109,9 +109,7 @@ const Dashboard = () => {
   };
 
   const handleInstall = async () => {
-    window.location.href(
-      `https://github.com/apps/ignitia-github/installations/new`
-    );
+    window.location.href = `https://github.com/apps/ignitia-github/installations/new`;
   };
 
   if (isAuthenticated === null) {
