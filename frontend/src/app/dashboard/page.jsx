@@ -20,6 +20,7 @@ const Dashboard = () => {
   const [url, setUrl] = useState(null);
   const router = useRouter();
   const [hasGithubPermission, setHasGithubPermission] = useState(false);
+  const [githubInstallationId, setGithubInstallationId] = useState(null);
 
   const repoRef = useRef(null);
 
@@ -107,6 +108,14 @@ const Dashboard = () => {
     }
   };
 
+  const handleInstall = async () => {
+    window.open(
+      `https://github.com/apps/ignitia-github/installations/new`,
+      "_blank",
+      "width=600,height=700"
+    );
+  };
+
   if (isAuthenticated === null) {
     return <CustomLoader />;
   }
@@ -124,6 +133,8 @@ const Dashboard = () => {
             onGetRepos={getGithub}
             hasGithubPermission={hasGithubPermission}
             onGetUserRepos={getUserRepos}
+            githubInstallationId={githubInstallationId}
+            handleInstall={handleInstall}
           />
         </div>
       </div>

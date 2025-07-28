@@ -180,15 +180,13 @@ export const getRepoBranches = asyncHandler(async (req, res) => {
   const user = await User.findOne({ githubUsername: username }).select(
     "+githubAccessToken"
   );
-  console.log(user);
+  
   if (!username || (!repoName && repoName !== "Select a repo")) {
     return res
       .status(400)
       .json({ message: "Username and Reponame are required" });
   }
 
-  console.log(user.githubAccessToken);
-  console.log(`https://api.github.com/repos/${username}/${repoName}/branches`);
   try {
     const response = await fetch(
       `https://api.github.com/repos/${username}/${repoName}/branches`,
@@ -201,7 +199,6 @@ export const getRepoBranches = asyncHandler(async (req, res) => {
     );
 
     const data = await response.json();
-    console.log(data);
     if (!Array.isArray(data)) {
       console.error("GitHub API error:", data);
       return res.status(500).json({
