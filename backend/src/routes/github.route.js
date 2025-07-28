@@ -11,13 +11,12 @@ import { githubWebhookHandler } from "../controllers/githubWebhook.controller.js
 import express from "express";
 
 const githubRouter = Router();
-githubRouter.use(verifyJWT);
 
-githubRouter.route("/").get(githubOAuthConsent);
-githubRouter.route("/callback").get(handleGithubCallback);
-githubRouter.route("/getGithubRepos").get(getGithubRepos);
-githubRouter.route("/getRepo").get(getRepo);
-githubRouter.route("/getBranches").get(getRepoBranches);
+githubRouter.route("/").get(verifyJWT, githubOAuthConsent);
+githubRouter.route("/callback").get(verifyJWT, handleGithubCallback);
+githubRouter.route("/getGithubRepos").get(verifyJWT, getGithubRepos);
+githubRouter.route("/getRepo").get(verifyJWT, getRepo);
+githubRouter.route("/getBranches").get(verifyJWT, getRepoBranches);
 githubRouter
   .route("/webhook")
   .post(express.raw({ type: "*/*" }), githubWebhookHandler);

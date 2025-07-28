@@ -109,10 +109,8 @@ const Dashboard = () => {
   };
 
   const handleInstall = async () => {
-    window.open(
-      `https://github.com/apps/ignitia-github/installations/new`,
-      "_blank",
-      "width=600,height=700"
+    window.location.href(
+      `https://github.com/apps/ignitia-github/installations/new`
     );
   };
 
