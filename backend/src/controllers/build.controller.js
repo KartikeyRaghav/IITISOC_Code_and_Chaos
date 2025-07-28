@@ -295,7 +295,7 @@ export const fullBuildHandler = asyncHandler(async (req, res) => {
       "pending"
     );
     console.log("deployment");
-    await generateDockerImage(clonedPath, projectName, deploymentId);
+    await generateDockerImage(projectName, clonedPath, deploymentId);
     console.log("docker image");
     await deploy(deploymentId, projectName, true);
     console.log("deployed");
