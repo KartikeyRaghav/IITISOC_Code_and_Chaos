@@ -87,6 +87,7 @@ export const githubWebhookHandler = asyncHandler(async (req, res) => {
       console.log("branch same found");
 
       // Trigger internal build API
+      console.log(`${process.env.BACKEND_URL}/api/v1/build/full`);
       await fetch(`${process.env.BACKEND_URL}/api/v1/build/full`, {
         method: "POST",
         headers: {
