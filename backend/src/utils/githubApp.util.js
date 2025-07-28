@@ -6,18 +6,23 @@ import { readFileSync } from "fs";
 import fetch from "node-fetch";
 
 // 1. Verify webhook signature
-export function verifyWebhookSignature(req) {
+export const verifyWebhookSignature = (req) => {
   const signature = req.headers["x-hub-signature-256"];
-  const payload = req.rawBody || JSON.stringify(req.body);
+  if (!signature) return false;
+
   const hmac = crypto.createHmac(
     "sha256",
     process.env.GITHUB_APP_WEBHOOK_SECRET
   );
-  const digest = `sha256=${hmac.update(payload).digest("hex")}`;
+  hmac.update(req.body); // req.body is a Buffer
+  const digest = `sha256=${hmac.digest("hex")}`;
 
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
-}
-
+  try {
+    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
+  } catch (err) {
+    return false;
+  }
+};
 // 2. Generate GitHub App JWT (10 min lifetime)
 export function generateAppJWT() {
   const privateKey = readFileSync(

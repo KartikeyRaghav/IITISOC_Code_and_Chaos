@@ -19,6 +19,6 @@ githubRouter.route("/getRepo").get(verifyJWT, getRepo);
 githubRouter.route("/getBranches").get(verifyJWT, getRepoBranches);
 githubRouter
   .route("/webhook")
-  .post(express.raw({ type: "*/*" }), githubWebhookHandler);
+  .post(express.raw({ type: "application/json" }), githubWebhookHandler);
 
 export default githubRouter;
