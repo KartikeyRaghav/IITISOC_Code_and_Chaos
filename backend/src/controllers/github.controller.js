@@ -50,7 +50,7 @@ export const handleGithubCallback = asyncHandler(async (req, res) => {
   const clientID = process.env.GITHUB_OAUTH_CLIENT_ID;
   const clientSecret = process.env.GITHUB_OAUTH_CLIENT_SECRET;
 
-  // Exchange the authorization code for an access token
+  // Step 1: Exchange code for token
   const tokenResponse = await fetch(
     `https://github.com/login/oauth/access_token`,
     {
@@ -59,54 +59,74 @@ export const handleGithubCallback = asyncHandler(async (req, res) => {
       body: new URLSearchParams({
         client_id: clientID,
         client_secret: clientSecret,
-        code: code,
+        code,
       }),
     }
   );
-
   const tokenData = await tokenResponse.json();
   const accessToken = tokenData.access_token;
 
-  // Fetch GitHub user info
+  // Step 2: Get user info
   const userResponse = await fetch("https://api.github.com/user", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: "application/vnd.github+json",
     },
   });
-
   const githubUser = await userResponse.json();
   const username = githubUser.login;
 
-  // Update user with GitHub data
-  const user = await User.findByIdAndUpdate(req.user._id, {
+  // Step 3: Fetch repos
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const isoDate = sixMonthsAgo.toISOString().split("T")[0];
+
+  const repoResponse = await fetch(
+    `https://api.github.com/search/repositories?q=user:${username}+pushed:>${isoDate}&per_page=100`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github+json",
+      },
+    }
+  );
+  const repoData = await repoResponse.json();
+
+  if (!repoData.items || !Array.isArray(repoData.items)) {
+    return res.send(`<script>
+    window.opener.postMessage({ status: "error", message: "Failed to fetch repos" }, "*");
+    window.close();
+  </script>`);
+  }
+
+  // Step 4: Save everything in DB
+  await User.findByIdAndUpdate(req.user._id, {
     githubUsername: username,
-    hasGithubPermission: true,
     githubAccessToken: accessToken,
+    hasGithubPermission: true,
+    repos: repoData.items.map((item) => ({
+      name: item.name,
+      description: item.description,
+      html_url: item.html_url,
+      clone_url: item.clone_url,
+      last_updateAt: new Date(),
+    })),
   });
 
-  // Send data back to frontend via window.postMessage
-  res.send(`
-  <html>
-    <body>
-      <script>
-        window.opener.postMessage({
-          status: "success",
-          user: {
-            username: "${user.login}",
-            email: "${user.email}",
-            avatar: "${user.avatar_url}"
-          }
-        }, ${process.env.FRONTEND_URL});
-        window.close();
-      </script>
-    </body>
-  </html>
-`);
+  // Step 5: Send result back to parent window
+  return res.send(`<html><body><script>
+  window.opener.postMessage({
+    status: "success",
+    user: {
+      username: "${username}"
+    }
+  }, "${process.env.FRONTEND_URL}");
+  window.close();
+</script></body></html>`);
 });
 
 export const getGithubRepos = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
+  const user = await User.findById(req.user._id).select("+githubAccessToken");
   const username = user.githubUsername;
 
   // Calculate date 6 months ago in ISO format
@@ -121,6 +141,7 @@ export const getGithubRepos = asyncHandler(async (req, res) => {
       {
         headers: {
           Accept: "application/vnd.github+json",
+          Authorization: `Bearer ${user.githubAccessToken}`,
         },
       }
     );
@@ -128,21 +149,23 @@ export const getGithubRepos = asyncHandler(async (req, res) => {
     const data = await response.json();
 
     // Save the repo details to user model (non-blocking map)
-    user.repos = [];
-    data.items.map(async (item) => {
-      user.repos = [
-        ...user.repos,
-        {
-          name: item.name,
-          description: item.description,
-          html_url: item.html_url,
-          clone_url: item.clone_url,
-          last_updateAt: new Date(),
-        },
-      ];
-    });
 
-    user.save({ validateBeforeSave: false }); // Save without validation
+    if (!data.items || !Array.isArray(data.items)) {
+      console.error("GitHub API error:", data);
+      return res
+        .status(500)
+        .json({ message: "Failed to fetch repositories", error: data });
+    }
+
+    user.repos = data.items.map((item) => ({
+      name: item.name,
+      description: item.description,
+      html_url: item.html_url,
+      clone_url: item.clone_url,
+      last_updateAt: new Date(),
+    }));
+    user.hasGithubPermission = true;
+    await user.save({ validateBeforeSave: false }); // Save without validation
 
     res.json({ data }); // Return GitHub repo data
   } catch (error) {
@@ -154,18 +177,39 @@ export const getGithubRepos = asyncHandler(async (req, res) => {
 export const getRepoBranches = asyncHandler(async (req, res) => {
   const { username, repoName } = req.query;
 
+  const user = await User.findOne({ githubUsername: username }).select(
+    "+githubAccessToken"
+  );
+  console.log(user);
   if (!username || (!repoName && repoName !== "Select a repo")) {
     return res
       .status(400)
       .json({ message: "Username and Reponame are required" });
   }
 
+  console.log(user.githubAccessToken);
+  console.log(`https://api.github.com/repos/${username}/${repoName}/branches`);
   try {
     const response = await fetch(
-      `https://api.github.com/repos/${username}/${repoName}/branches`
+      `https://api.github.com/repos/${username}/${repoName}/branches`,
+      {
+        headers: {
+          Authorization: `Bearer ${user.githubAccessToken}`,
+          Accept: "application/vnd.github+json",
+        },
+      }
     );
 
     const data = await response.json();
+    console.log(data);
+    if (!Array.isArray(data)) {
+      console.error("GitHub API error:", data);
+      return res.status(500).json({
+        message: "Failed to fetch branches",
+        error: data.message || "Unknown error",
+      });
+    }
+
     const branch_names = data.map((branch) => branch.name); // Extract branch names
 
     res.status(200).json({ branch_names });

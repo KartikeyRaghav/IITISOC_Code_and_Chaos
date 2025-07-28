@@ -47,13 +47,31 @@ const Dashboard = () => {
       "_blank",
       "width=600,height=700"
     );
-    window.close();
+
+    const receiveMessage = async (event) => {
+      if (event.origin !== process.env.NEXT_PUBLIC_FRONTEND_URL) return;
+
+      const { status } = event.data;
+
+      if (status === "success") {
+        localStorage.setItem("hasGithubPermission", "true");
+        setHasGithubPermission(true);
+
+        await getGithub(); // ← fetch repos after access token is saved
+      } else {
+        CustomToast("GitHub access denied.");
+      }
+
+      window.removeEventListener("message", receiveMessage);
+    };
+
+    window.addEventListener("message", receiveMessage);
   };
 
   const getGithub = async () => {
     try {
       if (localStorage.getItem("hasGithubPermission") === "false") {
-        getOAuthConsent();
+        await getOAuthConsent();
       }
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/github/getGithubRepos`,
@@ -62,6 +80,7 @@ const Dashboard = () => {
         }
       );
       const data = await response.json();
+      await getUserRepos(); // Fetch from DB and render
     } catch (error) {
       console.error(error);
       CustomToast("Error while getting your repositories");
