@@ -14,6 +14,8 @@ app.use(
   })
 );
 
+app.use("/api/v1/github/webhook", express.raw({ type: "*/*" }));
+
 // Middleware to parse JSON bodies (up to 50MB)
 app.use((req, res, next) => {
   if (req.is("multipart/form-data")) {

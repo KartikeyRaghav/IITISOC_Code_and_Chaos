@@ -8,6 +8,8 @@ import fetch from "node-fetch";
 import { User } from "../models/user.model.js";
 
 export const githubWebhookHandler = asyncHandler(async (req, res) => {
+  console.log("Webhook event received:", req.headers["x-github-event"]);
+  console.log("Payload:", req.body);
   if (!verifyWebhookSignature(req)) {
     return res.status(401).json({ message: "Invalid GitHub signature" });
   }
