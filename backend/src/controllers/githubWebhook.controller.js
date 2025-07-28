@@ -19,7 +19,7 @@ export const githubWebhookHandler = asyncHandler(async (req, res) => {
   try {
     const event = req.headers["x-github-event"];
     const payload = JSON.parse(req.body.toString("utf8"));
-    console.log(payload.action);
+
     // Handle installation event to save installationId if needed
     if (event === "installation" && payload.action === "created") {
       const installationId = payload.installation.id;
@@ -57,6 +57,7 @@ export const githubWebhookHandler = asyncHandler(async (req, res) => {
 
       const project = await Project.findOne({ repoFullName });
       if (!project) {
+        console.log("repo not found");
         return res
           .status(404)
           .json({ message: "Project not found for this repo" });
@@ -64,6 +65,7 @@ export const githubWebhookHandler = asyncHandler(async (req, res) => {
 
       // Optional: only auto-build for specific branch
       if (project.branch !== branch) {
+        console.log("branch not same");
         return res
           .status(200)
           .json({ message: `Push to ignored branch: ${branch}` });
