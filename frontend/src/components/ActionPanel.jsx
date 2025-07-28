@@ -5,6 +5,7 @@ const ActionPanel = ({
   githubInstallationId,
   handleInstall,
 }) => {
+  console.log(githubInstallationId);
   return (
     <section className="w-full flex flex-col items-center justify-center bg-gray-900 p-4 sm:p-6 space-y-6 min-h-[300px] lg:min-h-screen">
       <button
@@ -18,6 +19,14 @@ const ActionPanel = ({
           ? "Github OAuth Connected"
           : "Connect GitHub OAuth"}
       </button>
+      {hasGithubPermission && githubInstallationId === null ? (
+        <button
+          onClick={handleInstall}
+          className="w-full max-w-xs bg-gradient-to-r from-[#005b83] via-[#0077ab] to-purple-500 hover:from-[#005379] hover:via-[#0070a1] hover:to-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-all duration-300 transform hover:scale-105"
+        >
+          Install Github App
+        </button>
+      ) : null}
       {hasGithubPermission ? (
         <button
           onClick={onGetUserRepos}
@@ -26,14 +35,6 @@ const ActionPanel = ({
           Get Repos
         </button>
       ) : null}
-      {hasGithubPermission && !githubInstallationId && (
-        <button
-          onClick={handleInstall}
-          className="w-full max-w-xs bg-gradient-to-r from-[#005b83] via-[#0077ab] to-purple-500 hover:from-[#005379] hover:via-[#0070a1] hover:to-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-all duration-300 transform hover:scale-105"
-        >
-          Install Github App
-        </button>
-      )}
     </section>
   );
 };

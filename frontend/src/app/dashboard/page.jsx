@@ -40,6 +40,10 @@ const Dashboard = () => {
     if (localStorage.getItem("hasGithubPermission") === "true") {
       setHasGithubPermission(true);
     }
+
+    if (localStorage.getItem("githubInstallationId") !== null) {
+      setGithubInstallationId(localStorage.getItem("githubInstallationId"));
+    }
   }, []);
 
   const getOAuthConsent = () => {

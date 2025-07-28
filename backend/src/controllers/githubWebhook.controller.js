@@ -51,11 +51,23 @@ export const githubWebhookHandler = asyncHandler(async (req, res) => {
         event === "push"
           ? payload.ref.replace("refs/heads/", "")
           : payload.pull_request.base.ref;
-      console.log(repoFullName, branch);
-      console.log(repoFullName.split("/")[1]);
-      const installationId = payload.installation.id;
 
-      const project = await Project.findOne({ repoFullName });
+      const [githubUsername, repoName] = repoFullName.split("/");
+
+      const user = await User.findOne({
+        githubUsername: githubUsername.toLowerCase(),
+      });
+
+      if (!user) {
+        console.log("user not found");
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const project = await Project.findOne({
+        "github.repoName": repoName,
+        createdBy: user,
+      });
+      
       if (!project) {
         console.log("repo not found");
         return res
@@ -64,7 +76,7 @@ export const githubWebhookHandler = asyncHandler(async (req, res) => {
       }
 
       // Optional: only auto-build for specific branch
-      if (project.branch !== branch) {
+      if (project.github.branch !== branch) {
         console.log("branch not same");
         return res
           .status(200)
