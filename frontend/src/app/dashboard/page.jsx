@@ -115,7 +115,7 @@ const Dashboard = () => {
   const getGithubRepos = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/getGithubRepos`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/github/getGithubRepos`,
         {
           credentials: "include",
         }
