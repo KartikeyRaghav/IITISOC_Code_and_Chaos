@@ -167,7 +167,7 @@ export const getGithubRepos = asyncHandler(async (req, res) => {
     user.hasGithubPermission = true;
     await user.save({ validateBeforeSave: false }); // Save without validation
 
-    res.json({ data }); // Return GitHub repo data
+    res.status(200).json(user.repos); // Return GitHub repo data
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error fetching the repos" });
@@ -180,7 +180,7 @@ export const getRepoBranches = asyncHandler(async (req, res) => {
   const user = await User.findOne({ githubUsername: username }).select(
     "+githubAccessToken"
   );
-  
+
   if (!username || (!repoName && repoName !== "Select a repo")) {
     return res
       .status(400)

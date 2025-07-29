@@ -112,6 +112,26 @@ const Dashboard = () => {
     }
   };
 
+  const getGithubRepos = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/getGithubRepos`,
+        {
+          credentials: "include",
+        }
+      );
+      const data = await response.json();
+      setRepos(data);
+
+      setTimeout(() => {
+        repoRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100); //slight delay to ensure rendering is complete
+    } catch (error) {
+      console.error(error);
+      CustomToast("Error while getting your repositories");
+    }
+  };
+
   const handleInstall = async () => {
     window.location.href = `https://github.com/apps/ignitia-github/installations/new`;
   };
@@ -134,6 +154,7 @@ const Dashboard = () => {
             hasGithubPermission={hasGithubPermission}
             onGetUserRepos={getUserRepos}
             githubInstallationId={githubInstallationId}
+            onGetGithubRepos={getGithubRepos}
             handleInstall={handleInstall}
           />
         </div>
