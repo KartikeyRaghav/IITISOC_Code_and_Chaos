@@ -332,68 +332,69 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
   }
 });
 
-const generateDockerImageAndReturn = async (
+const generateDockerImageAndReturn = (
   projectName,
   clonedPath,
   deploymentId
 ) => {
-  if (!projectName || !clonedPath) {
-    return null;
-  }
+  return new Promise((resolve, reject) => {
+    if (!projectName || !clonedPath || !deploymentId) return resolve(null);
 
-  if (!deploymentId) {
-    return null;
-  }
-
-  const deployment = await Deployment.findById(deploymentId);
-  const imageName = `app-${projectName.toLowerCase()}-${Date.now()}`;
-
-  try {
-    // Build Docker image
+    const imageName = `app-${projectName.toLowerCase()}-${Date.now()}`;
     const build = spawn("docker", ["build", "-t", imageName, clonedPath]);
 
-    build.stdout.on("data", (data) => {
-      deployment.logs = [
-        ...deployment.logs,
-        { log: data.toString(), timestamp: new Date() },
-      ];
+    build.stdout.on("data", async (data) => {
+      await Deployment.findByIdAndUpdate(deploymentId, {
+        $push: {
+          logs: { $each: [{ log: data.toString(), timestamp: new Date() }] },
+        },
+      });
     });
 
-    build.stderr.on("data", (data) => {
-      deployment.logs = [
-        ...deployment.logs,
-        { log: data.toString(), timestamp: new Date() },
-      ];
+    build.stderr.on("data", async (data) => {
+      await Deployment.findByIdAndUpdate(deploymentId, {
+        $push: {
+          logs: { $each: [{ log: data.toString(), timestamp: new Date() }] },
+        },
+      });
     });
 
     build.on("close", async (code) => {
       if (code === 0) {
-        deployment.logs = [
-          ...deployment.logs,
-          { log: `[BUILD_COMPLETE] ${imageName}\n\n`, timestamp: new Date() },
-        ];
-        deployment.imageName = imageName;
-      } else {
-        deployment.logs = [
-          ...deployment.logs,
-          {
-            log: `[ERROR] Step failed with code ${code}\n\n`,
-            timestamp: new Date(),
+        await Deployment.findByIdAndUpdate(deploymentId, {
+          $push: {
+            logs: {
+              $each: [
+                { log: `[BUILD_COMPLETE] ${imageName}`, timestamp: new Date() },
+              ],
+            },
           },
-        ];
-        deployment.status = "failed";
+          $set: { imageName },
+        });
+        resolve(imageName);
+      } else {
+        await Deployment.findByIdAndUpdate(deploymentId, {
+          $push: {
+            logs: {
+              $each: [
+                {
+                  log: `[ERROR] Step failed with code ${code}`,
+                  timestamp: new Date(),
+                },
+              ],
+            },
+          },
+          $set: { status: "failed" },
+        });
+        resolve(null);
       }
-      await deployment.save({
-        validateBeforeSave: false,
-        optimisticConcurrency: false,
-      });
-      if (code === 0) return imageName;
-      return null;
     });
-  } catch (err) {
-    console.error("Docker error:", err);
-    return null;
-  }
+
+    build.on("error", (err) => {
+      console.error("Build error:", err);
+      reject(err);
+    });
+  });
 };
 
 export const fullBuildHandler = asyncHandler(async (req, res) => {
