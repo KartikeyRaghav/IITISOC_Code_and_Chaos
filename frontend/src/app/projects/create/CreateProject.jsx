@@ -33,7 +33,9 @@ const CreateProject = () => {
   const [branches, setBranches] = useState([]);
   const router = useRouter();
   const [isNameOk, setIsNameOk] = useState(false);
-  const [creationMethod, setCreationMethod] = useState("github");
+  const [creationMethod, setCreationMethod] = useState(
+    localStorage.getItem("hasGithubPermission") === "true" ? "github" : "upload"
+  );
   const [uploadedFile, setUploadedFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [formData, setFormData] = useState({
@@ -387,7 +389,11 @@ const CreateProject = () => {
             <div className="bg-[#2c2f4a]/50 rounded-2xl p-2 border border-gray-600/30">
               <div className="flex">
                 <button
-                  onClick={() => setCreationMethod("github")}
+                  onClick={() => {
+                    if (localStorage.getItem("hasGithubPermission") === "true")
+                      setCreationMethod("github");
+                    else CustomToast("Connect github on dashboard first");
+                  }}
                   className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
                     creationMethod === "github"
                       ? "bg-gradient-to-r from-[#00aaff] to-[#9a00ff] text-white shadow-lg"
