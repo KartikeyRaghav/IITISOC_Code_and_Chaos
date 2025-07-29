@@ -1,4 +1,4 @@
-import { PageVisit } from "../models/pageVisit.model";
+import { PageVisit } from "../models/pageVisit.model.js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 
 export const trackPageVisit = asyncHandler(async (req, res) => {
