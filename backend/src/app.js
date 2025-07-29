@@ -40,6 +40,7 @@ import githubRouter from "./routes/github.route.js";
 import buildRouter from "./routes/build.route.js";
 import projectRouter from "./routes/project.route.js";
 import deploymentRouter from "./routes/deployment.route.js";
+import { trackPageVisit } from "./controllers/pageVisit.controller.js";
 
 // Route Middleware Setup
 app.use("/api/v1/user", userRouter);
@@ -47,5 +48,6 @@ app.use("/api/v1/github", githubRouter);
 app.use("/api/v1/build", buildRouter);
 app.use("/api/v1/project", projectRouter);
 app.use("/api/v1/deployment", deploymentRouter);
+app.use("/api/v1/track", trackPageVisit);
 
 export { app };

@@ -59,7 +59,7 @@ export const checkName = asyncHandler(async (req, res) => {
 });
 
 // Helper: Generate nginx config for subdomain reverse proxy
-function generateNginxConfig(subdomain, port) {
+function generateNginxConfig(subdomain, port, projectId) {
   return `server {
   listen 80;
   server_name ${subdomain}.deploy.princecodes.online;
@@ -68,14 +68,21 @@ function generateNginxConfig(subdomain, port) {
     proxy_pass http://localhost:${port};
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    sub_filter '</head>' '<script>window.__PROJECT_ID__="${projectId}";</script><script src="https://deploy.princecodes.online/api/analytics.js"></script></head>';
+    sub_filter_once off;
+
+    proxy_set_header Accept-Encoding "";
   }
 }`;
 }
 
 // Helper: Write and reload nginx config
-function writeNginxConfig(subdomain, port) {
+function writeNginxConfig(subdomain, port, projectId) {
   const configPath = `/etc/nginx/conf.d/projects/${subdomain}.conf`;
-  const content = generateNginxConfig(subdomain, port);
+  const content = generateNginxConfig(subdomain, port, projectId);
   fs.writeFileSync(configPath, content);
   execSync("sudo nginx -s reload");
 }
@@ -113,9 +120,6 @@ export const createProjectByGithub = asyncHandler(async (req, res) => {
     const livePort = await getPort();
     const previewPort = await getPort();
 
-    await writeNginxConfig(name, livePort);
-    await writeNginxConfig(name + "-preview", previewPort);
-
     // Create a new project entry
     const project = await Project.create({
       name,
@@ -127,6 +131,9 @@ export const createProjectByGithub = asyncHandler(async (req, res) => {
       livePort,
       previewPort,
     });
+
+    await writeNginxConfig(name, livePort, project._id);
+    await writeNginxConfig(name + "-preview", previewPort, project._id);
 
     res.status(200).json({ message: "Project created" });
   } catch (error) {
