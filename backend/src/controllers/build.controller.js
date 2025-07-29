@@ -438,6 +438,12 @@ export const fullBuildHandler = asyncHandler(async (req, res) => {
     }
     console.log("docker file");
     const prevVersion = await getVersion(projectName);
+    if (prevVersion === null) {
+      console.log("previous version error");
+      return res
+        .status(500)
+        .json({ message: "Error while getting previous version" });
+    }
     const version = (Number(prevVersion) + 1).toString();
     const deploymentId = await createDeploymentAndReturn(
       projectName,

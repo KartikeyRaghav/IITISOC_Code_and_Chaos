@@ -40,6 +40,37 @@ export const getVersion = asyncHandler(async (req, res) => {
   }
 });
 
+export const getVersionAndReturn = async (projectName) => {
+  if (!projectName) {
+    return null;
+  }
+
+  try {
+    // Find the project by name
+    const project = await Project.findOne({ name: projectName });
+    if (!project) {
+      return null;
+    }
+
+    const length = project.deploymentHistory.length;
+
+    // If previous deployments exist, fetch the latest one
+    if (length > 0) {
+      const lastdeployment = await Deployment.findOne({
+        _id: project.deploymentHistory[length - 1],
+      });
+
+      return lastdeployment.version;
+    }
+
+    // Default version if no deployments found
+    return "0";
+  } catch (error) {
+    console.error("Error in getVersion:", error);
+    return null;
+  }
+};
+
 export const createDeployment = asyncHandler(async (req, res) => {
   const { projectName, version, status } = req.body;
 
