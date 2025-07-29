@@ -8,7 +8,9 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import {
   createDeployment,
+  createDeploymentAndReturn,
   deploy,
+  deployAndReturn,
   getVersion,
 } from "./deployment.controller.js";
 import { Project } from "../models/project.model.js";
@@ -140,6 +142,34 @@ export const detectTechStack = asyncHandler(async (req, res) => {
   res.status(400).json({ message: "unknown" });
 });
 
+const detectTechStackAndReturn = async (clonedPath) => {
+  if (!clonedPath || !fs.existsSync(clonedPath)) {
+    return null;
+  }
+
+  const packagePath = path.join(clonedPath, "package.json");
+
+  // Detect using package.json dependencies
+  if (fs.existsSync(packagePath)) {
+    const pkg = JSON.parse(fs.readFileSync(packagePath, "utf-8"));
+    const deps = pkg.dependencies || {};
+
+    if (deps.next) return "next";
+    if (deps.react) return "react";
+    if (deps.vue) return "vue";
+    if (deps["@angular/core"]) return "angular";
+    if (deps.svelte) return "svelte";
+    if (deps.express || deps.koa) return "node-api";
+  }
+
+  // Fallback to checking for static HTML files
+  const files = fs.readdirSync(clonedPath);
+  if (files.some((f) => f.endsWith(".html"))) return "static";
+
+  // Unknown stack
+  return "unknown";
+};
+
 // Utility to generate Dockerfile content based on tech stack
 function generateDockerfileContent(stack) {
   switch (stack) {
@@ -217,6 +247,20 @@ export const generateDockerFile = asyncHandler(async (req, res) => {
   });
 });
 
+const generateDockerFileAndReturn = async (clonedPath, techStack) => {
+  if (!clonedPath || !fs.existsSync(clonedPath) || !techStack) {
+    return null;
+  }
+
+  const dockerfileContent = generateDockerfileContent(techStack);
+  const dockerfilePath = path.join(clonedPath, "Dockerfile");
+
+  // Write Dockerfile
+  fs.writeFileSync(dockerfilePath, dockerfileContent);
+
+  return true;
+};
+
 // Route handler to build Docker image
 export const generateDockerImage = asyncHandler(async (req, res) => {
   const { projectName, clonedPath, deploymentId } = req.body;
@@ -230,7 +274,7 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Missing deployment id" });
   }
 
-  const newDeployment = await Deployment.findById(deploymentId);
+  const deployment = await Deployment.findById(deploymentId);
   const imageName = `app-${projectName.toLowerCase()}-${Date.now()}`;
 
   try {
@@ -244,16 +288,16 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
     const build = spawn("docker", ["build", "-t", imageName, clonedPath]);
 
     build.stdout.on("data", (data) => {
-      newDeployment.logs = [
-        ...newDeployment.logs,
+      deployment.logs = [
+        ...deployment.logs,
         { log: data.toString(), timestamp: new Date() },
       ];
       res.write(`${data.toString()}\n\n`);
     });
 
     build.stderr.on("data", (data) => {
-      newDeployment.logs = [
-        ...newDeployment.logs,
+      deployment.logs = [
+        ...deployment.logs,
         { log: data.toString(), timestamp: new Date() },
       ];
       res.write(`${data.toString()}\n\n`);
@@ -262,24 +306,24 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
     build.on("close", async (code) => {
       res.write(`Docker image build exited with code ${code}\n\n`);
       if (code === 0) {
-        newDeployment.logs = [
-          ...newDeployment.logs,
+        deployment.logs = [
+          ...deployment.logs,
           { log: `[BUILD_COMPLETE] ${imageName}\n\n`, timestamp: new Date() },
         ];
-        newDeployment.imageName = imageName;
+        deployment.imageName = imageName;
         res.write(`[BUILD_COMPLETE] ${imageName}\n\n`);
       } else {
-        newDeployment.logs = [
-          ...newDeployment.logs,
+        deployment.logs = [
+          ...deployment.logs,
           {
             log: `[ERROR] Step failed with code ${code}\n\n`,
             timestamp: new Date(),
           },
         ];
-        newDeployment.status = "failed";
+        deployment.status = "failed";
         res.write(`[ERROR] Step failed with code ${code}\n\n`);
       }
-      await newDeployment.save({ validateBeforeSave: false });
+      await deployment.save({ validateBeforeSave: false });
       res.end();
     });
 
@@ -291,6 +335,67 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Docker build failed", details: err });
   }
 });
+
+const generateDockerImageAndReturn = async (
+  projectName,
+  clonedPath,
+  deploymentId
+) => {
+  if (!projectName || !clonedPath) {
+    return null;
+  }
+
+  if (!deploymentId) {
+    return null;
+  }
+
+  const deployment = await Deployment.findById(deploymentId);
+  const imageName = `app-${projectName.toLowerCase()}-${Date.now()}`;
+
+  try {
+    // Build Docker image
+    const build = spawn("docker", ["build", "-t", imageName, clonedPath]);
+
+    build.stdout.on("data", (data) => {
+      deployment.logs = [
+        ...deployment.logs,
+        { log: data.toString(), timestamp: new Date() },
+      ];
+    });
+
+    build.stderr.on("data", (data) => {
+      deployment.logs = [
+        ...deployment.logs,
+        { log: data.toString(), timestamp: new Date() },
+      ];
+    });
+
+    build.on("close", async (code) => {
+      if (code === 0) {
+        deployment.logs = [
+          ...deployment.logs,
+          { log: `[BUILD_COMPLETE] ${imageName}\n\n`, timestamp: new Date() },
+        ];
+        deployment.imageName = imageName;
+      } else {
+        deployment.logs = [
+          ...deployment.logs,
+          {
+            log: `[ERROR] Step failed with code ${code}\n\n`,
+            timestamp: new Date(),
+          },
+        ];
+        deployment.status = "failed";
+      }
+      await deployment.save({ validateBeforeSave: false });
+      if (code === 0) return imageName;
+      return null;
+    });
+  } catch (err) {
+    console.error("Docker error:", err);
+    return null;
+  }
+};
 
 export const fullBuildHandler = asyncHandler(async (req, res) => {
   console.log("request recieved");
@@ -312,25 +417,62 @@ export const fullBuildHandler = asyncHandler(async (req, res) => {
       project.github.repositoryUrl + ".git",
       project.github.branch
     );
-    console.log("repo cloned");
-    const techStack = await detectTechStack(clonedPath);
-    console.log("tech stack");
-    await generateDockerfile(clonedPath, techStack);
-    if (!res.headersSent) {
-      res.status(200).json({ message: "Build started" });
+    console.log("repo cloned", clonedPath);
+    if (clonedPath === null) {
+      console.log("no cloned path");
+      return res.status(500).json({ message: "Error while cloning repo" });
+    }
+    const techStack = await detectTechStackAndReturn(clonedPath);
+    if (techStack === null) {
+      console.log("no tech stack");
+      return res
+        .status(500)
+        .json({ message: "Error while detecting tech stack" });
+    }
+    if (techStack === "unknown") {
+      console.log("unknown tech stack");
+      project.framework = "unknown";
+    }
+    console.log("tech stack", techStack);
+    const dockerfile = await generateDockerFileAndReturn(clonedPath, techStack);
+    if (dockerfile === null) {
+      console.log("docker file error");
+      return res
+        .status(500)
+        .json({ message: "Error while generating docker file" });
     }
     console.log("docker file");
     const prevVersion = await getVersion(projectName);
     const version = (Number(prevVersion) + 1).toString();
-    const deploymentId = await createDeployment(
+    const deploymentId = await createDeploymentAndReturn(
       projectName,
       version,
       "pending"
     );
-    console.log("deployment");
-    await generateDockerImage(projectName, clonedPath, deploymentId);
+    if (deploymentId === null) {
+      console.log("deployment error");
+      return res
+        .status(500)
+        .json({ message: "Error while creating new deployment" });
+    }
+    console.log("deployment", deploymentId);
+    const imageName = await generateDockerImageAndReturn(
+      projectName,
+      clonedPath,
+      deploymentId
+    );
+    if (imageName === null) {
+      console.log("image error");
+      return res
+        .status(500)
+        .json({ message: "Error while creating new docker image" });
+    }
     console.log("docker image");
-    await deploy(deploymentId, projectName, true);
+    const deployed = await deployAndReturn(deploymentId, projectName, true);
+    if (deployed === null) {
+      console.log("deploying error");
+      return res.status(500).json({ message: "Error while deploying" });
+    }
     console.log("deployed");
 
     res.status(200).json({ message: "Build started" });

@@ -88,6 +88,50 @@ export const createDeployment = asyncHandler(async (req, res) => {
   }
 });
 
+export const createDeploymentAndReturn = async (
+  projectName,
+  version,
+  status
+) => {
+  // Validate required fields
+  if (!projectName) {
+    return null;
+  }
+
+  try {
+    // Fetch the project
+    const project = await Project.findOne({ name: projectName });
+
+    if (!project) {
+      return null;
+    }
+
+    const projectUser = project.createdBy;
+
+    // Check if the current user owns the project
+    if (projectUser.toString() !== req.user._id.toString()) {
+      return null;
+    }
+
+    // Create a new deployment record
+    const deployment = await Deployment.create({
+      version,
+      status,
+      project,
+      deployedBy: projectUser,
+    });
+
+    // Append to deployment history and save
+    project.deploymentHistory.push(deployment);
+    await project.save();
+
+    return deployment._id;
+  } catch (error) {
+    console.error("Error in createDeployment:", error);
+    return null;
+  }
+};
+
 export const updateDeployment = asyncHandler(async (req, res) => {
   const { _id, status } = req.body;
 
@@ -198,7 +242,7 @@ export const deploy = asyncHandler(async (req, res) => {
     if (req.user._id.toString() !== deployment.deployedBy.toString())
       return res.status(401).json({ message: "Not authorized" });
 
-    await removePreviousDeployment(projectName);
+    await removePreviousDeployment(projectName, isLive);
 
     const containerName = `container-${projectName}-${Date.now()}`;
 
@@ -258,3 +302,77 @@ export const deploy = asyncHandler(async (req, res) => {
     res.status(400).json({ message: "Error while deploying" });
   }
 });
+
+export const deployAndReturn = async (deploymentId, projectName) => {
+  try {
+    const deployment = await Deployment.findOne({ _id: deploymentId });
+    const project = await Project.findOne({ name: projectName });
+
+    if (!deployment) {
+      return null;
+    }
+
+    if (req.user._id.toString() !== deployment.deployedBy.toString())
+      return null;
+
+    await removePreviousDeployment(projectName, true);
+
+    const containerName = `container-${projectName}-${Date.now()}`;
+
+    const run = spawn("docker", [
+      "run",
+      "-p",
+      project.framework === "next"
+        ? `${project.livePort}:3000`
+        : `${project.livePort}:80`,
+      "--name",
+      containerName,
+      deployment.imageName,
+    ]);
+
+    run.stdout.on("data", (data) => {
+      deployment.logs = [
+        ...deployment.logs,
+        { log: data.toString(), timestamp: new Date() },
+      ];
+    });
+
+    run.stderr.on("data", (data) => {
+      deployment.logs = [
+        ...deployment.logs,
+        { log: data.toString(), timestamp: new Date() },
+      ];
+    });
+
+    run.on("close", async (code) => {
+      deployment.logs = [
+        ...deployment.logs,
+        {
+          log: `Docker container run exited with code ${code}\n\n`,
+          timestamp: new Date(),
+        },
+      ];
+      if (code === 0) {
+        deployment.logs = [
+          ...deployment.logs,
+          { log: `[RUN_COMPLETE] ${containerName}\n\n`, timestamp: new Date() },
+        ];
+      } else {
+        deployment.logs = [
+          ...deployment.logs,
+          {
+            log: `[ERROR] Step failed with code ${code}\n\n`,
+            timestamp: new Date(),
+          },
+        ];
+        deployment.status = "failed";
+      }
+      await deployment.save({ validateBeforeSave: false });
+    });
+    deployment.status = "deployed";
+    await deployment.save({ validateBeforeSave: false });
+    return true;
+  } catch (error) {
+    return null;
+  }
+};
