@@ -239,15 +239,18 @@ const removePreviousDeployment = async (projectName, isLive) => {
     )
       .toString()
       .trim();
+    console.log("container name", containerName);
     if (containerName) {
       const imageName = execSync(
         `docker inspect --format='{{.Config.Image}}' ${containerName}`
       );
+      console.log("image name", imageName);
       const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
       const prevDeployment = await Deployment.findOne({ imageName: imageName });
       prevDeployment.endTime = new Date();
       prevDeployment.status = "in-preview";
-      prevDeployment.save({ validateBeforeSave: false });
+      await prevDeployment.save({ validateBeforeSave: false });
+      console.log("previous deployment", prevDeployment);
     }
   } catch (error) {
     console.error(error);
@@ -322,7 +325,8 @@ export const deploy = asyncHandler(async (req, res) => {
       }
       await deployment.save({ validateBeforeSave: false });
     });
-
+    project.isLive = true;
+    await project.save({ validateBeforeSave: false });
     res.status(200).json({ message: "complete" });
   } catch (error) {
     res.status(400).json({ message: "Error while deploying" });
@@ -339,7 +343,7 @@ export const deployAndReturn = async (deploymentId, projectName) => {
     }
 
     await removePreviousDeployment(projectName, true);
-
+    console.log("removed previous deployment");
     const containerName = `container-${projectName}-${Date.now()}`;
 
     const run = spawn("docker", [
@@ -365,6 +369,7 @@ export const deployAndReturn = async (deploymentId, projectName) => {
         ...deployment.logs,
         { log: data.toString(), timestamp: new Date() },
       ];
+      return null;
     });
 
     run.on("close", async (code) => {
@@ -392,6 +397,8 @@ export const deployAndReturn = async (deploymentId, projectName) => {
       }
       await deployment.save({ validateBeforeSave: false });
     });
+    project.isLive = true;
+    await project.save({ validateBeforeSave: false });
     deployment.status = "deployed";
     await deployment.save({ validateBeforeSave: false });
     return true;
