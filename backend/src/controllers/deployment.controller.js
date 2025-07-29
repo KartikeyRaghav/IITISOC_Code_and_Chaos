@@ -249,7 +249,10 @@ const removePreviousDeployment = async (projectName, isLive) => {
       const prevDeployment = await Deployment.findOne({ imageName: imageName });
       prevDeployment.endTime = new Date();
       prevDeployment.status = "in-preview";
-      await prevDeployment.save({ validateBeforeSave: false });
+      await prevDeployment.save({
+        validateBeforeSave: false,
+        optimisticConcurrency: false,
+      });
       console.log("previous deployment", prevDeployment);
     }
   } catch (error) {
@@ -323,10 +326,16 @@ export const deploy = asyncHandler(async (req, res) => {
         ];
         deployment.status = "failed";
       }
-      await deployment.save({ validateBeforeSave: false });
+      await deployment.save({
+        validateBeforeSave: false,
+        optimisticConcurrency: false,
+      });
     });
     project.isLive = true;
-    await project.save({ validateBeforeSave: false });
+    await project.save({
+      validateBeforeSave: false,
+      optimisticConcurrency: false,
+    });
     res.status(200).json({ message: "complete" });
   } catch (error) {
     res.status(400).json({ message: "Error while deploying" });
@@ -395,12 +404,21 @@ export const deployAndReturn = async (deploymentId, projectName) => {
         ];
         deployment.status = "failed";
       }
-      await deployment.save({ validateBeforeSave: false });
+      await deployment.save({
+        validateBeforeSave: false,
+        optimisticConcurrency: false,
+      });
     });
     project.isLive = true;
-    await project.save({ validateBeforeSave: false });
+    await project.save({
+      validateBeforeSave: false,
+      optimisticConcurrency: false,
+    });
     deployment.status = "deployed";
-    await deployment.save({ validateBeforeSave: false });
+    await deployment.save({
+      validateBeforeSave: false,
+      optimisticConcurrency: false,
+    });
     return true;
   } catch (error) {
     return null;

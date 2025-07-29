@@ -316,7 +316,10 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
         deployment.status = "failed";
         res.write(`[ERROR] Step failed with code ${code}\n\n`);
       }
-      await deployment.save({ validateBeforeSave: false });
+      await deployment.save({
+        validateBeforeSave: false,
+        optimisticConcurrency: false,
+      });
       res.end();
     });
 
@@ -380,7 +383,10 @@ const generateDockerImageAndReturn = async (
         ];
         deployment.status = "failed";
       }
-      await deployment.save({ validateBeforeSave: false });
+      await deployment.save({
+        validateBeforeSave: false,
+        optimisticConcurrency: false,
+      });
       if (code === 0) return imageName;
       return null;
     });
