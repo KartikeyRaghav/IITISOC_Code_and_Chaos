@@ -230,10 +230,6 @@ export const getDeployment = asyncHandler(async (req, res) => {
   res.status(200).json(deployment);
 });
 
-import { execSync } from "child_process";
-import { Project } from "../models/project.model.js";
-import { Deployment } from "../models/deployment.model.js";
-
 const removePreviousDeployment = async (projectName, isLive) => {
   try {
     const project = await Project.findOne({ name: projectName });
