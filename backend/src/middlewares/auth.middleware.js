@@ -4,6 +4,11 @@ import jwt from "jsonwebtoken";
 
 export const verifyJWT = asyncHandler(async (req, res, next) => {
   try {
+    const internalKey = req.headers["x-internal-key"];
+    if (internalKey && internalKey !== process.env.INTERNAL_API_SECRET) {
+      next();
+    }
+
     // Extract token from cookies or Authorization header (Bearer token)
     const token =
       req.cookies?.accessToken || req.headers.authorization?.split(" ")[1];

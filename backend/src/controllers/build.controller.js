@@ -298,7 +298,6 @@ export const fullBuildHandler = asyncHandler(async (req, res) => {
   console.log("request recieved");
   const { projectName } = req.body;
   const internalKey = req.headers["x-internal-key"];
-  console.log(internalKey);
   if (!internalKey || internalKey !== process.env.INTERNAL_API_SECRET) {
     console.log("Unauthorized Access");
     return res.status(401).json({ message: "Unauthorized Access" });
@@ -308,6 +307,7 @@ export const fullBuildHandler = asyncHandler(async (req, res) => {
     const project = await Project.findOne({ name: projectName });
     if (!project) return res.status(404).json({ message: "Project not found" });
     console.log("project found");
+
     const clonedPath = await cloneRepositoryAndReturnPath(
       project.github.repoName,
       project.github.repositoryUrl + ".git",
