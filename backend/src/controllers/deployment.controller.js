@@ -230,33 +230,66 @@ export const getDeployment = asyncHandler(async (req, res) => {
   res.status(200).json(deployment);
 });
 
+import { execSync } from "child_process";
+import { Project } from "../models/project.model.js";
+import { Deployment } from "../models/deployment.model.js";
+
 const removePreviousDeployment = async (projectName, isLive) => {
   try {
     const project = await Project.findOne({ name: projectName });
+    if (!project) {
+      console.warn(`Project '${projectName}' not found`);
+      return;
+    }
 
+    const port = isLive ? project.livePort : project.previewPort;
     const containerName = execSync(
-      `docker ps --filter "publish=${isLive ? project.livePort : project.previewPort}" --format "{{.Names}}"`
+      `docker ps --filter "publish=${port}" --format "{{.Names}}"`
     )
       .toString()
       .trim();
-    console.log("container name", containerName);
-    if (containerName) {
-      const imageName = execSync(
-        `docker inspect --format='{{.Config.Image}}' ${containerName}`
-      );
-      console.log("image name", imageName);
-      const stopContainer = execSync(`sudo docker rm -f ${containerName}`);
-      const prevDeployment = await Deployment.findOne({ imageName: imageName });
-      prevDeployment.endTime = new Date();
-      prevDeployment.status = "in-preview";
-      await prevDeployment.save({
-        validateBeforeSave: false,
-        optimisticConcurrency: false,
-      });
-      console.log("previous deployment", prevDeployment);
+
+    if (!containerName) {
+      console.log("No active container found on port", port);
+      return;
     }
+
+    console.log("Container name:", containerName);
+
+    const imageNameRaw = execSync(
+      `docker inspect --format='{{.Config.Image}}' ${containerName}`
+    )
+      .toString()
+      .trim();
+
+    const imageName = imageNameRaw.replace(/['"\n]/g, "").trim();
+    console.log("Image name:", imageName);
+
+    // Stop and remove the running container
+    execSync(`docker rm -f ${containerName}`);
+    console.log("Container stopped and removed");
+
+    // Update previous deployment record
+    const prevDeployment = await Deployment.findOne({ imageName });
+    if (!prevDeployment) {
+      console.warn("No previous deployment found with imageName:", imageName);
+      return;
+    }
+
+    await Deployment.findByIdAndUpdate(
+      prevDeployment._id,
+      {
+        $set: {
+          endTime: new Date(),
+          status: "in-preview",
+        },
+      },
+      { new: true }
+    );
+
+    console.log("Previous deployment updated:", prevDeployment._id);
   } catch (error) {
-    console.error(error);
+    console.error("Error removing previous deployment:", error);
   }
 };
 
@@ -344,83 +377,85 @@ export const deploy = asyncHandler(async (req, res) => {
 
 export const deployAndReturn = async (deploymentId, projectName) => {
   try {
-    const deployment = await Deployment.findOne({ _id: deploymentId });
+    const deployment = await Deployment.findById(deploymentId);
     const project = await Project.findOne({ name: projectName });
 
-    if (!deployment) {
+    if (!deployment || !project) {
+      console.warn("Deployment or Project not found");
       return null;
     }
 
+    // Remove previous container if exists
     await removePreviousDeployment(projectName, true);
-    console.log("removed previous deployment");
-    const containerName = `container-${projectName}-${Date.now()}`;
+    console.log("Previous deployment removed");
 
-    const run = spawn("docker", [
-      "run",
-      "-p",
+    const containerName = `container-${projectName}-${Date.now()}`;
+    const portMapping =
       project.framework === "next"
         ? `${project.livePort}:3000`
-        : `${project.livePort}:80`,
+        : `${project.livePort}:80`;
+
+    // Run docker container in detached mode
+    const args = [
+      "run",
+      "-d", // detached mode
+      "-p",
+      portMapping,
       "--name",
       containerName,
       deployment.imageName,
-    ]);
+    ];
+
+    const run = spawn("docker", args);
 
     run.stdout.on("data", (data) => {
-      deployment.logs = [
-        ...deployment.logs,
-        { log: data.toString(), timestamp: new Date() },
-      ];
+      deployment.logs.push({
+        log: data.toString(),
+        timestamp: new Date(),
+      });
     });
 
     run.stderr.on("data", (data) => {
-      deployment.logs = [
-        ...deployment.logs,
-        { log: data.toString(), timestamp: new Date() },
-      ];
-      return null;
+      deployment.logs.push({
+        log: data.toString(),
+        timestamp: new Date(),
+      });
+    });
+
+    run.on("error", (err) => {
+      console.error("Docker run error:", err);
+      deployment.logs.push({
+        log: `[ERROR] Docker failed: ${err.message}`,
+        timestamp: new Date(),
+      });
+      deployment.status = "failed";
     });
 
     run.on("close", async (code) => {
-      deployment.logs = [
-        ...deployment.logs,
-        {
-          log: `Docker container run exited with code ${code}\n\n`,
-          timestamp: new Date(),
-        },
-      ];
       if (code === 0) {
-        deployment.logs = [
-          ...deployment.logs,
-          { log: `[RUN_COMPLETE] ${containerName}\n\n`, timestamp: new Date() },
-        ];
+        deployment.logs.push({
+          log: `[RUN_STARTED] ${containerName}`,
+          timestamp: new Date(),
+        });
+        deployment.status = "deployed";
+        project.isLive = true;
+
+        // Save updates
+        await project.save({ validateBeforeSave: false, optimisticConcurrency: false });
+        await deployment.save({ validateBeforeSave: false, optimisticConcurrency: false });
       } else {
-        deployment.logs = [
-          ...deployment.logs,
-          {
-            log: `[ERROR] Step failed with code ${code}\n\n`,
-            timestamp: new Date(),
-          },
-        ];
+        deployment.logs.push({
+          log: `[ERROR] Docker run exited with code ${code}`,
+          timestamp: new Date(),
+        });
         deployment.status = "failed";
+        await deployment.save({ validateBeforeSave: false, optimisticConcurrency: false });
       }
-      await deployment.save({
-        validateBeforeSave: false,
-        optimisticConcurrency: false,
-      });
     });
-    project.isLive = true;
-    await project.save({
-      validateBeforeSave: false,
-      optimisticConcurrency: false,
-    });
-    deployment.status = "deployed";
-    await deployment.save({
-      validateBeforeSave: false,
-      optimisticConcurrency: false,
-    });
+
     return true;
   } catch (error) {
+    console.error("deployAndReturn failed:", error);
     return null;
   }
 };
