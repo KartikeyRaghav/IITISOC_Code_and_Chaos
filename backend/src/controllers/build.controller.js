@@ -7,11 +7,9 @@ import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
 import {
-  createDeployment,
   createDeploymentAndReturn,
-  deploy,
   deployAndReturn,
-  getVersion,
+  getVersionAndReturn,
 } from "./deployment.controller.js";
 import { Project } from "../models/project.model.js";
 import { Deployment } from "../models/deployment.model.js";
@@ -437,7 +435,7 @@ export const fullBuildHandler = asyncHandler(async (req, res) => {
         .json({ message: "Error while generating docker file" });
     }
     console.log("docker file");
-    const prevVersion = await getVersion(projectName);
+    const prevVersion = await getVersionAndReturn(projectName);
     if (prevVersion === null) {
       console.log("previous version error");
       return res
