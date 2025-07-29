@@ -338,9 +338,6 @@ export const deployAndReturn = async (deploymentId, projectName) => {
       return null;
     }
 
-    if (req.user._id.toString() !== deployment.deployedBy.toString())
-      return null;
-
     await removePreviousDeployment(projectName, true);
 
     const containerName = `container-${projectName}-${Date.now()}`;
