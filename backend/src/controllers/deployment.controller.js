@@ -433,19 +433,29 @@ export const deployAndReturn = async (deploymentId, projectName) => {
           log: `[RUN_STARTED] ${containerName}`,
           timestamp: new Date(),
         });
+        deployment.startTime = new Date();
         deployment.status = "deployed";
         project.isLive = true;
 
         // Save updates
-        await project.save({ validateBeforeSave: false, optimisticConcurrency: false });
-        await deployment.save({ validateBeforeSave: false, optimisticConcurrency: false });
+        await project.save({
+          validateBeforeSave: false,
+          optimisticConcurrency: false,
+        });
+        await deployment.save({
+          validateBeforeSave: false,
+          optimisticConcurrency: false,
+        });
       } else {
         deployment.logs.push({
           log: `[ERROR] Docker run exited with code ${code}`,
           timestamp: new Date(),
         });
         deployment.status = "failed";
-        await deployment.save({ validateBeforeSave: false, optimisticConcurrency: false });
+        await deployment.save({
+          validateBeforeSave: false,
+          optimisticConcurrency: false,
+        });
       }
     });
 
