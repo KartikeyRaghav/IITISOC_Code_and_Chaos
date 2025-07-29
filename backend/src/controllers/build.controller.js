@@ -2,7 +2,7 @@
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 
 // Node.js built-in modules for command execution and file handling
-import { spawn } from "child_process";
+import { execSync, spawn } from "child_process";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
@@ -97,15 +97,10 @@ export const cloneRepositoryAndReturnPath = async (
   const cloneExists = await checkCloneExists(targetDir);
 
   const clone = cloneExists
-    ? spawn("git", ["-C", targetDir, "pull"])
-    : spawn("git", ["clone", "-b", branch, cloneUrl, targetDir]);
+    ? await execSync(`git -C ${targetDir} pull`)
+    : await execSync(`git clone b ${branch} ${cloneUrl} ${targetDir}`);
 
-  clone.on("close", (code) => {
-    if (code === 0) return targetDir;
-    else return null;
-  });
-
-  clone.on("error", (err) => null);
+  return targetDir;
 };
 
 // Route handler to detect the technology stack of the cloned project
