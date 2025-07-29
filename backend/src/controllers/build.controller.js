@@ -303,7 +303,7 @@ export const fullBuildHandler = asyncHandler(async (req, res) => {
     console.log("Unauthorized Access");
     return res.status(401).json({ message: "Unauthorized Access" });
   }
-  res.status(200).json({ message: "calling" });
+ 
   try {
     const project = await Project.findOne({ name: projectName });
     if (!project) return res.status(404).json({ message: "Project not found" });
