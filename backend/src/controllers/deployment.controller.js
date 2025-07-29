@@ -139,11 +139,6 @@ export const createDeploymentAndReturn = async (
 
     const projectUser = project.createdBy;
 
-    // Check if the current user owns the project
-    if (projectUser.toString() !== req.user._id.toString()) {
-      return null;
-    }
-
     // Create a new deployment record
     const deployment = await Deployment.create({
       version,
