@@ -33,7 +33,7 @@ const ActionPanel = ({
           onClick={onGetUserRepos}
           className="w-full max-w-xs bg-gradient-to-r from-[#005b83] via-[#0077ab] to-purple-500 hover:from-[#005379] hover:via-[#0070a1] hover:to-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-all duration-300 transform hover:scale-105"
         >
-          Get Repos
+          Get Cached Repos
         </button>
       ) : null}
       {hasGithubPermission ? (

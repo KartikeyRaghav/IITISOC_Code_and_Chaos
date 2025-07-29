@@ -297,42 +297,43 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
 export const fullBuildHandler = asyncHandler(async (req, res) => {
   console.log("request recieved");
   const { projectName } = req.body;
+  console.log(projectName);
   const internalKey = req.headers["x-internal-key"];
   if (!internalKey || internalKey !== process.env.INTERNAL_API_SECRET) {
     console.log("Unauthorized Access");
     return res.status(401).json({ message: "Unauthorized Access" });
   }
+  res.status(200).json({ message: "calling" });
+  // try {
+  //   const project = await Project.findOne({ name: projectName });
+  //   if (!project) return res.status(404).json({ message: "Project not found" });
+  //   console.log("project found");
 
-  try {
-    const project = await Project.findOne({ name: projectName });
-    if (!project) return res.status(404).json({ message: "Project not found" });
-    console.log("project found");
+  //   const clonedPath = await cloneRepositoryAndReturnPath(
+  //     project.github.repoName,
+  //     project.github.repositoryUrl + ".git",
+  //     project.github.branch
+  //   );
+  //   console.log("repo cloned");
+  //   const techStack = await detectTechStack(clonedPath);
+  //   console.log("tech stack");
+  //   await generateDockerfile(clonedPath, techStack);
+  //   console.log("docker file");
+  //   const prevVersion = await getVersion(projectName);
+  //   const version = (Number(prevVersion) + 1).toString();
+  //   const deploymentId = await createDeployment(
+  //     projectName,
+  //     version,
+  //     "pending"
+  //   );
+  //   console.log("deployment");
+  //   await generateDockerImage(projectName, clonedPath, deploymentId);
+  //   console.log("docker image");
+  //   await deploy(deploymentId, projectName, true);
+  //   console.log("deployed");
 
-    const clonedPath = await cloneRepositoryAndReturnPath(
-      project.github.repoName,
-      project.github.repositoryUrl + ".git",
-      project.github.branch
-    );
-    console.log("repo cloned");
-    const techStack = await detectTechStack(clonedPath);
-    console.log("tech stack");
-    await generateDockerfile(clonedPath, techStack);
-    console.log("docker file");
-    const prevVersion = await getVersion(projectName);
-    const version = (Number(prevVersion) + 1).toString();
-    const deploymentId = await createDeployment(
-      projectName,
-      version,
-      "pending"
-    );
-    console.log("deployment");
-    await generateDockerImage(projectName, clonedPath, deploymentId);
-    console.log("docker image");
-    await deploy(deploymentId, projectName, true);
-    console.log("deployed");
-
-    res.status(200).json({ message: "Build started" });
-  } catch (error) {
-    console.error(error);
-  }
+  //   res.status(200).json({ message: "Build started" });
+  // } catch (error) {
+  //   console.error(error);
+  // }
 });

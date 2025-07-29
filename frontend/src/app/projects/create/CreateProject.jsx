@@ -92,10 +92,10 @@ const CreateProject = () => {
   }, [formData.repoName]);
 
   useEffect(() => {
-    const getUserRepos = async () => {
+    const getGithubRepos = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/getUserRepos`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/github/getGithubRepos`,
           {
             credentials: "include",
           }
@@ -114,7 +114,7 @@ const CreateProject = () => {
         CustomToast("Error while getting your repositories");
       }
     };
-    getUserRepos();
+    getGithubRepos();
   }, []);
 
   const checkProjectName = async () => {
@@ -331,7 +331,7 @@ const CreateProject = () => {
               reader.read().then(({ done, value }) => {
                 if (done) return;
                 const text = decoder.decode(value);
-            
+
                 const match = text.match(/\[CLONE_COMPLETE\] (.*)/);
                 if (match) {
                   let fullTargetDir = match[1];
