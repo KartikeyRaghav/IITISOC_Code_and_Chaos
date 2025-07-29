@@ -94,18 +94,16 @@ export const cloneRepositoryAndReturnPath = async (
 
   const cloneExists = await checkCloneExists(targetDir);
 
-  return new Promise((resolve, reject) => {
-    const clone = cloneExists
-      ? spawn("git", ["-C", targetDir, "pull"])
-      : spawn("git", ["clone", "-b", branch, cloneUrl, targetDir]);
+  const clone = cloneExists
+    ? spawn("git", ["-C", targetDir, "pull"])
+    : spawn("git", ["clone", "-b", branch, cloneUrl, targetDir]);
 
-    clone.on("close", (code) => {
-      if (code === 0) resolve(targetDir);
-      else reject(new Error("Git clone failed with code " + code));
-    });
-
-    clone.on("error", (err) => reject(err));
+  clone.on("close", (code) => {
+    if (code === 0) return targetDir;
+    else return null;
   });
+
+  clone.on("error", (err) => null);
 };
 
 // Route handler to detect the technology stack of the cloned project
@@ -303,7 +301,7 @@ export const fullBuildHandler = asyncHandler(async (req, res) => {
     console.log("Unauthorized Access");
     return res.status(401).json({ message: "Unauthorized Access" });
   }
- 
+
   try {
     const project = await Project.findOne({ name: projectName });
     if (!project) return res.status(404).json({ message: "Project not found" });
@@ -318,6 +316,9 @@ export const fullBuildHandler = asyncHandler(async (req, res) => {
     const techStack = await detectTechStack(clonedPath);
     console.log("tech stack");
     await generateDockerfile(clonedPath, techStack);
+    if (!res.headersSent) {
+      res.status(200).json({ message: "Build started" });
+    }
     console.log("docker file");
     const prevVersion = await getVersion(projectName);
     const version = (Number(prevVersion) + 1).toString();
