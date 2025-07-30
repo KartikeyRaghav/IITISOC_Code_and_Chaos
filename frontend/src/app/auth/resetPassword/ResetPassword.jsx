@@ -5,30 +5,42 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config(); //load env variables
 
+//ResetPasswordPage component
+//provides form for users to reset their psw using a token from URL
+//validates psw and confirm psw inputs
+//sends request to reset the psw on submit and handles loading and error states
 const ResetPasswordPage = () => {
-  const searchParams = useSearchParams();
-  const [password, setPassword] = useState("");
+  const searchParams = useSearchParams(); //access URL search params (to get token)
+  //state variables for psw fields and visibility toggles
+  const [password, setPassword] = useState(""); 
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);//for error msg
+  const [isLoading, setIsLoading] = useState(false); //for loading status
   const router = useRouter();
 
+  //handles form submission to reset psw
+  //validates inputCSS, sends API request with token and new psw
+  // shows toast on success and redirects to login page
   const handlePasswordReset = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); //prevent default form submission
 
+    //extract token from URL search params
     const token = searchParams.get("token");
 
-    setError("");
+    setError(""); //clear prev errors
+    
+    //basic validation: check if passwords match
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
-    setIsLoading(true);
+    setIsLoading(true); //set loading state while request is pending
     try {
+      //send POST request to backend API for psw reset
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/resetPassword`,
         {
@@ -37,8 +49,8 @@ const ResetPasswordPage = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            token,
-            newPassword: password,
+            token, //psw reset token from URL
+            newPassword: password, //new psw entered by user
           }),
           credentials: "include",
         }
@@ -47,11 +59,14 @@ const ResetPasswordPage = () => {
       const data = await response.json();
 
       if (response.ok) {
+        //show success toast notification
         CustomToast("Password reset successful. Redirecting...");
+        //wait 1.5s to allow user to see toast, then redirect to login page
         setTimeout(() => {
           router.replace("/auth/login");
         }, 1500);
       } else {
+        //show error msg from backend or fallback
         const errorMessage =
           data?.message ||
           data?.error ||
@@ -59,9 +74,10 @@ const ResetPasswordPage = () => {
         setError(errorMessage);
       }
     } catch (err) {
+      //log unexpected errors
       console.error("Full error object:", err);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); //reset loading state
     }
   };
 
