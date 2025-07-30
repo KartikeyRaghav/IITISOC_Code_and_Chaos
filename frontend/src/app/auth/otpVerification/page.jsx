@@ -141,12 +141,15 @@ export default function OtpVerificationPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-[#004466] via-[#1a365d] to-[#6a00b3] flex items-center justify-center p-4">
+      {/*blurred background circles for aesthetic*/}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl"></div>
       </div>
 
+      {/*main card container*/}
       <div className="relative bg-gradient-to-r from-[#23243a] to-[#1a1b2e] p-8 rounded-3xl shadow-2xl w-full max-w-md border border-purple-500/20 backdrop-blur-sm z-10">
+        {/*header with icon, title*/}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center h-16 w-16 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-full mb-4 shadow-lg">
             <KeyRound className="w-8 h-8 text-white" />
@@ -157,18 +160,22 @@ export default function OtpVerificationPage() {
           <p className="text-gray-400">Enter the OTP sent to your mail</p>
         </div>
 
-        <form className="space-y-6">
+        {/*OTP input form*/}
+          <form className="space-y-6">
+            {/*input label*/}
           <div className="space-y-2">
             <label className="text-gray-300 font-medium text-sm flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-yellow-400" />
               OTP Code
             </label>
+            {/*OTP input with numeric type and max length 6*/}
             <div className="relative">
               <input
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
                 onInput={(e) => {
                   const maxLength = 6;
+                  //limit input length to 6 digits
                   if (e.target.value.length > maxLength) {
                     e.target.value = e.target.value.slice(0, maxLength);
                   }
@@ -178,23 +185,27 @@ export default function OtpVerificationPage() {
                 placeholder="Enter 6-digit code"
                 className="no-spinner w-full p-4 pl-12 rounded-xl bg-[#2c2f4a]/80 text-white border border-gray-600/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-400 backdrop-blur-sm text-center text-lg tracking-widest"
               />
+              {/*icon inside OTP input*/}
               <Sparkles className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             </div>
           </div>
 
+          {/*submit (verify OTP) button*/}
           <button
             type="button"
             className="w-full py-4 rounded-xl font-bold text-lh shadow-xl bg-gradient-to-r from-[#00aaff] via-[#0099ff] to-[#9a00ff] text-white mt-2 flex items-center justify-center gap-3 disabled:opacity-60 disabled:cursor-not-allowed"
-            disabled={otp.length !== 6}
+            disabled={otp.length !== 6} //enable only if OTP has 6 digits
             onClick={handleSubmit}
           >
             {isLoading ? (
               <>
+              {/*spinner animation while verifying*/}
                 <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 Verifying...
               </>
             ) : (
               <>
+              {/*icon and text when not loading*/}
                 <KeyRound className="w-6 h-6" />
                 Verify OTP
               </>
@@ -202,6 +213,7 @@ export default function OtpVerificationPage() {
           </button>
         </form>
 
+        {/*displays error in a styled alert box*/}
         {error && (
           <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mt-4">
             <div className="flex items-center gap-3">
@@ -211,8 +223,10 @@ export default function OtpVerificationPage() {
           </div>
         )}
 
+        {/*resend OTP timer and button area*/}
         <div className="mt-8 text-center">
           {timeLeft > 0 ? (
+            /*show countdown until user can resend OTP*/ 
             <span className="text-gray-400 text-sm">
               Didn't get the code?{" "}
               <span className="text-blue-400 font-semibold opacity-60 cursor-not-allowed select-none">
@@ -220,6 +234,7 @@ export default function OtpVerificationPage() {
               </span>
             </span>
           ) : (
+            /*button enabled to resend OTP when countdown reached 0*/
             <button
               type="button"
               className="text-blue-400 font-semibold text-sm hover:text-blue-300 transition-colors"
