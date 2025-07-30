@@ -1,8 +1,11 @@
 "use client";
 
 import CustomToast from "@/components/CustomToast";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
 
 const ProjectAnalytics = () => {
   const { projectId } = useParams();
@@ -28,7 +31,15 @@ const ProjectAnalytics = () => {
     getAnalytics();
   }, []);
 
-  return <div>ProjectAnalytics</div>;
+  return (
+    <>
+      <ToastContainer/>
+      <Navbar/>
+      <div className="lg:min-h-screen w-full flex flex-col lg:flex-row bg-gray-900">
+        <Footer/>
+      </div>
+    </>
+  )
 };
 
 export default ProjectAnalytics;
