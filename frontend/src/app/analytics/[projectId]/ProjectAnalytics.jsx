@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 const ProjectAnalytics = () => {
-  const projectId = useParams();
+  const { projectId } = useParams();
   const [analytics, setAnalytics] = useState([]);
 
   useEffect(() => {
