@@ -14,7 +14,7 @@ export const navLinks = [
     icon: <Rocket className="w-4 h-4" />,
   },
   {
-    id: "2",
+    id: "3",
     title: "Analytics",
     url: "/analytics",
     icon: <ChartColumn className="w-4 h-4" />,
