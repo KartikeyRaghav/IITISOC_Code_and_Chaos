@@ -1,5 +1,6 @@
 "use client";
 
+import AnalyticsHeader from "@/components/AnalyticsHeader";
 import CustomToast from "@/components/CustomToast";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
@@ -33,25 +34,27 @@ const ProjectAnalytics = () => {
   }, []);
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3]">
       <ToastContainer/>
       <Navbar/>
-      <div className="min-h-screen bg-gray-900 flex flex-col items-center px-4 py-8 lg:py-12">
-        <div className="w-full max-w-6xl">
-          <h2 className="text-3xl font-bold text-white mb-8">
-            User Trends 
-          </h2>
-          
-          {analytics ? (
-            <UserLineGraph data={analytics} />
-          ) : (
-            <p className="text-gray-400">Loading analytics data...</p>
-          )}
 
+      <main className="flex-grow p-6 pt-[104px]">
+        
+        <div className="mx-auto max-w-6xl">
+          
+          <AnalyticsHeader/>
+
+          <section className="mt-8">
+            {analytics ? (
+              <UserLineGraph data={analytics} />
+            ):(
+              <p className="text-gray-300">Loading analytics data...</p>
+            )}
+          </section>
         </div>
-        <Footer/>
-      </div>
-    </>
+      </main>
+      <Footer/>
+    </div>    
   )
 };
 
