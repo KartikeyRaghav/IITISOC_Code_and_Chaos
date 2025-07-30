@@ -4,6 +4,7 @@ import AnalyticsHeader from "@/components/AnalyticsHeader";
 import CustomToast from "@/components/CustomToast";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import UniqueVisitorsCard from "@/components/UniqueVisitorsCard";
 import UserLineGraph from "@/components/UserLineGraph";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -57,7 +58,10 @@ const ProjectAnalytics = () => {
                 </div>
           <section className="mt-8">
             {analytics ? (
-              <UserLineGraph data={analytics} />
+              <>
+                <UserLineGraph data={analytics} />
+                <UniqueVisitorsCard count= {analytics.uniqueVisitors} />
+              </>
             ):(
               <p className="text-gray-300">Loading analytics data...</p>
             )}
