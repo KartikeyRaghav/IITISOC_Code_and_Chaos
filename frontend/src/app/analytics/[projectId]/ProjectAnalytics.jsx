@@ -1,5 +1,6 @@
 "use client";
 
+import CustomToast from "@/components/CustomToast";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -20,6 +21,7 @@ const ProjectAnalytics = () => {
         console.log(data);
         setAnalytics(data);
       } catch (error) {
+        console.error(error);
         CustomToast("Error fetching your projects");
       }
     };
