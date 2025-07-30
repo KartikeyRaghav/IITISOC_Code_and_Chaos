@@ -1,6 +1,6 @@
 import { PageVisit } from "../models/pageVisit.model.js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
-import isbot from "isbot";
+import { isbot } from "isbot";
 
 export const trackPageVisit = asyncHandler(async (req, res) => {
   try {
