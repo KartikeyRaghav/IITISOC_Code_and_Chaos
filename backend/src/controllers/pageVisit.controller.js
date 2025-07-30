@@ -3,7 +3,9 @@ import { asyncHandler } from "../utils/asyncHandler.util.js";
 
 export const trackPageVisit = asyncHandler(async (req, res) => {
   try {
+    console.log("request");
     const { projectId } = req.body;
+    console.log("projectId", projectId);
     const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
     const userAgent = req.headers["user-agent"];
     const referer = req.headers["referer"];
