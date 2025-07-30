@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { PageVisit } from "../models/pageVisit.model.js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 import { isbot } from "isbot";
