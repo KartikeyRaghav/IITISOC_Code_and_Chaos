@@ -5,11 +5,18 @@ import cookieParser from "cookie-parser";
 
 // Create an Express application
 const app = express();
+const allowedPattern = /\.deploy\.princecodes\.online$/;
 
 // Enable CORS to allow requests from frontend domain
 app.use(
   cors({
-    origin: `${process.env.FRONTEND_URL}`, // Allow only frontend origin
+    origin: (origin, callback) => {
+      if (!origin || allowedPattern.test(new URL(origin).hostname)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS blocked"));
+      }
+    }, // Allow only frontend origin
     credentials: true, // Allow sending cookies across origins
   })
 );
