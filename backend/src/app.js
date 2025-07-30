@@ -48,6 +48,7 @@ import buildRouter from "./routes/build.route.js";
 import projectRouter from "./routes/project.route.js";
 import deploymentRouter from "./routes/deployment.route.js";
 import { trackPageVisit } from "./controllers/pageVisit.controller.js";
+import analyticsRouter from "./routes/analytics.route.js";
 
 // Route Middleware Setup
 app.use("/api/v1/user", userRouter);
@@ -56,5 +57,6 @@ app.use("/api/v1/build", buildRouter);
 app.use("/api/v1/project", projectRouter);
 app.use("/api/v1/deployment", deploymentRouter);
 app.post("/api/v1/track", trackPageVisit);
+app.use("/api/v1/analytics", analyticsRouter);
 
 export { app };

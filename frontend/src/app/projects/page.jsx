@@ -23,7 +23,7 @@ dotenv.config();
 
 const Project = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
-  const [repos, setRepos] = useState([]);
+  const [projects, setProjects] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -48,7 +48,7 @@ const Project = () => {
           }
         );
         const data = await response.json();
-        setRepos(data);
+        setProjects(data);
       } catch (error) {
         CustomToast("Error fetching your projects");
       }
@@ -123,7 +123,7 @@ const Project = () => {
 
           {/* Projects Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {repos.length === 0 ? (
+            {projects.length === 0 ? (
               <div className="col-span-full">
                 <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-16 text-center border border-purple-500/20 backdrop-blur-sm">
                   <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#00aaff]/20 to-[#9a00ff]/20 rounded-full mb-8 border border-purple-500/30">
@@ -148,7 +148,7 @@ const Project = () => {
                 </div>
               </div>
             ) : (
-              repos.map((project, index) => (
+              projects.map((project, index) => (
                 <div
                   key={project.name}
                   onClick={() => router.push(`/projects/${project.name}`)}
@@ -236,12 +236,12 @@ const Project = () => {
           </div>
 
           {/* Stats Footer */}
-          {repos.length > 0 && (
+          {projects.length > 0 && (
             <div className="mt-16 bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-8 border border-purple-500/20 backdrop-blur-sm">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-400 mb-2">
-                    {repos.length}
+                    {projects.length}
                   </div>
                   <div className="text-gray-400 text-sm uppercase tracking-wide">
                     Total Projects
@@ -249,7 +249,7 @@ const Project = () => {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-400 mb-2">
-                    {repos.filter((p) => p.status === "deployed").length}
+                    {projects.filter((p) => p.status === "deployed").length}
                   </div>
                   <div className="text-gray-400 text-sm uppercase tracking-wide">
                     Deployed
@@ -257,7 +257,7 @@ const Project = () => {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-purple-400 mb-2">
-                    {repos.filter((p) => p.status === "active").length}
+                    {projects.filter((p) => p.status === "active").length}
                   </div>
                   <div className="text-gray-400 text-sm uppercase tracking-wide">
                     Active
@@ -265,7 +265,7 @@ const Project = () => {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-yellow-400 mb-2">
-                    {repos.filter((p) => p.status === "building").length}
+                    {projects.filter((p) => p.status === "building").length}
                   </div>
                   <div className="text-gray-400 text-sm uppercase tracking-wide">
                     Building

@@ -11,8 +11,13 @@ export const trackPageVisit = asyncHandler(async (req, res) => {
 
     const isBotRequest = isbot(userAgent);
 
-    if (!isBotRequest)
-      await PageVisit.create({ projectId, ip, userAgent, referer });
+    await PageVisit.create({
+      projectId,
+      ip,
+      userAgent,
+      referer,
+      isBot: isBotRequest,
+    });
     res.status(200).json({ success: true });
   } catch (error) {
     console.error(error);
