@@ -191,14 +191,14 @@ export default function LoginPage() {
   return (
     <>
       <AuthForms
-        onSubmit={handleLogin}
-        onToggleForm={() => router.push("/auth/signup")}
-        error={error}
+        onSubmit={handleLogin} //handles login form submission
+        onToggleForm={() => router.push("/auth/signup")} //switch to signup
+        error={error} //show error
         type="login"
-        isLoading={isLoading}
-        setShowForgotPasswordModal={setShowForgotPasswordModal}
+        isLoading={isLoading} //loader for submit
+        setShowForgotPasswordModal={setShowForgotPasswordModal} //controls modal visibility
       />
-
+      {/*render ForgotPasswordModal as overlay when triggered*/}
       {showForgotPasswordModal && (
         <ForgotPasswordModal
           setShowForgotPasswordModal={setShowForgotPasswordModal}
