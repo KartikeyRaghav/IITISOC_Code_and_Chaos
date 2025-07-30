@@ -68,9 +68,12 @@ export default function OtpVerificationPage() {
     }
   };
 
+  //handler for form submission
+  //verifies OTP, then register user if OTP is valid
   const handleSubmit = async () => {
-    setIsLoading(true);
+    setIsLoading(true); //shows loading indicator
     try {
+      //verify OTP API call
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/verifyOtp`,
         {
@@ -89,6 +92,7 @@ export default function OtpVerificationPage() {
       const data = await response.json();
 
       if (response.ok) {
+        //if OTP is valid, registers the user
         const signupResponse = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/register`,
           {
@@ -108,9 +112,11 @@ export default function OtpVerificationPage() {
         const signupData = await signupResponse.json();
 
         if (signupResponse.ok) {
+          //registration successful: clear stored data and redirect
           localStorage.removeItem("formData");
           router.replace("/auth/login");
         } else {
+          //registration failed: display backend error msg
           const errorMessage =
             signupData?.message ||
             signupData?.error ||
@@ -118,6 +124,7 @@ export default function OtpVerificationPage() {
           setError(errorMessage);
         }
       } else {
+        //OTP verification failed: display backend error msg
         const errorMessage =
           data?.message ||
           data?.error ||
@@ -125,9 +132,10 @@ export default function OtpVerificationPage() {
         setError(errorMessage);
       }
     } catch (err) {
+      //network or unexpected error
       console.error("Full error object:", err);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); //hide loading indicator regardless the outcome
     }
   };
 
