@@ -120,28 +120,36 @@ const ForgotPasswordModal = ({ setShowForgotPasswordModal }) => {
   );
 };
 
+//login page component
+//handles authentication checks, login submission and 'forgot psw' modal workflow
 export default function LoginPage() {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
+  //authentication and form states
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); //loading spinner during login
+  const [error, setError] = useState("");//error msg
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);//modal visibility
+
+  //on mount, checks if user is already authenticated
+  //if authenticated, redirect to dashboard
   useEffect(() => {
     const verifyAuth = async () => {
       const data = await checkAuth();
       if (data.status === 200) {
-        router.replace("/dashboard");
+        router.replace("/dashboard"); //authenticated: go to dashboard
       }
     };
     verifyAuth();
-    setIsAuthenticated(true);
+    setIsAuthenticated(true); //mark that check has finished 
   }, []);
 
+  //called when login form is submitted
+  //handles form data, communicates with backend,msg errors
   const handleLogin = async (formData) => {
-    setError("");
+    setError(""); // clear previous errors
 
-    setIsLoading(true);
+    setIsLoading(true); //show spinner
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/login`,
@@ -161,17 +169,21 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
+        //successful login: redirect to dashboard
         router.replace("/dashboard");
       } else {
+        //login failed: show error
         setError(data?.message || "Login failed. Please try again.");
       }
     } catch (err) {
+      //unexpected error
       console.error(err);
       setError("Something went wrong. Please try again.");
     }
-    setIsLoading(false);
+    setIsLoading(false); //reset loading spinner
   };
 
+  //render loader while authentication is being determined
   if (isAuthenticated === null) {
     return <CustomLoader />;
   }
