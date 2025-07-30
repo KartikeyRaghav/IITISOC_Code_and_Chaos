@@ -1,34 +1,45 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Sparkles, KeyRound, AlertCircle } from "lucide-react";
+import { Sparkles, KeyRound, AlertCircle } from "lucide-react"; //icons for UI
 import { useRouter } from "next/navigation";
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config(); //load env variables
 
+//OTP verification component
+//handles user OTP input for email verification after signup
+//includes resend OTP functionality
 export default function OtpVerificationPage() {
+  //timer for resend OTP functionality
   const [timeLeft, setTimeLeft] = useState(60);
+  //form data previously stored
   const [formData, setFormData] = useState({
     email: "",
     fullName: "",
     password: "",
   });
-  const [otp, setOtp] = useState("");
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [otp, setOtp] = useState(""); //OTP input value state
+  const router = useRouter(); //to navigate programmatically
+  const [isLoading, setIsLoading] = useState(false); 
+  const [error, setError] = useState(""); //to display error msg
 
+  //effect to update the countdown timer every sec
+  //decrements until it reaches 0
   useEffect(() => {
     if (timeLeft > 0) {
       const t = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-      return () => clearTimeout(t);
+      return () => clearTimeout(t); //cleanup timeout if component unmounts or updates
     }
   }, [timeLeft]);
 
+  //effect that loads stored 'formData'
+  //necessary to get email,fullName, password saved earlier
   useEffect(() => {
     setFormData(JSON.parse(localStorage.getItem("formData")));
   });
 
+  //handler to resend OTP when timer reaches zero
+  //sends POST request to backend to resend OTP email
   const handleResend = async () => {
     if (timeLeft === 0) {
       try {
@@ -40,19 +51,19 @@ export default function OtpVerificationPage() {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              email: formData.email,
+              email: formData.email, //use stored email
             }),
             credentials: "include",
           }
         );
 
         if (response.ok) {
-          setTimeLeft(60);
+          setTimeLeft(60); //reset countdown timer on successful resend
         } else {
-          setError("Failed to resend otp");
+          setError("Failed to resend otp"); //show error msg if resend fails
         }
       } catch (err) {
-        console.error("Full error object:", err);
+        console.error("Full error object:", err); //log the unexpected errors
       }
     }
   };
