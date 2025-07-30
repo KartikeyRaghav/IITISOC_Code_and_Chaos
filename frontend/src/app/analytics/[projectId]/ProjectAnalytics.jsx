@@ -37,13 +37,24 @@ const ProjectAnalytics = () => {
     <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3]">
       <ToastContainer/>
       <Navbar/>
-
-      <main className="flex-grow p-6 pt-[104px]">
-        
-        <div className="mx-auto max-w-6xl">
-          
-          <AnalyticsHeader/>
-
+      <div className="p-6 pt-[104px]">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-12">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"></div>
+                  <h1 className="text-5xl font-bold text-white bg-gradient-to-r from-blue-400 via-purple-400 to-purple-600 bg-clip-text">
+                    User Trends
+                  </h1>
+                </div>
+                <div className="h-1 w-32 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mb-4"></div>
+                <p className="text-gray-300 text-lg">
+                  Insights that drive smarter decisions
+                </p>
+                </div>
+                </div>
+                </div>
           <section className="mt-8">
             {analytics ? (
               <UserLineGraph data={analytics} />
@@ -52,9 +63,9 @@ const ProjectAnalytics = () => {
             )}
           </section>
         </div>
-      </main>
+      </div>
       <Footer/>
-    </div>    
+     </div>
   )
 };
 
