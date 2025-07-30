@@ -36,14 +36,18 @@ const ProjectAnalytics = () => {
     <>
       <ToastContainer/>
       <Navbar/>
-      <div className="lg:min-h-screen w-full flex flex-col lg:flex-row bg-gray-900">
-        <div className="w-full lg:w-3/4 mx-auto mt-8">
-          <h2 className="text-2xl font-bold text-white mb-6">
+      <div className="min-h-screen bg-gray-900 flex flex-col items-center px-4 py-8 lg:py-12">
+        <div className="w-full max-w-6xl">
+          <h2 className="text-3xl font-bold text-white mb-8">
             User Trends 
           </h2>
-          {analytics && (
+          
+          {analytics ? (
             <UserLineGraph data={analytics} />
+          ) : (
+            <p className="text-gray-400">Loading analytics data...</p>
           )}
+
         </div>
         <Footer/>
       </div>
