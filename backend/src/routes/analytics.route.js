@@ -6,6 +6,6 @@ const analyticsRouter = Router();
 
 analyticsRouter.use(verifyJWT);
 
-analyticsRouter.route("/:projectId/summary", getAnalytics);
+analyticsRouter.route("/:projectId/summary").get(getAnalytics);
 
 export default analyticsRouter;
