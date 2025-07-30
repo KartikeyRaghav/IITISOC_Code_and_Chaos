@@ -7,15 +7,18 @@ import dotenv from "dotenv";
 import AuthForms from "../AuthForm";
 import { AlertCircle, Mail, RefreshCcw } from "lucide-react";
 
-dotenv.config();
+dotenv.config(); //loads env variables
 
+//ForgotPasswordModal comp
+//handles form submission, shows loading and error/success msgs
 const ForgotPasswordModal = ({ setShowForgotPasswordModal }) => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(""); //user's input
   const [error, setError] = useState(null);
 
+//handles "forgot submission"
   const handleForgotPassword = async (e) => {
-    setError("");
-    e.preventDefault();
+    setError(""); //clear previous error msgs
+    e.preventDefault(); 
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/requestPasswordReset`,
@@ -25,7 +28,7 @@ const ForgotPasswordModal = ({ setShowForgotPasswordModal }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            email,
+            email, //send user's email in payload
           }),
           credentials: "include",
         }
@@ -36,11 +39,11 @@ const ForgotPasswordModal = ({ setShowForgotPasswordModal }) => {
       if (response.ok) {
         setError("Reset password email sent. Please check your mail");
       } else {
-        setError(
+        setError( //show error msg from API response (if given)
           data?.message || "Reset password email send failed. Please try again."
         );
       }
-    } catch (err) {
+    } catch (err) { //unexpected errors
       console.error(err);
       setError("Something went wrong. Please try again.");
     }
