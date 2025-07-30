@@ -3,6 +3,7 @@
 import CustomToast from "@/components/CustomToast";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import UserLineGraph from "@/components/UserLineGraph";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
@@ -36,6 +37,14 @@ const ProjectAnalytics = () => {
       <ToastContainer/>
       <Navbar/>
       <div className="lg:min-h-screen w-full flex flex-col lg:flex-row bg-gray-900">
+        <div className="w-full lg:w-3/4 mx-auto mt-8">
+          <h2 className="text-2xl font-bold text-white mb-6">
+            User Trends 
+          </h2>
+          {analytics && (
+            <UserLineGraph data={analytics} />
+          )}
+        </div>
         <Footer/>
       </div>
     </>
