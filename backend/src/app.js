@@ -48,6 +48,6 @@ app.use("/api/v1/github", githubRouter);
 app.use("/api/v1/build", buildRouter);
 app.use("/api/v1/project", projectRouter);
 app.use("/api/v1/deployment", deploymentRouter);
-app.use("/api/v1/track", trackPageVisit);
+app.post("/api/v1/track", trackPageVisit);
 
 export { app };

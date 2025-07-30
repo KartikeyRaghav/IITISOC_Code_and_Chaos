@@ -13,6 +13,10 @@ const projectSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    isAutoDeploy: {
+      type: Boolean,
+      default: false,
+    },
     github: {
       repoName: {
         type: String,

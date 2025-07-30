@@ -71,7 +71,7 @@ function generateNginxConfig(subdomain, port, projectId) {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
 
-    sub_filter '</head>' '<script>window.__PROJECT_ID__="${projectId}";</script><script src="https://deploy.princecodes.online/api/analytics.js"></script></head>';
+    sub_filter '</head>' '<script>window.__PROJECT_ID__="${projectId}";</script><script src="https://deploy.princecodes.online/analytics.js"></script></head>';
     sub_filter_once off;
 
     proxy_set_header Accept-Encoding "";
