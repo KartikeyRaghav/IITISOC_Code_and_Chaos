@@ -1,16 +1,18 @@
 import { PageVisit } from "../models/pageVisit.model.js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
+import isbot from "isbot";
 
 export const trackPageVisit = asyncHandler(async (req, res) => {
   try {
-    console.log("request");
     const { projectId } = req.body;
-    console.log("projectId", projectId);
     const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
     const userAgent = req.headers["user-agent"];
     const referer = req.headers["referer"];
 
-    await PageVisit.create({ projectId, ip, userAgent, referer });
+    const isBotRequest = isbot(userAgent);
+
+    if (!isBotRequest)
+      await PageVisit.create({ projectId, ip, userAgent, referer });
     res.status(200).json({ success: true });
   } catch (error) {
     console.error(error);
