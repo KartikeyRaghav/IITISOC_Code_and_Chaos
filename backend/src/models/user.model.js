@@ -56,7 +56,6 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    profilePicture: { type: String, default: null },
     refreshToken: { type: String, default: null },
   },
   {

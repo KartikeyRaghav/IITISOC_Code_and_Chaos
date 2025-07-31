@@ -17,9 +17,7 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const userRouter = Router();
 
-userRouter
-  .route("/register")
-  .post(upload.fields([{ name: "profilePicture", maxCount: 1 }]), registerUser);
+userRouter.route("/register").post(registerUser);
 userRouter.route("/sendOtp").post(sendOtp);
 userRouter.route("/verifyOtp").post(verifyOtp);
 userRouter.route("/requestPasswordReset").post(requestPasswordReset);

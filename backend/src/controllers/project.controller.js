@@ -8,6 +8,7 @@ import { detectTechStackAndReturn } from "./build.controller.js";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
 import extract from "extract-zip";
+import fs from "fs";
 
 export const getAllProjects = asyncHandler(async (req, res) => {
   try {
@@ -139,6 +140,8 @@ export const createProjectByGithub = asyncHandler(async (req, res) => {
 
     await writeNginxConfig(name, livePort, project._id);
     await writeNginxConfig(name + "-preview", previewPort, project._id);
+
+    await fs.rmdirSync(clonedPath);
 
     res.status(200).json({ message: "Project created" });
   } catch (error) {

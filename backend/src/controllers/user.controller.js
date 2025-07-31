@@ -39,27 +39,9 @@ export const registerUser = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Email already in use" });
   }
 
-  // Handle profile picture upload to Cloudinary
-  const localProfilePicture = req.files?.profilePicture?.[0]?.path;
-  let profilePicture = null;
-  if (localProfilePicture) {
-    try {
-      const cloudinaryResponse = await uploadOnCloudinary(localProfilePicture);
-      if (!cloudinaryResponse) {
-        return res
-          .status(500)
-          .json({ message: "Failed to upload profile picture" });
-      }
-      profilePicture = cloudinaryResponse.url;
-    } catch (error) {
-      return res
-        .status(500)
-        .json({ message: "Error uploading profile picture to Cloudinary" });
-    }
-  }
 
   // Create user in DB
-  const user = await User.create({ password, fullName, email, profilePicture });
+  const user = await User.create({ password, fullName, email });
 
   // Fetch created user (without password or refreshToken)
   const createdUser = await User.findById(user._id).select(

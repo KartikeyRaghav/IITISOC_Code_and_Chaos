@@ -32,9 +32,7 @@ const AuthForms = ({
   //toggles for visibility of psws 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [profileImage, setProfileImage] = useState(null); //holds uploaded profile image
-  const [dragActive, setDragActive] = useState(false); //tracks drag-and-drop image upload region
-
+  
   //handles text field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,43 +43,6 @@ const AuthForms = ({
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(formData);
-  };
-
-  //handles an uploaded image file (validates it's an image)
-  const handleImageUpload = (file) => {
-    if (file.type.startsWith("image/")) {
-      setProfileImage(file);
-    }
-  };
-
-  //handles dropping a file in upload area
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setDragActive(false);
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
-      handleImageUpload(files[0]);
-    }
-  };
-
-  //indicates when drag region is active for UI feedback
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setDragActive(true);
-  };
-
-  //indicates when user leaves the drag region without dropping
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    setDragActive(false);
-  };
-
-  //handles standard file input change (fallback for drag-and-drop)
-  const handleFileInputChange = (e) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      handleImageUpload(files[0]);
-    }
   };
 
   const isSignup = type === "signup"; //derived: is the form for signup?
@@ -254,79 +215,6 @@ const AuthForms = ({
                   )}
                 </button>
               </div>
-            </div>
-          )}
-
-          {/* Profile Image Upload - Signup Only */}
-          {isSignup && (
-            <div className="space-y-2">
-              <label className="text-gray-300 font-medium text-sm flex items-center gap-2">
-                <Upload className="w-4 h-4 text-pink-400" />
-                Profile Picture{" "}
-                <span className="text-gray-500 text-xs">(optional)</span>
-              </label>
-
-              {/*if no image uploaded*/}
-              {!profileImage ? (
-                <div
-                  onDrop={handleDrop}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  className={`relative border-2 border-dashed rounded-xl p-6 text-center transition-all duration-300 cursor-pointer hover:border-purple-500/50 ${
-                    dragActive
-                      ? "border-purple-500 bg-purple-500/10"
-                      : "border-gray-600/50 bg-[#2c2f4a]/30"
-                  }`}
-                >
-                  {/*hidden file input*/}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileInputChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  {/*instruction for drag & drop*/}
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-full flex items-center justify-center border border-pink-500/30">
-                      <Upload className="w-6 h-6 text-pink-400" />
-                    </div>
-                    <div>
-                      <p className="text-white font-medium">
-                        Upload Profile Picture
-                      </p>
-                      <p className="text-gray-400 text-sm">
-                        Drag & drop or click to browse
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                //if image is uploaded, display file name and size with remove option*/
-                <div className="bg-[#2c2f4a]/80 rounded-xl p-4 border border-gray-600/30">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-                        <Check className="w-5 h-5 text-green-400" />
-                      </div>
-                      <div>
-                        <p className="text-white font-medium">
-                          {profileImage.name}
-                        </p>
-                        <p className="text-gray-400 text-sm">
-                          {(profileImage.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setProfileImage(null)}
-                      className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 transition-colors"
-                    >
-                      <AlertCircle className="w-4 h-4 text-red-400" />
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 

@@ -17,7 +17,6 @@ This backend powers a **cloud-based web deployment platform**, allowing users to
 
 - JWT-based login and registration
 - Access & Refresh tokens via HTTP-only cookies
-- Profile picture upload via Cloudinary
 
 ### 🧑‍💻 GitHub Integration
 
@@ -58,7 +57,6 @@ This backend powers a **cloud-based web deployment platform**, allowing users to
 | `repos`               | `Array<Object>` | Synced GitHub repos    |
 | `hasGithubPermission` | `Boolean`       | OAuth flag             |
 | `refreshToken`        | `String`        | JWT refresh token      |
-| `profilePicture`      | `String`        | Cloudinary URL         |
 
 ### 🧪 `Project`
 

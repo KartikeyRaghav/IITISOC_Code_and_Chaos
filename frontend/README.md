@@ -10,7 +10,6 @@ This is the **frontend** of a full-stack web deployment platform that lets users
 - **Tailwind CSS** – Utility-first styling
 - **Framer Motion** – Smooth animations
 - **Heroicons + Lucide** – Icon libraries
-- **Cloudinary** – Profile image uploads
 - **JWT Auth + Cookies** – Secure login sessions
 
 ---
@@ -41,7 +40,6 @@ src/
 ### 👤 Authentication
 
 - Login and register with JWT & refresh token (via cookies)
-- Profile picture upload using Cloudinary
 - Protected routes using `checkAuth.js`
 
 ### 🔗 GitHub Integration
