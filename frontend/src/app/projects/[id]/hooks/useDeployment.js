@@ -300,7 +300,8 @@ export const useDeployment = (
     if (!project) return;
     setIsBuilding(true);
     try {
-      await cloneRepo(project);
+      if (project.isGithub === true) await cloneRepo(project);
+      else await detectTechStack(project.clonedPath, project);
     } catch (error) {
       console.error(error);
     }
