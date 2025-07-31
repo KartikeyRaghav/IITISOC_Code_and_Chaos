@@ -69,6 +69,19 @@ function generateNginxConfig(subdomain, port, projectId) {
   listen 80;
   server_name ${subdomain}.deploy.princecodes.online;
 
+  # Redirect all HTTP to HTTPS
+  return 301 https://${subdomain}.deploy.princecodes.online$request_uri;
+}
+
+server {
+  listen 443 ssl;
+  server_name ${subdomain}.deploy.princecodes.online;
+
+  ssl_certificate /etc/letsencrypt/live/deploy.princecodes.online/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/deploy.princecodes.online/privkey.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_prefer_server_ciphers on;
+
   location / {
     proxy_pass http://localhost:${port};
     proxy_set_header Host $host;
@@ -79,7 +92,7 @@ function generateNginxConfig(subdomain, port, projectId) {
     sub_filter '</head>' '<script>window.__PROJECT_ID__="${projectId}";</script><script src="https://deploy.princecodes.online/analytics.js"></script></head>';
     sub_filter_once off;
 
-    add_header Strict-Transport-Security "";
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
     proxy_set_header Accept-Encoding "";
   }
 }`;

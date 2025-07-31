@@ -1,7 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 import { User } from "../models/user.model.js";
 import { Deployment } from "../models/deployment.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.util.js";
 import jwt from "jsonwebtoken";
 import { Project } from "../models/project.model.js";
 import nodemailer from "nodemailer";

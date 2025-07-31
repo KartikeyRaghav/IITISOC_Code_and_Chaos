@@ -20,7 +20,6 @@ _Ignite your web presence_
 ![JavaScript](https://img.shields.io/badge/JavaScript-yellow?logo=javascript)
 ![Nodemon](https://img.shields.io/badge/Nodemon-green?logo=nodemon)
 ![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)
-![Cloudinary](https://img.shields.io/badge/Cloudinary-blue?logo=cloudinary)
 ![ESLint](https://img.shields.io/badge/ESLint-purple?logo=eslint)
 
 ---
@@ -104,7 +103,6 @@ NGINX (Reverse Proxy)
 - npm ≥ v6
 - Docker & Docker CLI
 - MongoDB Database
-- Cloudinary Account
 - GitHub OAuth App
 
 ---
@@ -124,10 +122,6 @@ MONGODB_URI=your_mongo_uri
 
 ACCESS_TOKEN_SECRET=...
 REFRESH_TOKEN_SECRET=...
-
-CLOUDINARY_CLOUD_NAME=...
-CLOUDINARY_API_KEY=...
-CLOUDINARY_API_SECRET=...
 
 GITHUB_OAUTH_CLIENT_ID=...
 GITHUB_OAUTH_CLIENT_SECRET=...
@@ -160,11 +154,11 @@ npm run dev
 
 | Layer        | Tech                                                                      |
 | ------------ | ------------------------------------------------------------------------- |
-| Frontend     | React.js (App Router), Tailwind CSS, Framer Motion, Cloudinary, ShadCN/UI |
+| Frontend     | React.js (App Router), Tailwind CSS, Framer Motion, ShadCN/UI             |
 | Backend      | Node.js, Express, MongoDB, Mongoose, Multer                               |
 | Auth         | JWT, Refresh Tokens, Cookies                                              |
 | DevOps       | Docker, NGINX, get-port                                                   |
-| Integrations | GitHub OAuth, Cloudinary                                                  |
+| Integrations | GitHub OAuth                                                              |
 
 ---
 
