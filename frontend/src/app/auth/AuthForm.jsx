@@ -119,6 +119,7 @@ const AuthForms = ({
         <div className="mb-8">
           <div className="bg-[#2c2f4a]/50 rounded-2xl p-2 border border-gray-600/30">
             <div className="flex">
+              {/*login button; active if not on signup*/}
               <button
                 type="button"
                 onClick={onToggleForm}
@@ -131,6 +132,7 @@ const AuthForms = ({
                 <LogIn className="w-4 h-4" />
                 Login
               </button>
+              {/*signup button; active if on signup*/}
               <button
                 type="button"
                 onClick={onToggleForm}
@@ -264,6 +266,7 @@ const AuthForms = ({
                 <span className="text-gray-500 text-xs">(optional)</span>
               </label>
 
+              {/*if no image uploaded*/}
               {!profileImage ? (
                 <div
                   onDrop={handleDrop}
@@ -275,12 +278,14 @@ const AuthForms = ({
                       : "border-gray-600/50 bg-[#2c2f4a]/30"
                   }`}
                 >
+                  {/*hidden file input*/}
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleFileInputChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
+                  {/*instruction for drag & drop*/}
                   <div className="flex flex-col items-center gap-3">
                     <div className="w-12 h-12 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-full flex items-center justify-center border border-pink-500/30">
                       <Upload className="w-6 h-6 text-pink-400" />
@@ -296,6 +301,7 @@ const AuthForms = ({
                   </div>
                 </div>
               ) : (
+                //if image is uploaded, display file name and size with remove option*/
                 <div className="bg-[#2c2f4a]/80 rounded-xl p-4 border border-gray-600/30">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
