@@ -13,6 +13,7 @@ import {
 } from "./deployment.controller.js";
 import { Project } from "../models/project.model.js";
 import { Deployment } from "../models/deployment.model.js";
+import { rm } from "fs/promises";
 
 // Get the current directory of the file (for ES Modules)
 const __filename = fileURLToPath(import.meta.url);
@@ -267,6 +268,8 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Missing deployment id" });
   }
 
+  const project = await Project.findOne({ name: projectName });
+
   const deployment = await Deployment.findById(deploymentId);
   const imageName = `app-${projectName.toLowerCase()}-${Date.now()}`;
 
@@ -316,6 +319,9 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
         deployment.status = "failed";
         res.write(`[ERROR] Step failed with code ${code}\n\n`);
       }
+
+      await rm(project.clonedPath, { recursive: true, force: true });
+
       await deployment.save({
         validateBeforeSave: false,
         optimisticConcurrency: false,
