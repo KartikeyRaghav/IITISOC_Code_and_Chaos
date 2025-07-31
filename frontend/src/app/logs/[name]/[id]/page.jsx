@@ -139,6 +139,7 @@ const page = () => {
     return "info";
   };
 
+  //map log line to CSS text color
   const getLogLineColor = (type) => {
     switch (type) {
       case "success":
@@ -152,6 +153,7 @@ const page = () => {
     }
   };
 
+  //show loading spinner while verifying auth
   if (isAuthenticated === null) {
     return <CustomLoader />;
   }
@@ -161,14 +163,17 @@ const page = () => {
       <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3] py-6">
         <Navbar />
         <div className="max-w-6xl px-2 mt-[80px] mx-auto">
+          {/*header with back button and title*/}
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-4">
+              {/*back button navigates to prev page*/}
               <button
                 onClick={() => router.back()}
                 className="p-2 rounded-xl bg-[#2c2f4a]/50 hover:bg-[#2c2f4a]/80 border border-gray-600/30 text-gray-300 hover:text-white transition-all duration-300"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
+              {/*title*/}
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"></div>
                 <h1 className="text-4xl font-bold text-white bg-gradient-to-r from-blue-400 via-purple-400 to-purple-600 bg-clip-text">
@@ -180,8 +185,10 @@ const page = () => {
           </div>
 
           <div className="space-y-8">
+            {/*deployment details panel*/}
             <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-8 border border-purple-500/20 backdrop-blur-sm">
               <div className="flex flex-wrap items-start justify-between mb-6">
+                {/*deployment version and status*/}
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-xl flex items-center justify-center shadow-lg">
                     <Rocket className="w-6 h-6 text-white" />
@@ -211,6 +218,7 @@ const page = () => {
                 </div>
               </div>
 
+              {/*start time, end time and rollback info grid*/}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Start Time */}
                 <div className="bg-[#2c2f4a]/50 rounded-2xl p-5 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300">
@@ -246,6 +254,7 @@ const page = () => {
                   </div>
                 </div>
 
+                {/*rollback availability*/}
                 <div className="bg-[#2c2f4a]/50 rounded-2xl p-5 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
@@ -298,6 +307,7 @@ const page = () => {
                     </div>
                   </div>
 
+                  {/*button to expand/collapse logs*/}
                   <button
                     onClick={() => setExpandedLogs(!expandedLogs)}
                     className="px-4 ml-auto py-2 rounded-lg bg-gray-700/50 hover:bg-gray-700/80 border border-gray-600/30 text-gray-300 hover:text-white transition-all duration-300 text-sm font-medium"
@@ -317,6 +327,7 @@ const page = () => {
                     >
                       <div className="space-y-4">
                         {deployment.logs.map((logEntry, index) => {
+                          //split log into lines for better formatting*/
                           const logLines = parseLogContent(logEntry.log);
                           return (
                             <div
@@ -360,6 +371,7 @@ const page = () => {
                       </div>
                     </div>
                   ) : (
+                    //show if no logs present
                     <div className="text-center py-12">
                       <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-700/50 rounded-full mb-4">
                         <FileText className="w-8 h-8 text-gray-500" />
@@ -378,6 +390,7 @@ const page = () => {
           </div>
         </div>
       </div>
+      {/*page footer*/}
       <Footer />
     </>
   );
