@@ -35,7 +35,7 @@ const ProjectDetails = () => {
     handleAutoDeplyToggle,
   } = useProjectDetails();
 
-  const { handleBuildAndPreview, deploy } = useDeployment(
+  const { handleBuildAndPreview, deploy, onDeploymentStop } = useDeployment(
     projectName,
     setLogs,
     setIsBuilding,
@@ -113,6 +113,7 @@ const ProjectDetails = () => {
                 onCopyToClipboard={copyToClipboard}
                 onDeploy={deploy}
                 project={project}
+                onDeploymentStop={onDeploymentStop}
               />
 
               <div>

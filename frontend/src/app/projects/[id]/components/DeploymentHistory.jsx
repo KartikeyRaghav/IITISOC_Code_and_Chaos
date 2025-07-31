@@ -9,6 +9,7 @@ const DeploymentHistory = ({
   onCopyToClipboard,
   onDeploy,
   project,
+  onDeploymentStop,
 }) => {
   if (!deployments || deployments.length === 0) {
     return null;
@@ -44,6 +45,7 @@ const DeploymentHistory = ({
               onCopyToClipboard={onCopyToClipboard}
               onDeploy={onDeploy}
               project={project}
+              onDeploymentStop={onDeploymentStop}
             />
           ))}
         </div>

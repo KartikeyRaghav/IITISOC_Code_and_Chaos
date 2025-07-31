@@ -7,6 +7,7 @@ import {
   Rocket,
   History,
   ExternalLink,
+  StopCircle,
 } from "lucide-react";
 
 const ActionButtons = ({
@@ -16,6 +17,7 @@ const ActionButtons = ({
   onCopyToClipboard,
   onDeploy,
   project,
+  onDeploymentStop,
 }) => {
   return (
     <div className="flex items-center gap-3 flex-wrap pt-4 border-t border-gray-600/20">
@@ -64,33 +66,42 @@ const ActionButtons = ({
       )}
 
       {deployment.status === "deployed" && (
-        <div className="flex items-center gap-2">
-          <a
-            href={`http://${projectName}.deploy.princecodes.online`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 font-medium transition-colors"
-          >
-            <Globe className="w-4 h-4" />
-            View Live
-            <ExternalLink className="w-3 h-3" />
-          </a>
+        <div className="flex gap-3">
+          <div className="flex items-center gap-2">
+            <a
+              href={`http://${projectName}.deploy.princecodes.online`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 font-medium transition-colors"
+            >
+              <Globe className="w-4 h-4" />
+              View Live
+              <ExternalLink className="w-3 h-3" />
+            </a>
+            <button
+              onClick={() =>
+                onCopyToClipboard(
+                  `http://${projectName}.deploy.princecodes.online`,
+                  "deploy"
+                )
+              }
+              className="p-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 transition-colors"
+              title="Copy live URL"
+            >
+              {copiedUrl ===
+              `deploy-http://${projectName}.deploy.princecodes.online` ? (
+                <Check className="w-4 h-4 text-emerald-400" />
+              ) : (
+                <Copy className="w-4 h-4 text-emerald-400" />
+              )}
+            </button>
+          </div>
           <button
-            onClick={() =>
-              onCopyToClipboard(
-                `http://${projectName}.deploy.princecodes.online`,
-                "deploy"
-              )
-            }
-            className="p-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 transition-colors"
-            title="Copy live URL"
+            onClick={() => onDeploymentStop(deployment._id)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 font-medium transition-colors"
           >
-            {copiedUrl ===
-            `deploy-http://${projectName}.deploy.princecodes.online` ? (
-              <Check className="w-4 h-4 text-emerald-400" />
-            ) : (
-              <Copy className="w-4 h-4 text-emerald-400" />
-            )}
+            <StopCircle className="w-4 h-4" />
+            Stop
           </button>
         </div>
       )}

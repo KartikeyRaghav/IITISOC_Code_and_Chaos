@@ -10,6 +10,7 @@ const DeploymentCard = ({
   onCopyToClipboard,
   onDeploy,
   project,
+  onDeploymentStop,
 }) => {
   const formatDuration = (startTime, endTime) => {
     const start = new Date(startTime);
@@ -85,6 +86,7 @@ const DeploymentCard = ({
         onCopyToClipboard={onCopyToClipboard}
         onDeploy={onDeploy}
         project={project}
+        onDeploymentStop={onDeploymentStop}
       />
     </div>
   );

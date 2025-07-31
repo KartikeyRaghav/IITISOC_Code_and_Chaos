@@ -276,6 +276,22 @@ export const useDeployment = (
     }
   };
 
+  const onDeploymentStop = async (deploymentId) => {
+    try {
+      await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/deployment/${projectName}/stop`,
+        {
+          credentials: "include",
+          method: "DELETE",
+        }
+      );
+      await getDeployments();
+    } catch (error) {
+      console.error(error);
+      CustomToast("Error stopping container");
+    }
+  };
+
   const handleBuildAndPreview = async (project) => {
     setIsError(false);
     if (!project) return;
@@ -290,5 +306,6 @@ export const useDeployment = (
   return {
     handleBuildAndPreview,
     deploy,
+    onDeploymentStop,
   };
 };

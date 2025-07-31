@@ -465,3 +465,11 @@ export const deployAndReturn = async (deploymentId, projectName) => {
     return null;
   }
 };
+
+export const stopDeployment = asyncHandler(async (req, res) => {
+  const { projectName } = req.params;
+
+  await removePreviousDeployment(projectName, true);
+
+  res.status(200).json({ message: "successful" });
+});

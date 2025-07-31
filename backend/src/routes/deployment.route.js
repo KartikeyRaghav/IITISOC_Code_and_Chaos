@@ -6,6 +6,7 @@ import {
   getAllDeployments,
   getDeployment,
   getVersion,
+  stopDeployment,
   updateDeployment,
 } from "../controllers/deployment.controller.js";
 
@@ -19,5 +20,6 @@ deploymentRouter.route("/update").put(updateDeployment);
 deploymentRouter.route("/all").get(getAllDeployments);
 deploymentRouter.route("/").get(getDeployment);
 deploymentRouter.route("/deploy").post(deploy);
+deploymentRouter.route("/:projectName/stop").delete(stopDeployment);
 
 export default deploymentRouter;
