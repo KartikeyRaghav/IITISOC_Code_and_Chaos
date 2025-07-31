@@ -102,6 +102,7 @@ const ProjectDetails = () => {
                     onViewAnalytics={() =>
                       router.push(`/analytics/${project._id}`)
                     }
+                    showAutoDeploy={project.isGithub}
                   />
                 </div>
               </div>

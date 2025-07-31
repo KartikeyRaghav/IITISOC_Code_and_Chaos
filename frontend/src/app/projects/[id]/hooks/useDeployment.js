@@ -276,7 +276,7 @@ export const useDeployment = (
     }
   };
 
-  const onDeploymentStop = async (deploymentId) => {
+  const onDeploymentStop = async () => {
     try {
       setIsBuilding(true);
       await fetch(

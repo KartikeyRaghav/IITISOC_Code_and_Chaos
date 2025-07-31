@@ -9,6 +9,7 @@ const BuildDeployCard = ({
   isAutoDeployEnabled,
   onAutoDeployToggle,
   onViewAnalytics,
+  showAutoDeploy,
 }) => {
   return (
     <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-6 border border-purple-500/20 backdrop-blur-sm">
@@ -21,6 +22,7 @@ const BuildDeployCard = ({
         </div>
 
         {/* Analytics Button */}
+
         <button
           onClick={onViewAnalytics}
           className="flex items-center gap-2 px-3 py-2 bg-[#2c2f4a]/70 hover:bg-[#2c2f4a] rounded-xl border border-gray-600/30 hover:border-blue-400/50 text-gray-300 hover:text-blue-400 transition-all duration-300 group"
@@ -32,41 +34,43 @@ const BuildDeployCard = ({
       </div>
 
       {/* Auto-deployment Toggle */}
-      <div className="mb-6 p-4 bg-[#2c2f4a]/30 rounded-2xl border border-gray-600/20">
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-white font-medium">Auto-deployment</span>
-            <span className="text-xs text-gray-400">
-              Automatically deploy on code changes
-            </span>
-          </div>
+      {showAutoDeploy && (
+        <div className="mb-6 p-4 bg-[#2c2f4a]/30 rounded-2xl border border-gray-600/20">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
+              <span className="text-white font-medium">Auto-deployment</span>
+              <span className="text-xs text-gray-400">
+                Automatically deploy on code changes
+              </span>
+            </div>
 
-          {/* Custom Toggle Switch */}
-          <button
-            onClick={() => onAutoDeployToggle(!isAutoDeployEnabled)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-[#23243a] ${
-              isAutoDeployEnabled
-                ? "bg-gradient-to-r from-[#00aaff] to-[#9a00ff]"
-                : "bg-gray-600"
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform duration-300 ${
-                isAutoDeployEnabled ? "translate-x-6" : "translate-x-1"
+            {/* Custom Toggle Switch */}
+            <button
+              onClick={() => onAutoDeployToggle(!isAutoDeployEnabled)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-[#23243a] ${
+                isAutoDeployEnabled
+                  ? "bg-gradient-to-r from-[#00aaff] to-[#9a00ff]"
+                  : "bg-gray-600"
               }`}
-            />
-          </button>
-        </div>
-
-        {isAutoDeployEnabled && (
-          <div className="mt-2 flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-            <span className="text-xs text-green-400 font-medium">
-              Auto-deployment active
-            </span>
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform duration-300 ${
+                  isAutoDeployEnabled ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
           </div>
-        )}
-      </div>
+
+          {isAutoDeployEnabled && (
+            <div className="mt-2 flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-xs text-green-400 font-medium">
+                Auto-deployment active
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
       <button
         onClick={onBuildAndPreview}
