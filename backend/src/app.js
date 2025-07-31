@@ -53,6 +53,7 @@ import projectRouter from "./routes/project.route.js";
 import deploymentRouter from "./routes/deployment.route.js";
 import { trackPageVisit } from "./controllers/pageVisit.controller.js";
 import analyticsRouter from "./routes/analytics.route.js";
+import { Project } from "./models/project.model.js";
 
 // Route Middleware Setup
 app.use("/api/v1/user", userRouter);
@@ -62,5 +63,15 @@ app.use("/api/v1/project", projectRouter);
 app.use("/api/v1/deployment", deploymentRouter);
 app.post("/api/v1/track", trackPageVisit);
 app.use("/api/v1/analytics", analyticsRouter);
+app.get("/api/v1/resolve/:fullSubdomain", async (req, res) => {
+  const { fullSubdomain } = req.params;
+  const [subdomain, preview] = fullSubdomain.split("-")[0];
+
+  const project = await Project.findOne({ name: subdomain });
+  if (!project) return res.status(404).json({ error: "Not found" });
+
+  if (preview) return res.json({ port: project.previewPort });
+  return res.json({ port: project.livePort });
+});
 
 export { app };
