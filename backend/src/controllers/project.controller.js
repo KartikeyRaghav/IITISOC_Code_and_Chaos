@@ -8,7 +8,6 @@ import { detectTechStackAndReturn } from "./build.controller.js";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
 import extract from "extract-zip";
-import fs from "fs";
 
 export const getAllProjects = asyncHandler(async (req, res) => {
   try {
