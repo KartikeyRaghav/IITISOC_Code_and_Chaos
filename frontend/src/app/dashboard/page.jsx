@@ -157,12 +157,14 @@ const Dashboard = () => {
 
   return (
     <>
-      <ToastContainer />
+      <ToastContainer /> {/*for toast notifs*/}
       <Navbar />
       <div className="lg:min-h-screen w-full flex flex-col lg:flex-row bg-gray-900">
+        {/*left: app intro*/}
         <div className="w-full mt-[80px] lg:mt-0 lg:w-3/4">
           <AppIntro />
         </div>
+        {/*right: action panel for GitHub connect, repo fetch, install, etc.*/}
         <div className="w-full lg:w-1/4">
           <ActionPanel
             onGetRepos={getGithub}
@@ -174,6 +176,7 @@ const Dashboard = () => {
           />
         </div>
       </div>
+      {/*repos with smooth scroll into view after loading*/}
       <main className="w-full">
         <DashboardMain repos={repos} url={url} repoRef={repoRef} />
       </main>
