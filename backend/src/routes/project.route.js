@@ -6,6 +6,7 @@ import {
   createProjectByZip,
   getAllProjects,
   getProject,
+  toggleAutoDeploy,
 } from "../controllers/project.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
@@ -20,5 +21,6 @@ projectRouter.route("/createByGithub").post(createProjectByGithub);
 projectRouter
   .route("/createByZip")
   .post(upload.single("file"), createProjectByZip);
+projectRouter.route("/toggleAutoDeploy").post(toggleAutoDeploy);
 
 export default projectRouter;

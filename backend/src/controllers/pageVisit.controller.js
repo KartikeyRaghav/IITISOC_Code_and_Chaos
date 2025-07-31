@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { PageVisit } from "../models/pageVisit.model.js";
+import { Project } from "../models/project.model.js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 import { isbot } from "isbot";
 
@@ -32,6 +33,8 @@ export const getAnalytics = asyncHandler(async (req, res) => {
   const now = new Date();
   const startDate = new Date(now);
   startDate.setDate(startDate.getDate() - days);
+
+  const project = await Project.findOne({ _id: projectId });
 
   const visits = await PageVisit.aggregate([
     {
@@ -108,6 +111,63 @@ export const getAnalytics = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    data: visits[0], // because facet returns a single element array
+    data: visits[0],
+    projectName: project.name,
+  });
+});
+
+export const getUserProjectsWithAnalytics = asyncHandler(async (req, res) => {
+  // 1. Get all projects by user
+  const projects = await Project.find({ createdBy: req.user._id });
+
+  const projectIds = projects.map((proj) => proj._id);
+
+  // 2. Get analytics data grouped by projectId
+  const analytics = await PageVisit.aggregate([
+    {
+      $match: {
+        projectId: { $in: projectIds },
+      },
+    },
+    {
+      $group: {
+        _id: "$projectId",
+        totalVisits: { $sum: 1 },
+        uniqueVisitors: { $addToSet: "$ip" }, // collect unique IPs
+        lastVisitedAt: { $max: "$timestamp" },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        totalVisits: 1,
+        uniqueVisitors: { $size: "$uniqueVisitors" },
+        lastVisitedAt: 1,
+      },
+    },
+  ]);
+
+  // 3. Map analytics to project list
+  const analyticsMap = new Map(analytics.map((a) => [a._id.toString(), a]));
+
+  const result = projects.map((project) => {
+    const data = analyticsMap.get(project._id.toString()) || {
+      totalVisits: 0,
+      uniqueVisitors: 0,
+      lastVisitedAt: null,
+    };
+
+    return {
+      projectId: project._id,
+      name: project.name,
+      totalVisits: data.totalVisits,
+      uniqueVisitors: data.uniqueVisitors,
+      lastVisitedAt: data.lastVisitedAt,
+    };
+  });
+
+  res.status(200).json({
+    success: true,
+    data: result,
   });
 });

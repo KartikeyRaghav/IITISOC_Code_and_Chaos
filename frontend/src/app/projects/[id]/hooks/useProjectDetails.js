@@ -12,6 +12,7 @@ export const useProjectDetails = () => {
   const [isBuilding, setIsBuilding] = useState(false);
   const [isError, setIsError] = useState(false);
   const [copiedUrl, setCopiedUrl] = useState(null);
+  const [isAutoDeploy, setIsAutoDeploy] = useState(false);
 
   const projectName = usePathname().split("/")[2];
   const router = useRouter();
@@ -24,8 +25,10 @@ export const useProjectDetails = () => {
           { credentials: "include" }
         );
         const data = await response.json();
-        if (data) setProject(data);
-        else {
+        if (data) {
+          setProject(data);
+          setIsAutoDeploy(data.isAutoDeploy);
+        } else {
           CustomToast("Error fetching project");
           setTimeout(() => {
             router.replace("/projects");
@@ -70,10 +73,33 @@ export const useProjectDetails = () => {
     }
   };
 
+  const handleAutoDeplyToggle = async (isAutoDeploy) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/toggleAutoDeploy`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            projectId: project._id,
+            isAutoDeploy,
+          }),
+          credentials: "include",
+        }
+      );
+      const data = await response.json();
+      setIsAutoDeploy(data.isAutoDeploy);
+    } catch (error) {
+      console.error(error);
+      CustomToast("Error updating");
+    }
+  };
+
   return {
     project,
     deployments,
     logs,
+    isAutoDeploy,
     setLogs,
     isBuilding,
     setIsBuilding,
@@ -84,5 +110,6 @@ export const useProjectDetails = () => {
     projectName,
     router,
     getDeployments,
+    handleAutoDeplyToggle,
   };
 };

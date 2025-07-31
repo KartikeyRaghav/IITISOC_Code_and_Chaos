@@ -5,13 +5,10 @@ import CustomToast from "@/components/CustomToast";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import {
-  LineChart,
-  Line,
   CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   AreaChart,
   Area,
@@ -27,6 +24,7 @@ import {
   Globe,
   Calendar,
   BarChart3,
+  ArrowLeft,
 } from "lucide-react";
 
 export const getAnalytics = async (projectId) => {
@@ -38,7 +36,7 @@ export const getAnalytics = async (projectId) => {
       }
     );
     const data = await response.json();
-    return data.data;
+    return data;
   } catch (error) {
     console.error(error);
     CustomToast("Error fetching analytics data");
@@ -48,6 +46,7 @@ export const getAnalytics = async (projectId) => {
 const ProjectAnalytics = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const { projectId } = useParams();
+  const [projectName, setProjectName] = useState("");
   const router = useRouter();
   const [analytics, setAnalytics] = useState({
     daily: [],
@@ -121,7 +120,8 @@ const ProjectAnalytics = () => {
       try {
         const analytic = await getAnalytics(projectId);
         if (analytic) {
-          setAnalytics(analytic);
+          setAnalytics(analytic.data);
+          setProjectName(analytic.projectName);
         }
       } catch (error) {
         console.error(error);
@@ -148,11 +148,14 @@ const ProjectAnalytics = () => {
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-xl flex items-center justify-center shadow-lg">
-                    <BarChart3 className="w-6 h-6 text-white" />
-                  </div>
-                  <h1 className="text-5xl font-bold text-white bg-gradient-to-r from-blue-400 via-purple-400 to-purple-600 bg-clip-text">
-                    Analytics Dashboard
+                  <button
+                    onClick={() => router.back()}
+                    className="w-10 h-10 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-xl flex items-center justify-center shadow-lg"
+                  >
+                    <ArrowLeft className="w-5 h-5 text-white" />
+                  </button>
+                  <h1 className="text-4xl font-bold text-white bg-gradient-to-r from-blue-400 via-purple-400 to-purple-600 bg-clip-text">
+                    {projectName} Dashboard
                   </h1>
                 </div>
                 <div className="h-1 w-32 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mb-4"></div>

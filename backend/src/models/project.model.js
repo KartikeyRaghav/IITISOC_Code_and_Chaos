@@ -58,11 +58,6 @@ const projectSchema = new Schema(
       required: true,
       trim: true,
     },
-    customDomain: {
-      type: String,
-      trim: true,
-      default: null,
-    },
     livePort: {
       type: Number,
       default: null,
@@ -79,11 +74,6 @@ const projectSchema = new Schema(
       type: String,
       enum: ["pending", "issued", "failed"],
       default: "pending",
-    },
-    webhook: {
-      type: Schema.Types.ObjectId,
-      ref: "Webhook",
-      default: null,
     },
   },
   {

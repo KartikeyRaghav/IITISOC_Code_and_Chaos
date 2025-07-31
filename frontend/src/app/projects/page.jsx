@@ -48,6 +48,7 @@ const Project = () => {
           }
         );
         const data = await response.json();
+        console.log(data);
         setProjects(data);
       } catch (error) {
         CustomToast("Error fetching your projects");
@@ -249,7 +250,7 @@ const Project = () => {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-400 mb-2">
-                    {projects.filter((p) => p.status === "deployed").length}
+                    {projects.filter((p) => p.isLive === true).length}
                   </div>
                   <div className="text-gray-400 text-sm uppercase tracking-wide">
                     Deployed
@@ -257,7 +258,7 @@ const Project = () => {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-purple-400 mb-2">
-                    {projects.filter((p) => p.status === "active").length}
+                    {projects.filter((p) => p.isLive === true).length}
                   </div>
                   <div className="text-gray-400 text-sm uppercase tracking-wide">
                     Active

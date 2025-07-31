@@ -77,6 +77,11 @@ export const githubWebhookHandler = asyncHandler(async (req, res) => {
       }
       console.log("project found");
 
+      if (!project.isAutoDeploy) {
+        console.log("not auto deployed");
+        return res.status(200).json({ message: "No auto deployment" });
+      }
+
       // Optional: only auto-build for specific branch
       if (project.github.branch !== branch) {
         console.log("branch not same");

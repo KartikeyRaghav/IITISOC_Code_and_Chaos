@@ -13,6 +13,7 @@ import ProjectInfo from "./components/ProjectInfo";
 import BuildDeployCard from "./components/BuildDeployCard";
 import DeploymentHistory from "./components/DeploymentHistory";
 import EnhancedLogDisplay from "@/components/EnhancedLogDisplay";
+import CustomToast from "@/components/CustomToast";
 
 const ProjectDetails = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -30,6 +31,8 @@ const ProjectDetails = () => {
     copyToClipboard,
     projectName,
     router,
+    isAutoDeploy,
+    handleAutoDeplyToggle,
   } = useProjectDetails();
 
   const { handleBuildAndPreview, deploy } = useDeployment(
@@ -94,6 +97,11 @@ const ProjectDetails = () => {
                     onBuildAndPreview={onBuildAndPreview}
                     logsCount={logs.length}
                     deploymentsCount={deployments?.length || 0}
+                    isAutoDeployEnabled={isAutoDeploy}
+                    onAutoDeployToggle={handleAutoDeplyToggle}
+                    onViewAnalytics={() =>
+                      router.push(`/analytics/${project._id}`)
+                    }
                   />
                 </div>
               </div>

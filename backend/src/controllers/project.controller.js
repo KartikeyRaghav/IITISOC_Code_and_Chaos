@@ -155,3 +155,14 @@ export const createProjectByZip = asyncHandler(async (req, res) => {
     originalName: req.file.originalname,
   });
 });
+
+export const toggleAutoDeploy = asyncHandler(async (req, res) => {
+  const { projectId, isAutoDeploy } = req.body;
+
+  const project = await Project.findByIdAndUpdate(
+    { _id: projectId },
+    { $set: { isAutoDeploy } }
+  );
+
+  res.status(200).json({ isAutoDeploy: project.isAutoDeploy });
+});
