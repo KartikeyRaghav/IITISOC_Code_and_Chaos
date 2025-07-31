@@ -67,6 +67,7 @@ export const githubWebhookHandler = asyncHandler(async (req, res) => {
       const project = await Project.findOne({
         "github.repoName": repoName,
         createdBy: user,
+        isGithub: true,
       });
 
       if (!project) {

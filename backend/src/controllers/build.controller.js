@@ -135,7 +135,7 @@ export const detectTechStack = asyncHandler(async (req, res) => {
   res.status(400).json({ message: "unknown" });
 });
 
-const detectTechStackAndReturn = async (clonedPath) => {
+export const detectTechStackAndReturn = async (clonedPath) => {
   if (!clonedPath || !fs.existsSync(clonedPath)) {
     return null;
   }

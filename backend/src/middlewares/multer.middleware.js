@@ -31,14 +31,16 @@ export const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 }, // 10MB
   fileFilter: (req, file, cb) => {
     const allowed = [
-      "image/png",
-      "image/jpeg",
+      "text/html",
       "application/zip",
+      "application/x-zip-compressed",
       "application/x-tar",
+      "application/octet-stream",
     ];
     if (allowed.includes(file.mimetype)) {
       cb(null, true);
     } else {
+      console.log("Rejected file mimetype:", file.mimetype);
       cb(new Error("Unsupported file type"), false);
     }
   },

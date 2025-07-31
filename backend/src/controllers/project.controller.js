@@ -4,6 +4,10 @@ import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 import fs from "fs";
 import { execSync } from "child_process";
+import { detectTechStackAndReturn } from "./build.controller.js";
+import { v4 as uuidv4 } from "uuid";
+import path from "path";
+import extract from "extract-zip";
 
 export const getAllProjects = asyncHandler(async (req, res) => {
   try {
@@ -144,17 +148,65 @@ export const createProjectByGithub = asyncHandler(async (req, res) => {
 });
 
 export const createProjectByZip = asyncHandler(async (req, res) => {
-  const file = req.file;
+  try {
+    const file = req.file;
+    console.log(file);
+    console.log(req.body.name);
+    if (!file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
 
-  if (!file) {
-    return res.status(400).json({ message: "No file uploaded" });
+    // 1. Create a unique directory to unzip
+    const unzipPath = path.resolve(`./temp/unzipped/${uuidv4()}`);
+    fs.mkdirSync(unzipPath, { recursive: true });
+
+    // 2. Unzip if it's a zip file
+    if (
+      file.mimetype === "application/zip" ||
+      file.originalname.endsWith(".zip")
+    ) {
+      await extract(file.path, { dir: unzipPath });
+    } else {
+      // It's a single HTML file
+      fs.copyFileSync(file.path, path.join(unzipPath, "index.html"));
+    }
+
+    // 3. Detect framework
+    const framework = await detectTechStackAndReturn(unzipPath);
+
+    // 4. Validate framework
+    if (
+      !["react", "next", "static", "vue", "angular", "node-api"].includes(
+        framework
+      )
+    ) {
+      return res
+        .status(400)
+        .json({ error: `Unsupported tech stack: ${framework}` });
+    }
+
+    const livePort = await getPort();
+    const previewPort = await getPort();
+
+    // 5. Create
+    const project = await Project.create({
+      name: req.body.name, // Get name from formData
+      isGithub: false,
+      clonedPath: unzipPath,
+      createdBy: req.user._id, // if auth middleware is used
+      framework,
+      livePort,
+      previewPort,
+    });
+
+    await writeNginxConfig(name, livePort, project._id);
+    await writeNginxConfig(name + "-preview", previewPort, project._id);
+
+    return res.status(201).json({ success: true, project });
+  } catch (error) {
+    console.error("Error creating project by zip:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
-
-  res.status(200).json({
-    message: "File uploaded successfully",
-    filePath: req.file.path,
-    originalName: req.file.originalname,
-  });
 });
 
 export const toggleAutoDeploy = asyncHandler(async (req, res) => {

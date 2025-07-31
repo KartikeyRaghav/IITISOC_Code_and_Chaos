@@ -259,16 +259,19 @@ const CreateProject = () => {
           }
           const formData = new FormData();
           formData.append("zip", uploadedFile);
+          console.log(uploadedFile);
+          formData.append("name", formData.name);
+          console.log(formData);
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/createByZip`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/createByZip`,
             {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
               credentials: "include",
               body: formData,
             }
           );
           const data = await response.json();
+          console.log(data);
         }
       } catch (error) {
         console.error(error);
@@ -280,6 +283,7 @@ const CreateProject = () => {
 
   const detectTechStack = async (clonedPath) => {
     try {
+      console.log("checking");
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/build/detectTechStack`,
         {
@@ -295,7 +299,7 @@ const CreateProject = () => {
         }
       );
       const data = await response.json();
-      if (data.stack !== "unknown") {
+      if (data.stack !== "unknown" && data.stack) {
         createProject(data.stack, clonedPath);
       } else {
         CustomToast(
@@ -337,6 +341,7 @@ const CreateProject = () => {
                 const match = text.match(/\[CLONE_COMPLETE\] (.*)/);
                 if (match) {
                   let fullTargetDir = match[1];
+                  console.log("cloned");
                   detectTechStack(fullTargetDir);
                 }
 

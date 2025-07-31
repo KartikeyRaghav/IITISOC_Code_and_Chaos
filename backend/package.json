@@ -23,6 +23,7 @@
     "crypto": "^1.0.1",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "extract-zip": "^2.0.1",
     "get-port": "^7.1.0",
     "isbot": "^5.1.29",
     "jsonwebtoken": "^9.0.2",
@@ -30,6 +31,8 @@
     "multer": "^2.0.1",
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.5",
-    "tcp-port-used": "^1.0.2"
+    "path": "^0.12.7",
+    "tcp-port-used": "^1.0.2",
+    "uuid": "^11.1.0"
   }
 }

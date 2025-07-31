@@ -20,7 +20,7 @@ projectRouter.route("/checkName").post(checkName);
 projectRouter.route("/createByGithub").post(createProjectByGithub);
 projectRouter
   .route("/createByZip")
-  .post(upload.single("file"), createProjectByZip);
+  .post(upload.single("zip"), createProjectByZip);
 projectRouter.route("/toggleAutoDeploy").post(toggleAutoDeploy);
 
 export default projectRouter;

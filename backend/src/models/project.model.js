@@ -20,15 +20,16 @@ const projectSchema = new Schema(
     github: {
       repoName: {
         type: String,
-        required: true,
+        default: null,
       },
       repositoryUrl: {
         type: String,
         trim: true,
+        default: null,
       },
       branch: {
         type: String,
-        default: "main",
+        default: null,
         trim: true,
       },
       folder: {
