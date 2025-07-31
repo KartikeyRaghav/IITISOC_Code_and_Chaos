@@ -159,6 +159,7 @@ export const getUserProjectsWithAnalytics = asyncHandler(async (req, res) => {
 
     return {
       projectId: project._id,
+      isLive: project.isLive,
       name: project.name,
       totalVisits: data.totalVisits,
       uniqueVisitors: data.uniqueVisitors,
