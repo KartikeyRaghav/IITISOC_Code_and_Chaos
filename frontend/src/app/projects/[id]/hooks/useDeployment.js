@@ -278,6 +278,7 @@ export const useDeployment = (
 
   const onDeploymentStop = async (deploymentId) => {
     try {
+      setIsBuilding(true);
       await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/deployment/${projectName}/stop`,
         {
@@ -289,6 +290,8 @@ export const useDeployment = (
     } catch (error) {
       console.error(error);
       CustomToast("Error stopping container");
+    } finally {
+      setIsBuilding(false);
     }
   };
 
