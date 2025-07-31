@@ -20,36 +20,40 @@ import {
 import Footer from "@/components/Footer";
 
 const page = () => {
-  const pathName = usePathname();
-  const deploymentId = pathName.split("/")[3];
-  const [deployment, setDeployment] = useState({});
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const pathName = usePathname();//get current pathname
+  const deploymentId = pathName.split("/")[3];//extract deploymentId from URL path
+  const [deployment, setDeployment] = useState({});//holds deployment data fetched from backend
+  const [isAuthenticated, setIsAuthenticated] = useState(null);//if user authentication is verified
   const router = useRouter();
-  const [copiedId, setCopiedId] = useState(false);
-  const [expandedLogs, setExpandedLogs] = useState(true);
-  const logsRef = useRef(null);
+  const [copiedId, setCopiedId] = useState(false);//when deployment ID is copied
+  const [expandedLogs, setExpandedLogs] = useState(true);//controls the logs section
+  const logsRef = useRef(null);//for scrolling control
 
+  //authentication check
   useEffect(() => {
     const verifyAuth = async () => {
       const data = await checkAuth();
+      //if not, redirect to login page
       if (data.status === 400) {
         router.replace("/auth/login");
         return;
       }
     };
     verifyAuth();
-    setIsAuthenticated(true);
+    setIsAuthenticated(true); //mark authenticated after successful check
   }, []);
 
+  //fetch deployment details
   useEffect(() => {
     const getDeployment = async () => {
       try {
+        //fetch deployment info by deploymentId from backend API
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/deployment?deploymentId=${deploymentId}`,
           { credentials: "include" }
         );
         const data = await response.json();
-        setDeployment(data);
+        setDeployment(data); //saves deployment info to state
       } catch (error) {
         console.error(error);
       }
@@ -64,6 +68,7 @@ const page = () => {
     }
   }, [deployment.logs, expandedLogs]);
 
+  //map deployment status to CSS fro styling
   const getStatusColor = (status) => {
     switch (status) {
       case "completed":
@@ -81,6 +86,7 @@ const page = () => {
     }
   };
 
+  //get icon component for each deployment status
   const getStatusIcon = (status) => {
     switch (status) {
       case "completed":
@@ -98,6 +104,7 @@ const page = () => {
     }
   };
 
+  //deployment duration in human-readable form
   const formatDuration = () => {
     if (!deployment.endTime) return "In progress...";
     const start = new Date(deployment.startTime);
@@ -112,11 +119,13 @@ const page = () => {
     )}m`;
   };
 
+  //parse log contents into individual lines, filtering empty lines
   const parseLogContent = (logContent) => {
     // Split by newlines and filter out empty lines
     return logContent.split("\n").filter((line) => line.trim() !== "");
   };
 
+  //determine type of log line based on keywords
   const getLogLineType = (line) => {
     if (line.includes("DONE") || line.includes("BUILD_COMPLETE")) {
       return "success";
