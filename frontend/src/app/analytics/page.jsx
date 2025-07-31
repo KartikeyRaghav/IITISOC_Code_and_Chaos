@@ -135,7 +135,7 @@ const AnalyticsDashboard = () => {
                 </div>
                 <div>
                   <div className="text-3xl font-bold text-white">
-                    {projects.length}
+                    {projects.filter((p) => p.isLive === true).length}
                   </div>
                   <div className="text-gray-400 text-sm uppercase tracking-wide">
                     Active Projects
@@ -263,12 +263,14 @@ const AnalyticsDashboard = () => {
                     </div>
 
                     <div className="mt-4 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                        <span className="text-xs text-green-400 font-medium">
-                          Active
-                        </span>
-                      </div>
+                      {project.isLive ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                          <span className="text-xs text-green-400 font-medium">
+                            Active
+                          </span>
+                        </div>
+                      ) : null}
                       <div className="flex items-center gap-1 text-xs text-purple-400 group-hover:text-purple-300 transition-colors">
                         <MousePointer className="w-3 h-3" />
                         <span>View Details</span>

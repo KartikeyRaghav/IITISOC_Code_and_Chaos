@@ -74,6 +74,7 @@ function generateNginxConfig(subdomain, port, projectId) {
     sub_filter '</head>' '<script>window.__PROJECT_ID__="${projectId}";</script><script src="https://deploy.princecodes.online/analytics.js"></script></head>';
     sub_filter_once off;
 
+    add_header Strict-Transport-Security "";
     proxy_set_header Accept-Encoding "";
   }
 }`;
