@@ -257,17 +257,15 @@ const CreateProject = () => {
             setIsCreating(false);
             return;
           }
-          const formData = new FormData();
-          formData.append("zip", uploadedFile);
-          console.log(uploadedFile);
-          formData.append("name", formData.name);
-          console.log(formData);
+          const sendingFormData = new FormData();
+          sendingFormData.append("zip", uploadedFile);
+          sendingFormData.append("name", formData.name);
           const response = await fetch(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/project/createByZip`,
             {
               method: "POST",
               credentials: "include",
-              body: formData,
+              body: sendingFormData,
             }
           );
           const data = await response.json();

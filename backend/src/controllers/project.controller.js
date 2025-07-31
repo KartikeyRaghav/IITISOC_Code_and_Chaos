@@ -150,8 +150,6 @@ export const createProjectByGithub = asyncHandler(async (req, res) => {
 export const createProjectByZip = asyncHandler(async (req, res) => {
   try {
     const file = req.file;
-    console.log(file);
-    console.log(req.body.name);
     if (!file) {
       return res.status(400).json({ error: "No file uploaded" });
     }
@@ -199,8 +197,12 @@ export const createProjectByZip = asyncHandler(async (req, res) => {
       previewPort,
     });
 
-    await writeNginxConfig(name, livePort, project._id);
-    await writeNginxConfig(name + "-preview", previewPort, project._id);
+    await writeNginxConfig(req.body.name, livePort, project._id);
+    await writeNginxConfig(
+      req.body.name + "-preview",
+      previewPort,
+      project._id
+    );
 
     return res.status(201).json({ success: true, project });
   } catch (error) {

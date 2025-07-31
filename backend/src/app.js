@@ -53,7 +53,6 @@ import projectRouter from "./routes/project.route.js";
 import deploymentRouter from "./routes/deployment.route.js";
 import { trackPageVisit } from "./controllers/pageVisit.controller.js";
 import analyticsRouter from "./routes/analytics.route.js";
-import { Project } from "./models/project.model.js";
 
 // Route Middleware Setup
 app.use("/api/v1/user", userRouter);
