@@ -269,7 +269,10 @@ const CreateProject = () => {
             }
           );
           const data = await response.json();
-          console.log(data);
+          if (response.ok) {
+            setIsCreating(false);
+            router.push(`/projects/${formData.name}`);
+          }
         }
       } catch (error) {
         console.error(error);
