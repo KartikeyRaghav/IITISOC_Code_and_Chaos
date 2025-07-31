@@ -15,27 +15,30 @@ import Footer from "@/components/Footer";
 dotenv.config();
 
 const Dashboard = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
-  const [repos, setRepos] = useState([]);
-  const [url, setUrl] = useState(null);
-  const router = useRouter();
-  const [hasGithubPermission, setHasGithubPermission] = useState(false);
-  const [githubInstallationId, setGithubInstallationId] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);//to indicate if user is authenticated
+  const [repos, setRepos] = useState([]);//stores user's repos
+  const [url, setUrl] = useState(null);//to pass a repo URL somewhere
+  const router = useRouter();//for navigation
+  const [hasGithubPermission, setHasGithubPermission] = useState(false);//to check if user granted GitHub access
+  const [githubInstallationId, setGithubInstallationId] = useState(null);//GitHub app installation ID (if any)
 
-  const repoRef = useRef(null);
+  const repoRef = useRef(null);//reference to the repo list (for scroll-into-view)
 
+  //authentication check
   useEffect(() => {
     const verifyAuth = async () => {
       const data = await checkAuth();
+      //if not authenticated, redirects to login page
       if (data.status === 400) {
         router.replace("/auth/login");
         return;
       }
     };
     verifyAuth();
-    setIsAuthenticated(true);
+    setIsAuthenticated(true);//proceed after initial auth check
   }, []);
 
+  //load GitHub permission & installationId from localStorage
   useEffect(() => {
     if (localStorage.getItem("hasGithubPermission") === "true") {
       setHasGithubPermission(true);
@@ -46,6 +49,8 @@ const Dashboard = () => {
     }
   }, []);
 
+  //GitHub OAuth consent flow
+  //initiates the GitHub OAuth consent popups, listens for response
   const getOAuthConsent = () => {
     const oauthWindow = window.open(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/github`,
@@ -53,7 +58,9 @@ const Dashboard = () => {
       "width=600,height=700"
     );
 
+    //listen for msgs from popup window
     const receiveMessage = async (event) => {
+      //ensure msg is from frontend
       if (event.origin !== process.env.NEXT_PUBLIC_FRONTEND_URL) return;
 
       const { status } = event.data;
@@ -73,11 +80,14 @@ const Dashboard = () => {
     window.addEventListener("message", receiveMessage);
   };
 
+  //fetch user's GitHub repos
+  //triggers backend fetch & then fetch user's saves repos from DB
   const getGithub = async () => {
     try {
       if (localStorage.getItem("hasGithubPermission") === "false") {
         await getOAuthConsent();
       }
+      //asks backend to fetch user GitHub repos using token
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/github/getGithubRepos`,
         {
@@ -92,6 +102,7 @@ const Dashboard = () => {
     }
   };
 
+  //fetch user's repos from your DB
   const getUserRepos = async () => {
     try {
       const response = await fetch(
@@ -103,6 +114,7 @@ const Dashboard = () => {
       const data = await response.json();
       setRepos(data);
 
+      //scroll to repo list after data is set
       setTimeout(() => {
         repoRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 100); //slight delay to ensure rendering is complete
@@ -112,6 +124,7 @@ const Dashboard = () => {
     }
   };
 
+  //fetch fresh GitHub repos
   const getGithubRepos = async () => {
     try {
       const response = await fetch(
@@ -132,10 +145,12 @@ const Dashboard = () => {
     }
   };
 
+  //handle GitHub app installation redirect
   const handleInstall = async () => {
     window.location.href = `https://github.com/apps/ignitia-github/installations/new`;
   };
 
+  //loading spinner while auth status is pending
   if (isAuthenticated === null) {
     return <CustomLoader />;
   }
