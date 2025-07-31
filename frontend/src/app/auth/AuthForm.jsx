@@ -13,41 +13,48 @@ import {
   Sparkles,
 } from "lucide-react";
 
+//AuthForms component: handles both login and signup forms, supports toggling, input handling, errors, loading states, and image uploads
 const AuthForms = ({
-  type,
-  onSubmit,
-  onToggleForm,
+  type, //"login" or "signup"
+  onSubmit, 
+  onToggleForm, //callback to toggle between login/signup forms
   error,
   isLoading = false,
-  setShowForgotPasswordModal,
+  setShowForgotPasswordModal, //function to activate forgot psw modal (login only)
 }) => {
+  //manages forms input state
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+  //toggles for visibility of psws 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [profileImage, setProfileImage] = useState(null);
-  const [dragActive, setDragActive] = useState(false);
+  const [profileImage, setProfileImage] = useState(null); //holds uploaded profile image
+  const [dragActive, setDragActive] = useState(false); //tracks drag-and-drop image upload region
 
+  //handles text field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  //invokes onSubmit prop with current formData on submit
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(formData);
   };
 
+  //handles an uploaded image file (validates it's an image)
   const handleImageUpload = (file) => {
     if (file.type.startsWith("image/")) {
       setProfileImage(file);
     }
   };
 
+  //handles dropping a file in upload area
   const handleDrop = (e) => {
     e.preventDefault();
     setDragActive(false);
@@ -57,16 +64,19 @@ const AuthForms = ({
     }
   };
 
+  //indicates when drag region is active for UI feedback
   const handleDragOver = (e) => {
     e.preventDefault();
     setDragActive(true);
   };
 
+  //indicates when user leaves the drag region without dropping
   const handleDragLeave = (e) => {
     e.preventDefault();
     setDragActive(false);
   };
 
+  //handles standard file input change (fallback for drag-and-drop)
   const handleFileInputChange = (e) => {
     const files = e.target.files;
     if (files && files.length > 0) {
@@ -74,7 +84,7 @@ const AuthForms = ({
     }
   };
 
-  const isSignup = type === "signup";
+  const isSignup = type === "signup"; //derived: is the form for signup?
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#004466] via-[#1a365d] to-[#6a00b3] flex items-center justify-center p-4">
