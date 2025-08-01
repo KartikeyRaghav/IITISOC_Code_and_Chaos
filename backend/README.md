@@ -1,187 +1,154 @@
-# 🌐 Ignitia – Backend
+# 🚀 Ignitia – Frontend Deployment Platform
 
-This backend powers a **cloud-based web deployment platform**, allowing users to:
+Welcome to **Ignitia**, a cloud-based frontend deployment platform designed to streamline building, deploying, and managing frontend projects with GitHub integration, Docker-based builds, and live analytics.
 
-- Authenticate securely
-- Connect their GitHub
-- Clone and deploy frontend/backend repositories
-- Auto-generate Dockerfiles
-- Build, run, and reverse-proxy Docker containers
-- Track deployments and analytics
+## 📚 Table of Contents
+
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Key Features](#key-features)
+- [Backend Modules](#backend-modules)
+  - [Express Server](#express-server)
+  - [Authentication & Authorization](#authentication--authorization)
+  - [Database Models](#database-models)
+  - [Project Management](#project-management)
+  - [GitHub Integration](#github-integration)
+  - [Build System](#build-system)
+  - [Deployment System](#deployment-system)
+  - [Analytics](#analytics)
+  - [Environment Variables](#environment-variables)
+- [Contributors](#contributors)
 
 ---
 
-## 📚 Features Overview
+## 🧩 Overview
 
-### 🔐 Auth & Session
+This repository powers the **Ignitia** frontend deployment platform. It includes the backend server that handles project creation, deployment, analytics tracking, GitHub OAuth integration, environment variable management, and more.
 
-- JWT-based login and registration
-- Access & Refresh tokens via HTTP-only cookies
+---
 
-### 🧑‍💻 GitHub Integration
+## 🏗️ Architecture
 
-- GitHub OAuth 2.0 login
-- Fetch repos, branches, metadata
-- Pull source code automatically
+The backend is built using:
 
-### 🛠 Project Management
+- **Node.js + Express**
+- **MongoDB + Mongoose**
+- **Docker** for builds and deployment
+- **Nginx** as reverse proxy
+- **JWT** for authentication
+- **GitHub App + OAuth** for repo access
+- **NGINX** for routing and subdomain management
 
-- Auto-detect tech stack (React, Next.js, Angular, etc.)
+---
+
+## 🌟 Key Features
+
+- GitHub OAuth & GitHub App Integration
+- Auto-build on push/PR merge
+- Docker-based image builds
+- Live and preview deployments on subdomains
+- Real-time analytics (visits, referers, bot detection)
+- Environment variable management with secret support
+- Rollback support for deployments
+- Secure JWT-based user auth with OTP/email flows
+
+---
+
+## 🧪 Backend Modules
+
+### 📡 Express Server
+
+- Uses `cors`, `cookie-parser`, `dotenv` for environment & security setup
+- Raw body support for GitHub webhooks
+- Handles routes:
+  - `/user`, `/project`, `/deployment`, `/build`, `/analytics`, `/env`, etc.
+
+---
+
+### 🔐 Authentication & Authorization
+
+- JWT access and refresh tokens
+- Auth flow:
+  - Register/Login
+  - OTP verification
+  - Token-based protected routes
+- Middleware: `verifyJWT`
+- Refresh token stored in DB; access token in cookies
+
+---
+
+### 🗃️ Database Models (MongoDB)
+
+- **User**: Auth, GitHub token, repo metadata
+- **Project**: GitHub source, live/preview port, framework
+- **Deployment**: Status, Docker image, logs, rollback
+- **EnvVar**: Project env variables, with optional secrecy
+- **PageVisit**: IP, referer, user agent, bot detection
+
+---
+
+### 📁 Project Management
+
+- Create project from:
+  - GitHub repo
+  - ZIP upload
+- Auto-deploy toggle
+- NGINX config and port assignment
+
+---
+
+### 🧬 GitHub Integration
+
+- OAuth-based user login
+- GitHub App webhook handler
+- Auto-triggers build on push/merge
+- API to fetch repos, branches, installation metadata
+
+---
+
+### 🏗️ Build System
+
+- Clone repo
+- Detect tech stack (e.g., React, Next.js)
 - Generate Dockerfile
 - Build Docker image
-- Run container
-- Reverse proxy with NGINX (using dynamic subdomains)
-
-### 🚚 Deployment & CI
-
-- Record deployments with versioning and status
-- Enable rollback readiness
-- Webhook integration support for CI/CD
-
-### 📈 Analytics (WIP)
-
-- Track views, uptime, errors, response time
+- Stream logs during full build
 
 ---
 
-## 🧾 Models Summary
+### 🚀 Deployment System
 
-### 📦 `User`
-
-| Field                 | Type            | Description            |
-| --------------------- | --------------- | ---------------------- |
-| `fullName`            | `String`        | Required full name     |
-| `email`               | `String`        | Unique login ID        |
-| `password`            | `String`        | Hashed                 |
-| `githubUsername`      | `String`        | Linked GitHub username |
-| `repos`               | `Array<Object>` | Synced GitHub repos    |
-| `hasGithubPermission` | `Boolean`       | OAuth flag             |
-| `refreshToken`        | `String`        | JWT refresh token      |
-
-### 🧪 `Project`
-
-| Field                        | Type              | Description                   |
-| ---------------------------- | ----------------- | ----------------------------- |
-| `name`                       | `String`          | Unique project name           |
-| `repoName`                   | `String`          | GitHub repo name              |
-| `clonedPath`                 | `String`          | Local path                    |
-| `repositoryUrl`              | `String`          | GitHub clone URL              |
-| `framework`                  | `String`          | Detected tech stack           |
-| `branch`                     | `String`          | Default: main                 |
-| `deploymentHistory`          | `Array<ObjectId>` | References to `Deployment`    |
-| `webhook`                    | `ObjectId`        | Optional `Webhook`            |
-| `customDomain` / `subdomain` | `String`          | Custom DNS entries            |
-| `isLive`                     | `Boolean`         | Deployment state              |
-| `sslStatus`                  | `String`          | `"pending" "issued" "failed"` |
-
-### 🚀 `Deployment`
-
-| Field               | Type       | Description                      |
-| ------------------- | ---------- | -------------------------------- |
-| `version`           | `String`   | Auto-incrementing version        |
-| `status`            | `String`   | `"pending"`, `"completed"`, etc. |
-| `imageName`         | `String`   | Docker image tag                 |
-| `logUrl`            | `String`   | Build/run logs                   |
-| `previewUrl`        | `String`   | Live preview link                |
-| `rollbackAvailable` | `Boolean`  | Flag                             |
-| `deployedBy`        | `ObjectId` | Reference to `User`              |
-| `project`           | `ObjectId` | Reference to `Project`           |
-
-### 🪝 `Webhook`
-
-| Field      | Type     | Description                |
-| ---------- | -------- | -------------------------- |
-| `repoUrl`  | `String` | Linked GitHub repo URL     |
-| `provider` | `String` | GitHub, GitLab, etc.       |
-| `secret`   | `String` | For signature verification |
-| `status`   | `String` | `"active"` or `"inactive"` |
-
-### 📊 `Analytics`
-
-| Field            | Type            | Description              |
-| ---------------- | --------------- | ------------------------ |
-| `views`          | `Number`        | Total visits             |
-| `uniqueVisitors` | `Number`        | Unique visits            |
-| `responseTimes`  | `Array<Number>` | Response tracking        |
-| `uptime`         | `Number`        | Uptime percent           |
-| `erros`          | `Number`        | Typo: should be `errors` |
-| `project`        | `ObjectId`      | Reference to `Project`   |
+- Deploy built containers to preview/live environments
+- Tracks version history
+- Supports rollback
+- Stops containers on request
 
 ---
 
-## 🔧 Setup Instructions
+### 📊 Analytics
 
-### 1. Clone the Repo
-
-```bash
-git clone https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos.git
-cd backend
-```
-
-### 2. Install Dependencies
-
-```bash
-npm install
-```
-
-### 3. Setup Environment Variables
-
-### 4. Run the Server
-
-```bash
-npm run dev
-```
+- Page visits tracked with:
+  - Timestamp
+  - IP, user agent, referer
+  - Bot detection
+- Aggregated analytics:
+  - Daily / weekly / monthly views
+  - Top referers
+  - Unique IPs
 
 ---
 
-## 🧪 API Routes Overview
+### 🔐 Environment Variables
 
-### Users
-
-- `POST /api/v1/user/register`
-- `POST /api/v1/user/login`
-- `GET /api/v1/user/logout`
-- `GET /api/v1/user/profile`
-
-### GitHub
-
-- `GET /api/v1/github/oauth/consent`
-- `GET /api/v1/github/getUserRepos`
-- `GET /api/v1/github/branches?repo=...`
-
-### Build
-
-- `POST /api/v1/build/clone`
-- `POST /api/v1/build/detect`
-- `POST /api/v1/build/dockerfile`
-- `POST /api/v1/build/image`
-- `POST /api/v1/build/run`
-
-### Projects
-
-- `POST /api/v1/project/create`
-- `GET /api/v1/project/all`
-
-### Deployment
-
-- `POST /api/v1/deployment/create`
-- `POST /api/v1/deployment/version`
-- `POST /api/v1/deployment/update`
+- APIs to add/update/delete per-project ENV variables
+- Flags for secret handling
+- JWT-protected route access
 
 ---
 
-## 🛡 Security Notes
+## 👨‍💻 Contributors
 
-- Uses bcrypt for password hashing
-- Access and refresh tokens via `httpOnly` cookies
-- Docker and NGINX isolated for project sandboxing
-- CORS properly scoped to `FRONTEND_URL`
+- **Kartikey Raghav**
+- **Prachi Singh**
 
 ---
-
-## 📌 TODO
-
-- [ ] Add webhook event handling (CI/CD triggers)
-- [ ] Add project delete/archive
-- [ ] Add team collaboration (multi-user project sharing)
-- [ ] Rate limit sensitive routes (login, OAuth)

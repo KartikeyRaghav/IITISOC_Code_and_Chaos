@@ -45,9 +45,9 @@ export const gridItems = [
   },
   {
     id: 4,
-    title: "Custom domain mapping",
+    title: "Environment variable support",
     description:
-      "Connect and manage your own domains for a professional presence.",
+      "Create and management environment variables per project.",
     className: "",
   },
   {
