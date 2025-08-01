@@ -125,7 +125,7 @@ const CreateProject = () => {
       return;
     }
 
-    if (!/^[a-zA-Z0-9]+$/.test(str)) {
+    if (!/^[a-zA-Z0-9]+$/.test(formData.name)) {
       setIsNameOk(false);
       return;
     }
