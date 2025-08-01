@@ -13,7 +13,6 @@ import ProjectInfo from "./components/ProjectInfo";
 import BuildDeployCard from "./components/BuildDeployCard";
 import DeploymentHistory from "./components/DeploymentHistory";
 import EnhancedLogDisplay from "@/components/EnhancedLogDisplay";
-import CustomToast from "@/components/CustomToast";
 
 const ProjectDetails = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);

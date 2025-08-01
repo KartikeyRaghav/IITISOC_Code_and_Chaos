@@ -1,7 +1,7 @@
 import React from "react";
 import { Sparkles, Rocket, Zap } from "lucide-react";
 
-const AppIntro = () => {
+const AppIntro = ({ hasGithubPermission, githubInstallationId }) => {
   return (
     <section className="relative w-full flex flex-col items-center justify-center bg-gradient-to-r from-[#004466]/95 via-[#1a365d]/95 to-[#6a00b3]/95 p-6 sm:p-8 shadow-2xl min-h-[300px] lg:min-h-full overflow-hidden">
       {/* Animated Background Elements */}
@@ -61,7 +61,13 @@ const AppIntro = () => {
         {/* Call to Action Hint */}
         <div className="flex items-center gap-2 text-purple-200/70 text-sm animate-bounce-gentle">
           <div className="w-2 h-2 bg-purple-400 rounded-full animate-ping"></div>
-          <span>Scroll down to get started</span>
+          <span>
+            {hasGithubPermission && githubInstallationId !== "null"
+              ? "Fetch your cached repos"
+              : hasGithubPermission
+              ? "Install the github app for automation"
+              : "Connect github"}
+          </span>
           <div className="w-2 h-2 bg-blue-400 rounded-full animate-ping delay-500"></div>
         </div>
       </div>

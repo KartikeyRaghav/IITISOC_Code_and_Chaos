@@ -26,7 +26,7 @@ const ActionButtons = ({
         <div className="flex items-center gap-2">
           <a
             onClick={() => onDeploy(deployment, false)}
-            href={`http://${projectName}-preview.deploy.princecodes.online`}
+            href={`https://${projectName}-preview.deploy.princecodes.online`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 font-medium transition-colors"
@@ -38,7 +38,7 @@ const ActionButtons = ({
           <button
             onClick={() =>
               onCopyToClipboard(
-                `http://${projectName}-preview.deploy.princecodes.online`,
+                `https://${projectName}-preview.deploy.princecodes.online`,
                 "preview"
               )
             }
@@ -46,7 +46,7 @@ const ActionButtons = ({
             title="Copy preview URL"
           >
             {copiedUrl ===
-            `preview-http://${projectName}-preview.deploy.princecodes.online` ? (
+            `preview-https://${projectName}-preview.deploy.princecodes.online` ? (
               <Check className="w-4 h-4 text-green-400" />
             ) : (
               <Copy className="w-4 h-4 text-green-400" />
@@ -69,7 +69,7 @@ const ActionButtons = ({
         <div className="flex gap-3">
           <div className="flex items-center gap-2">
             <a
-              href={`http://${projectName}.deploy.princecodes.online`}
+              href={`https://${projectName}.deploy.princecodes.online`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 font-medium transition-colors"
@@ -81,7 +81,7 @@ const ActionButtons = ({
             <button
               onClick={() =>
                 onCopyToClipboard(
-                  `http://${projectName}.deploy.princecodes.online`,
+                  `https://${projectName}.deploy.princecodes.online`,
                   "deploy"
                 )
               }
@@ -89,7 +89,7 @@ const ActionButtons = ({
               title="Copy live URL"
             >
               {copiedUrl ===
-              `deploy-http://${projectName}.deploy.princecodes.online` ? (
+              `deploy-https://${projectName}.deploy.princecodes.online` ? (
                 <Check className="w-4 h-4 text-emerald-400" />
               ) : (
                 <Copy className="w-4 h-4 text-emerald-400" />

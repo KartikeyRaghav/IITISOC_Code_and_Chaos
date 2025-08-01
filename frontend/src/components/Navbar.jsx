@@ -14,9 +14,9 @@ const Navbar = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const profileDropdownRef = useRef(null);
   const currentUser = {
-    name: localStorage.getItem("fullName") || "",
-    email: localStorage.getItem("email") || "",
-    projectCount: localStorage.getItem("count") || 0,
+    name: localStorage?.getItem("fullName") || "",
+    email: localStorage?.getItem("email") || "",
+    projectCount: localStorage?.getItem("count") || 0,
   };
 
   useEffect(() => {

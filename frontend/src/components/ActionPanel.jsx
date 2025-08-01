@@ -16,8 +16,6 @@ const ActionPanel = ({
   githubInstallationId,
   handleInstall,
 }) => {
-  console.log(hasGithubPermission, githubInstallationId);
-
   const ButtonWrapper = ({
     children,
     onClick,

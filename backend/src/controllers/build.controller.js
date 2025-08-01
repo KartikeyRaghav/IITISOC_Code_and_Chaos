@@ -14,6 +14,7 @@ import {
 import { Project } from "../models/project.model.js";
 import { Deployment } from "../models/deployment.model.js";
 import { rm } from "fs/promises";
+import { EnvVar } from "../models/envVar.model.js";
 
 // Get the current directory of the file (for ES Modules)
 const __filename = fileURLToPath(import.meta.url);
@@ -165,7 +166,7 @@ export const detectTechStackAndReturn = async (clonedPath) => {
 };
 
 // Utility to generate Dockerfile content based on tech stack
-function generateDockerfileContent(stack) {
+function generateDockerfileContent(stack, projectName) {
   switch (stack) {
     case "react":
     case "vue":
@@ -194,8 +195,9 @@ WORKDIR /app
 COPY . .
 RUN npm install && npm run build --prod
 
+# Change 'your-app-name' below to your Angular app's actual name
 FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist/${projectName} /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]`;
 
@@ -220,7 +222,7 @@ CMD ["nginx", "-g", "daemon off;"]`;
 
 // Route handler to create Dockerfile in the cloned repo
 export const generateDockerFile = asyncHandler(async (req, res) => {
-  const { clonedPath, techStack } = req.body;
+  const { clonedPath, techStack, projectName } = req.body;
 
   if (!clonedPath || !fs.existsSync(clonedPath) || !techStack) {
     return res
@@ -228,7 +230,22 @@ export const generateDockerFile = asyncHandler(async (req, res) => {
       .json({ message: "Invalid or missing clonedPath or techStack" });
   }
 
-  const dockerfileContent = generateDockerfileContent(techStack);
+  const project = await Project.findOne({ name: projectName });
+
+  if (!project) {
+    return res.status(400).json({ message: "No project found" });
+  }
+
+  const envs = await EnvVar.find({ projectId: project._id });
+
+  const envContent = Object.entries(envs)
+    .map(([key, value]) => `${key}=${value}`)
+    .join("\n");
+
+  // Write to `.env` in the cloned repo directory
+  fs.writeFileSync(path.join(clonedPath, ".env"), envContent);
+
+  const dockerfileContent = generateDockerfileContent(techStack, projectName);
   const dockerfilePath = path.join(clonedPath, "Dockerfile");
 
   // Write Dockerfile
@@ -241,12 +258,25 @@ export const generateDockerFile = asyncHandler(async (req, res) => {
   });
 });
 
-const generateDockerFileAndReturn = async (clonedPath, techStack) => {
+const generateDockerFileAndReturn = async (
+  projectId,
+  clonedPath,
+  techStack
+) => {
   if (!clonedPath || !fs.existsSync(clonedPath) || !techStack) {
     return null;
   }
 
-  const dockerfileContent = generateDockerfileContent(techStack);
+  const envs = await EnvVar.find({ projectId });
+
+  const envContent = Object.entries(envs)
+    .map(([key, value]) => `${key}=${value}`)
+    .join("\n");
+
+  // Write to `.env` in the cloned repo directory
+  fs.writeFileSync(path.join(clonedPath, ".env"), envContent);
+
+  const dockerfileContent = generateDockerfileContent(techStack, projectId);
   const dockerfilePath = path.join(clonedPath, "Dockerfile");
 
   // Write Dockerfile
@@ -437,10 +467,14 @@ export const fullBuildHandler = asyncHandler(async (req, res) => {
     }
     if (techStack === "unknown") {
       console.log("unknown tech stack");
-      project.framework = "unknown";
+      return res.status(500).json({ message: "Unkown tech stack" });
     }
     console.log("tech stack", techStack);
-    const dockerfile = await generateDockerFileAndReturn(clonedPath, techStack);
+    const dockerfile = await generateDockerFileAndReturn(
+      clonedPath,
+      project._id,
+      techStack
+    );
     if (dockerfile === null) {
       console.log("docker file error");
       return res

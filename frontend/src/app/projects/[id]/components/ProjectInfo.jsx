@@ -11,8 +11,10 @@ import {
   Code,
   Loader2,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const ProjectInfo = ({ project, isBuilding }) => {
+  const router = useRouter();
   const getStatusIcon = () => {
     if (isBuilding)
       return <Loader2 className="w-5 h-5 animate-spin text-blue-400" />;
@@ -34,19 +36,28 @@ const ProjectInfo = ({ project, isBuilding }) => {
     <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-8 border border-purple-500/20 backdrop-blur-sm">
       <div className="flex items-start justify-between mb-6">
         <div className="flex-1">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-xl flex items-center justify-center shadow-lg">
-              <Github className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h2 className="text-3xl font-bold text-white">{project.name}</h2>
-              <div className="flex items-center gap-2 mt-1">
-                {getStatusIcon()}
-                <span className="text-sm font-medium text-gray-300">
-                  {getStatusText()}
-                </span>
+          <div className="flex justify-between items-center gap-3 mb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-xl flex items-center justify-center shadow-lg">
+                <Github className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold text-white">
+                  {project.name}
+                </h2>
+                <div className="flex items-center gap-2 mt-1">
+                  {getStatusIcon()}
+                  <span className="text-sm font-medium text-gray-300">
+                    {getStatusText()}
+                  </span>
+                </div>
               </div>
             </div>
+            <button
+              onClick={() => router.push(`/projects/${project.name}/envVar`)}
+            >
+              Set up Env variables
+            </button>
           </div>
           <p className="text-gray-300 text-lg leading-relaxed">
             {project.description || "No description available"}

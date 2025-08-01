@@ -15,14 +15,14 @@ import Footer from "@/components/Footer";
 dotenv.config();
 
 const Dashboard = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(null);//to indicate if user is authenticated
-  const [repos, setRepos] = useState([]);//stores user's repos
-  const [url, setUrl] = useState(null);//to pass a repo URL somewhere
-  const router = useRouter();//for navigation
-  const [hasGithubPermission, setHasGithubPermission] = useState(false);//to check if user granted GitHub access
-  const [githubInstallationId, setGithubInstallationId] = useState(null);//GitHub app installation ID (if any)
+  const [isAuthenticated, setIsAuthenticated] = useState(null); //to indicate if user is authenticated
+  const [repos, setRepos] = useState([]); //stores user's repos
+  const [url, setUrl] = useState(null); //to pass a repo URL somewhere
+  const router = useRouter(); //for navigation
+  const [hasGithubPermission, setHasGithubPermission] = useState(false); //to check if user granted GitHub access
+  const [githubInstallationId, setGithubInstallationId] = useState(null); //GitHub app installation ID (if any)
 
-  const repoRef = useRef(null);//reference to the repo list (for scroll-into-view)
+  const repoRef = useRef(null); //reference to the repo list (for scroll-into-view)
 
   //authentication check
   useEffect(() => {
@@ -35,7 +35,7 @@ const Dashboard = () => {
       }
     };
     verifyAuth();
-    setIsAuthenticated(true);//proceed after initial auth check
+    setIsAuthenticated(true); //proceed after initial auth check
   }, []);
 
   //load GitHub permission & installationId from localStorage
@@ -162,7 +162,10 @@ const Dashboard = () => {
       <div className="lg:min-h-screen w-full flex flex-col lg:flex-row bg-gray-900 pt-[80px]">
         {/*left: app intro*/}
         <div className="w-full lg:w-3/4">
-          <AppIntro />
+          <AppIntro
+            hasGithubPermission={hasGithubPermission}
+            githubInstallationId={githubInstallationId}
+          />
         </div>
         {/*right: action panel for GitHub connect, repo fetch, install, etc.*/}
         <div className="w-full lg:w-1/4">

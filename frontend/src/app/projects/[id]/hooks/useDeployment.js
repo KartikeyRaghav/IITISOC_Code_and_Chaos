@@ -147,6 +147,7 @@ export const useDeployment = (
           },
           body: JSON.stringify({
             clonedPath,
+            projectName,
             techStack,
           }),
         }
