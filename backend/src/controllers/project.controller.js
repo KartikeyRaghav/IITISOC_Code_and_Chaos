@@ -187,7 +187,12 @@ export const createProjectByZip = asyncHandler(async (req, res) => {
     console.log("unzip done");
 
     // 3. Detect framework
-    const framework = await detectTechStackAndReturn(unzipPath);
+    const framework = await detectTechStackAndReturn(
+      unzipPath,
+      file.mimetype === "application/zip" || file.originalname.endsWith(".zip")
+        ? req.body.name
+        : null
+    );
     console.log(framework);
     // 4. Validate framework
     if (

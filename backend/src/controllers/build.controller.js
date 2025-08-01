@@ -137,15 +137,17 @@ export const detectTechStack = asyncHandler(async (req, res) => {
   res.status(400).json({ message: "unknown" });
 });
 
-export const detectTechStackAndReturn = async (clonedPath) => {
+export const detectTechStackAndReturn = async (clonedPath, projectName) => {
   if (!clonedPath || !fs.existsSync(clonedPath)) {
     return null;
   }
 
   console.log(clonedPath);
-
-  const packagePath = path.join(clonedPath, "package.json");
-
+  let packagePath;
+  if (projectName)
+    packagePath = path.join(clonedPath, projectName, "package.json");
+  else packagePath = path.join(clonedPath, "package.json");
+  
   // Detect using package.json dependencies
   if (fs.existsSync(packagePath)) {
     const pkg = JSON.parse(fs.readFileSync(packagePath, "utf-8"));
