@@ -95,7 +95,7 @@ const Project = () => {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-12">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:gap-0 justify-between w-full">
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"></div>
@@ -109,6 +109,7 @@ const Project = () => {
                 </p>
               </div>
 
+              <div className="w-full flex justify-center sm:w-auto sm:block">
               {/* Create Project Button */}
               <button
                 onClick={() => router.push("/projects/create")}
@@ -119,6 +120,7 @@ const Project = () => {
                 <span className="relative z-10">Create Project</span>
                 <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
               </button>
+            </div>
             </div>
           </div>
 
