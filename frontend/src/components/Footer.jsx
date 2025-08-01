@@ -133,13 +133,19 @@ const Footer = () => {
             </h4>
             <ul className="space-y-4">
               {[
-                { name: "Documentation", href: "/docs" },
-                { name: "API Reference", href: "/api" },
-                { name: "Tutorials", href: "/tutorials" },
+                {
+                  name: "Documentation",
+                  href: "https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos",
+                },
+                {
+                  name: "API Reference",
+                  href: "https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/tree/main/backend",
+                },
               ].map((link) => (
                 <li key={link.name}>
                   <a
                     href={link.href}
+                    target="_blank"
                     className="text-gray-400 hover:text-white transition-colors duration-300 flex items-center gap-2 group"
                   >
                     <div className="w-1 h-1 bg-blue-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -196,27 +202,6 @@ const Footer = () => {
               <Heart className="w-4 h-4 text-red-400 fill-current" />
               <span>for developers worldwide.</span>
             </div>
-
-            {/* <div className="flex items-center gap-6 text-sm">
-              <a
-                href="/privacy"
-                className="text-gray-400 hover:text-white transition-colors duration-300"
-              >
-                Privacy Policy
-              </a>
-              <a
-                href="/terms"
-                className="text-gray-400 hover:text-white transition-colors duration-300"
-              >
-                Terms of Service
-              </a>
-              <a
-                href="/cookies"
-                className="text-gray-400 hover:text-white transition-colors duration-300"
-              >
-                Cookie Policy
-              </a>
-            </div> */}
 
             <button
               onClick={scrollToTop}

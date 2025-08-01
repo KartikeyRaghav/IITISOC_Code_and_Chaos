@@ -125,6 +125,11 @@ const CreateProject = () => {
       return;
     }
 
+    if (!/^[a-zA-Z0-9]+$/.test(str)) {
+      setIsNameOk(false);
+      return;
+    }
+
     setIsChecking(true);
 
     try {
