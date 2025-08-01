@@ -383,13 +383,17 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
   }
 });
 
-const generateDockerImageAndReturn = (
+const generateDockerImageAndReturn = async (
   projectName,
   clonedPath,
   deploymentId
 ) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     if (!projectName || !clonedPath || !deploymentId) return resolve(null);
+
+    const project = await Project.findOne({ name: projectName });
+
+    if (!project) return resolve(null);
 
     const imageName = `app-${projectName.toLowerCase()}-${Date.now()}`;
     const build = spawn("docker", ["build", "-t", imageName, clonedPath]);
