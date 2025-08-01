@@ -1,3 +1,5 @@
+"use client";
+
 export const checkAuth = async () => {
   try {
     const response = await fetch(
@@ -9,7 +11,10 @@ export const checkAuth = async () => {
     const data = await response.json();
     if (response.ok) {
       localStorage.setItem("githubUsername", data.user.githubUsername);
-      localStorage.setItem("githubInstallationId", data.user.githubInstallationId);
+      localStorage.setItem(
+        "githubInstallationId",
+        data.user.githubInstallationId
+      );
       localStorage.setItem(
         "hasGithubPermission",
         data.user.hasGithubPermission
