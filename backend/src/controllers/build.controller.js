@@ -147,9 +147,10 @@ export const detectTechStackAndReturn = async (clonedPath, projectName) => {
   if (projectName)
     packagePath = path.join(clonedPath, projectName, "package.json");
   else packagePath = path.join(clonedPath, "package.json");
-  
+  console.log(packagePath);
   // Detect using package.json dependencies
   if (fs.existsSync(packagePath)) {
+    console.log("inside");
     const pkg = JSON.parse(fs.readFileSync(packagePath, "utf-8"));
     const deps = pkg.dependencies || {};
     console.log(deps);
