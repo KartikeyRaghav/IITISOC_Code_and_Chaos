@@ -248,7 +248,9 @@ export const generateDockerFile = asyncHandler(async (req, res) => {
     .join("\n");
 
   // Write to `.env` in the cloned repo directory
-  fs.writeFileSync(path.join(clonedPath, ".env"), envContent);
+  if (techStack === "next")
+    fs.writeFileSync(path.join(clonedPath, ".env.production"), envContent);
+  else fs.writeFileSync(path.join(clonedPath, ".env"), envContent);
 
   const dockerfileContent = generateDockerfileContent(techStack, projectName);
   const dockerfilePath = path.join(clonedPath, "Dockerfile");
