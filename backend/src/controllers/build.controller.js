@@ -242,14 +242,17 @@ export const generateDockerFile = asyncHandler(async (req, res) => {
   }
 
   const envs = await EnvVar.find({ projectId: project._id });
+  console.log(envs);
 
-  const envContent = envs.map((env) => `${env.key}=${env.value}`).join("\n");
+  if (envs) {
+    const envContent = envs.map((env) => `${env.key}=${env.value}`).join("\n");
 
-  console.log("Generated .env content:\n", envContent);
+    console.log("Generated .env content:\n", envContent);
 
-  // Write to `.env` in the cloned repo directory
-  const fileName = techStack === "next" ? ".env.production" : ".env";
-  fs.writeFileSync(path.join(clonedPath, fileName), envContent);
+    // Write to `.env` in the cloned repo directory
+    const fileName = techStack === "next" ? ".env.production" : ".env";
+    fs.writeFileSync(path.join(clonedPath, fileName), envContent);
+  }
 
   const dockerfileContent = generateDockerfileContent(techStack, projectName);
   const dockerfilePath = path.join(clonedPath, "Dockerfile");
@@ -274,14 +277,17 @@ const generateDockerFileAndReturn = async (
   }
 
   const envs = await EnvVar.find({ projectId });
+  console.log(envs);
 
-  const envContent = envs.map((env) => `${env.key}=${env.value}`).join("\n");
+  if (envs) {
+    const envContent = envs.map((env) => `${env.key}=${env.value}`).join("\n");
 
-  console.log("Generated .env content:\n", envContent);
+    console.log("Generated .env content:\n", envContent);
 
-  // Write to `.env` in the cloned repo directory
-  const fileName = techStack === "next" ? ".env.production" : ".env";
-  fs.writeFileSync(path.join(clonedPath, fileName), envContent);
+    // Write to `.env` in the cloned repo directory
+    const fileName = techStack === "next" ? ".env.production" : ".env";
+    fs.writeFileSync(path.join(clonedPath, fileName), envContent);
+  }
 
   const dockerfileContent = generateDockerfileContent(techStack, projectId);
   const dockerfilePath = path.join(clonedPath, "Dockerfile");
