@@ -142,13 +142,15 @@ export const detectTechStackAndReturn = async (clonedPath) => {
     return null;
   }
 
+  console.log(clonedPath);
+
   const packagePath = path.join(clonedPath, "package.json");
 
   // Detect using package.json dependencies
   if (fs.existsSync(packagePath)) {
     const pkg = JSON.parse(fs.readFileSync(packagePath, "utf-8"));
     const deps = pkg.dependencies || {};
-
+    console.log(deps);
     if (deps.next) return "next";
     if (deps.react) return "react";
     if (deps.vue) return "vue";
