@@ -188,6 +188,7 @@ export const createProjectByZip = asyncHandler(async (req, res) => {
 
     // 3. Detect framework
     const framework = await detectTechStackAndReturn(unzipPath);
+    console.log(framework);
     // 4. Validate framework
     if (
       !["react", "next", "static", "vue", "angular", "node-api"].includes(
