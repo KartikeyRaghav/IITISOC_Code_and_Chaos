@@ -220,7 +220,7 @@ const ProjectAnalytics = () => {
           {/* Main Chart Section */}
           <section className="mb-8">
             <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-8 border border-purple-500/20 backdrop-blur-sm">
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center justify-between mb-8 flex-col gap-4 sm:flex-row sm:gap-0">
                 <div className="flex items-center gap-3">
                   <Calendar className="w-6 h-6 text-purple-400" />
                   <h2 className="text-2xl font-bold text-white">
@@ -228,12 +228,12 @@ const ProjectAnalytics = () => {
                   </h2>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-col w-full gap-3 sm:flex-row sm:w-auto sm:gap-3 sm:justify-end">
                   {["daily", "weekly", "monthly"].map((p) => (
                     <button
                       key={p}
                       onClick={() => setPeriod(p)}
-                      className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-300 ${
+                      className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-300 w-full sm:w-auto ${
                         period === p
                           ? "bg-gradient-to-r from-blue-400 via-purple-500 to-purple-700 shadow-lg text-white transform scale-105"
                           : "bg-gray-800/50 hover:bg-purple-700/50 hover:text-white text-gray-300 border border-gray-600/30"
