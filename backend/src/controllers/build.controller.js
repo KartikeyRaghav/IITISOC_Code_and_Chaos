@@ -98,7 +98,7 @@ export const cloneRepositoryAndReturnPath = async (
 
   const clone = cloneExists
     ? await execSync(`git -C ${targetDir} pull`)
-    : await execSync(`git clone b ${branch} ${cloneUrl} ${targetDir}`);
+    : await execSync(`git clone -b ${branch} ${cloneUrl} ${targetDir}`);
 
   return targetDir;
 };
