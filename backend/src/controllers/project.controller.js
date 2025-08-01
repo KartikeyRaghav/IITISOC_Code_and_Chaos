@@ -211,11 +211,19 @@ export const createProjectByZip = asyncHandler(async (req, res) => {
     const previewPort = await getPort();
     console.log("port done");
 
+    let save_path;
+
+    if (
+      file.mimetype === "application/zip" ||
+      file.originalname.endsWith(".zip")
+    )
+      save_path = path.join(unzipPath, file.originalname.split(".zip")[0]);
+    else save_path = unzipPath;
     // 5. Create
     const project = await Project.create({
       name: req.body.name, // Get name from formData
       isGithub: false,
-      clonedPath: unzipPath,
+      clonedPath: save_path,
       createdBy: req.user._id, // if auth middleware is used
       framework,
       livePort,
