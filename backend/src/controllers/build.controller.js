@@ -275,7 +275,7 @@ const generateDockerFileAndReturn = async (
   if (!clonedPath || !fs.existsSync(clonedPath) || !techStack) {
     return null;
   }
-  console.l(projectId);
+  console.log(projectId);
   console.log("called");
   const envs = await EnvVar.find({ projectId });
   console.log(envs);
