@@ -1,127 +1,62 @@
-# 🌐 Ignitia – Frontend
+# Ignitia - Frontend
 
-This is the **frontend** of a full-stack web deployment platform that lets users log in, connect GitHub, select repos, deploy them automatically, and monitor logs—all from a beautiful, modern UI.
+## Project Overview
 
----
+Ignitia is a cloud deployment platform that provides a modern, responsive, and intuitive user interface for managing web projects. The frontend is the primary interface, allowing users to handle everything from initial setup and deployment to ongoing analytics.
 
-## ⚙️ Tech Stack
+## Key Features
 
-- **React (Next.js 13+ / App Router)**
-- **Tailwind CSS** – Utility-first styling
-- **Framer Motion** – Smooth animations
-- **Heroicons + Lucide** – Icon libraries
-- **JWT Auth + Cookies** – Secure login sessions
+- **Secure Authentication**: User signup and login with OTP-based verification, restricted to `@iiti.ac.in` email addresses.
+- **GitHub Integration**: Seamless OAuth integration to connect and deploy projects directly from GitHub repositories.
+- **Automated Deployments**: Trigger automatic deployments on new pushes or merges to a selected branch via a GitHub App.
+- **Flexible Project Creation**: Create projects by connecting a GitHub repository or by uploading a ZIP/HTML file.
+- **Project Management Dashboard**: A centralized dashboard to view project status, manage deployments, and access key actions.
+- **Customizable Deployments**: Set environment variables for projects, which are loaded before the Docker image creation process.
+- **Deployment History**: View a detailed history of all deployments, including real-time logs, and promote successful builds to a production environment.
+- **URL & SSL Management**: Automatic assignment of unique subdomains for preview and production environments, both with SSL certification.
+- **Analytics Dashboard**: Comprehensive charts and metrics to monitor total visits, unique visitors, and daily/weekly traffic.
 
----
+## Technology Stack
 
-## 🧩 Project Structure
+The Ignitia frontend is built using a modern and robust technology stack:
 
-```
-src/ 
-├── app/ # App router pages and layouts 
-│ ├── layout.jsx 
-│ ├── globals.css 
-│ ├── page.jsx # Home page 
-│ ├── auth/ # Login / Signup pages 
-│ ├── dashboard/ # User dashboard 
-│ ├── project/ # Project views and creation 
-│ └── logs/ # Deployment logs per project 
-├── components/ # Shared & UI components 
-│ └── ui/ # ShadCN-style reusable UI 
-├── constants/ # Static constants (URLs, text) 
-├── lib/ # Utility functions 
-└── utils/ # Middleware, log parsing
-```
+- **React.js**: The core library for building interactive, component-driven user interfaces.
+- **Next.js**: A powerful React framework for server-side rendering, routing, and static site generation, ensuring a fast and performant user experience.
+- **CSS Modules**: Used for modular, scoped, and maintainable styling, with a focus on implementing a consistent dark theme.
+- **Axios**: Employed for handling asynchronous communication with the backend REST APIs.
 
----
+## Local Setup
 
-## 🚀 Features
+To run the Ignitia frontend locally, follow these steps:
 
-### 👤 Authentication
+1.  **Clone the repository**:
 
-- Login and register with JWT & refresh token (via cookies)
-- Protected routes using `checkAuth.js`
+    ```bash
+    git clone [https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos.git](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos.git)
+    cd frontend
+    ```
 
-### 🔗 GitHub Integration
+2.  **Install dependencies**:
 
-- GitHub OAuth 2.0 login flow
-- Repo & branch selector from user's GitHub
+    ```bash
+    npm install
+    ```
 
-### 📂 Project Lifecycle
+3.  **Configure environment variables**:
 
-- Detect tech stack automatically from cloned repo
-- Auto-generate Dockerfile from frontend
-- Trigger backend build → image → run steps via logs
-- View active deployments with live preview URLs
+    The project requires a `.env.local` file to configure API endpoints and GitHub OAuth keys. This file is essential for local development.
 
-### 🧾 Log Monitoring
+    - Contact the project authors at `sse240021008@iiti.ac.in` or `me240003057@iiti.ac.in` to obtain the file.
 
-- Logs streamed using Server-Sent Events (SSE)
-- Displayed with animation effects (via `EnhancedLogDisplay`)
+4.  **Start the development server**:
 
----
+    ```bash
+    npm run dev
+    ```
 
-## 🖼️ Notable Components
+The application will be accessible at `http://localhost:4000`.
 
-- `Hero.jsx` – Homepage hero section
-- `Navbar.jsx`, `Header.jsx` – Navigation and headers
-- `CustomToast.jsx`, `CustomLoader.jsx` – Toasts and loaders
-- `CreateProject.jsx` – Guided repo → stack → deploy UI
-- `DashboardMain.jsx`, `ActionPanel.jsx` – Dashboard widgets
-- `Grid.jsx`, `AppIntro.jsx` – Home intro animations
-- `EnhancedLogDisplay.jsx` – Real-time Docker log stream display
+## Authors
 
----
-
-## 🧪 Utilities
-
-### `checkAuth.js`
-
-Protects routes by validating JWT via cookies/session.
-
-### `logParser.js`
-
-Parses log lines streamed from the backend and formats them into UI-friendly messages.
-
----
-
-## 🔧 Setup Instructions
-
-### 1. Clone the Repo
-
-```bash
-git clone https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos.git
-cd frontend
-```
-
-### 2. Install Dependencies
-
-```bash
-npm install
-```
-
-### 3. Setup Environment Variables
-
-### 4. Run the Server
-
-```bash
-npm run dev
-```
-
----
-
-## 🛡 Security Features
-
-- Auth managed with `httpOnly` cookies (no localStorage)
-- Backend CORS restricted to frontend origin
-- No tokens stored client-side
-
----
-
-## 📌 TODO
-
-- [ ] Responsive layout optimizations
-- [ ] Toast enhancement during deploy flow
-- [ ] Add animation to log stream
-- [ ] Role-based view control
-- [ ] Use optimistic UI updates after deploy
+- **Kartikey Raghav**
+- **Prachi Singh**

@@ -48,7 +48,7 @@ const Dashboard = () => {
       setGithubInstallationId(localStorage.getItem("githubInstallationId"));
     }
   }, []);
-
+  
   //GitHub OAuth consent flow
   //initiates the GitHub OAuth consent popups, listens for response
   const getOAuthConsent = () => {

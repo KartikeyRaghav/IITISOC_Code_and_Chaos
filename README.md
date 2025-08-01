@@ -1,97 +1,54 @@
-# 🚀 IGNITIA
+# Ignitia - Project Documentation
 
-_Ignite your web presence_
-
-![Last Commit](https://img.shields.io/badge/last%20commit-today-brightgreen)
-![Language](https://img.shields.io/badge/javascript-98.9%25-blue)
-![Languages Used](https://img.shields.io/badge/languages-2-blue)
+Ignitia is a cloud-based web deployment platform designed to simplify the process of building, deploying, and managing web projects. The platform’s design is centered on efficiency, security, and a minimal yet powerful user experience. This documentation provides a comprehensive overview of both the frontend and backend components.
 
 ---
 
-### _Built with the tools and technologies:_
+## Frontend
 
-![Express](https://img.shields.io/badge/Express-black?logo=express&logoColor=white)
-![JSON](https://img.shields.io/badge/JSON-black?logo=json&logoColor=white)
-![Markdown](https://img.shields.io/badge/Markdown-black?logo=markdown&logoColor=white)
-![npm](https://img.shields.io/badge/npm-red?logo=npm&logoColor=white)
-![Mongoose](https://img.shields.io/badge/Mongoose-orange?logo=mongoose)
-![Prettier](https://img.shields.io/badge/Prettier-ffd700?logo=prettier)
-![ENV](https://img.shields.io/badge/.ENV-yellowgreen)
-![JavaScript](https://img.shields.io/badge/JavaScript-yellow?logo=javascript)
-![Nodemon](https://img.shields.io/badge/Nodemon-green?logo=nodemon)
-![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)
-![ESLint](https://img.shields.io/badge/ESLint-purple?logo=eslint)
+The frontend serves as the primary user interface, built on a modern and robust technology stack to provide a fast and performant experience.
 
----
+### Technology Stack
 
-## 📑 Table of Contents
+- **React.js**: The core library for building interactive, component-driven user interfaces.
+- **Next.js**: A React framework that enables server-side rendering and routing for a fast user experience.
+- **CSS Modules**: Used for modular, scoped, and maintainable styling to ensure a consistent dark theme and smooth UI transitions.
+- **Axios**: Employed for handling asynchronous communication with the backend REST APIs.
 
-- [Overview](#overview)
-- [Screenshots](#screenshots)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Environment Setup](#environment-setup)
-  - [Run Locally](#run-locally)
-- [Tech Stack](#tech-stack)
-- [Folder Structure](#folder-structure)
-- [API Routes](#api-routes)
-- [TODOs](#todos)
+### Core Features
+
+- **Secure Authentication**: A robust system for user signup and login, including an OTP-based verification process.
+- **GitHub Integration**: Seamless integration with GitHub via an OAuth application, allowing users to connect their repositories for deployment.
+- **Automated Deployment**: Users can install a GitHub App to trigger automatic deployments upon new pushes or merges.
+- **Project Management**: A centralized dashboard provides a visual overview of all user projects and their deployment status.
+- **Flexible Deployment Workflow**: Projects can be created by either uploading a ZIP/HTML file or by connecting a GitHub repository.
+- **Customizable Deployments**: Users can set environment variables for their projects, which are loaded before the Docker image creation process.
+- **Deployment History & Promotion**: The platform provides a detailed history of each deployment, including real-time logs. Any successful deployment can be promoted to the production environment.
+- **URL & SSL Management**: Each project is assigned two unique subdomains, one for a preview environment and one for production, both of which are automatically SSL-certified.
+- **Analytics Dashboard**: A comprehensive analytics section with interactive charts and metrics provides insights into total page visits, unique visits, and daily/weekly traffic data.
 
 ---
 
-## Overview
+## Backend
 
-**Ignitia** is a full-stack platform that helps developers:
+The backend is built on a high-performance, containerized architecture that handles the core logic for the entire platform.
 
-- Authenticate with GitHub
-- Select and deploy GitHub repos (React, Next.js, Express, etc.)
-- Auto-generate Dockerfiles and build images
-- Stream logs in real-time
-- Host via dynamic subdomains (e.g. `project1.deploy.princecodes.online`)
-- Monitor deployments with rollback capability
+### Technology Stack
 
-Think of it as your **Vercel alternative** with full visibility and control. 🔥
+- **Express.js**: A web server framework for handling API routes and middleware.
+- **MongoDB**: A NoSQL database used for data persistence.
+- **Mongoose**: An object data modeling (ODM) library for MongoDB.
+- **Docker**: Used for containerizing user projects.
+- **JWT (JSON Web Tokens)**: For secure, token-based authentication.
 
----
+### Core Logic and Services
 
-## Screenshots
-
-![Landing](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/blob/main/frontend/public/screenshots/landing.png?raw=true)
-![Dashboard](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/blob/main/frontend/public/screenshots/dashboard.png?raw=true)
-![Project Listing](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/blob/main/frontend/public/screenshots/project_listing.png?raw=true)
-![Project Details](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/blob/main/frontend/public/screenshots/project_detail.png?raw=true)
-![Create](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos/blob/main/frontend/public/screenshots/create.png?raw=true)
-
----
-
-## Features
-
-- 🔐 JWT + Cookie-based Authentication
-- ☁️ GitHub OAuth Integration
-- 📦 Git Clone + Branch Selection
-- 🧠 Tech Stack Detection
-- 🐳 Dockerfile Generation + Build
-- 🌐 Subdomain Live Preview (NGINX reverse proxy)
-- 📄 Real-time Log Streaming (Docker build & run)
-- 🧾 Deployment Versioning
-- 🌍 Analytics Support (views, errors, uptime)
-- 🧪 Webhooks Ready for CI/CD
-
----
-
-## Architecture
-
-```
-Frontend (Next.js + Tailwind)
-          ↓
-Backend (Express + MongoDB)
-          ↓
-Docker Engine (Build & Run)
-          ↓
-NGINX (Reverse Proxy)
-```
+- **Authentication and Authorization**: A `verifyJWT` middleware secures all API routes, managing the login, logout, and token refresh flow. User data, including GitHub tokens, is stored securely in the database.
+- **Database Models**: The backend uses dedicated models for `User`, `Project`, `Deployment`, `EnvVar`, and `PageVisit` to manage all aspects of the application.
+- **GitHub Integration**: Manages the OAuth flow for user authentication and processes webhooks to automatically trigger deployments from GitHub push and merge events.
+- **Build System**: This system handles the entire build process, from cloning a repository or extracting an uploaded file to detecting the tech stack (e.g., Next.js, React), generating a Dockerfile, and building a Docker image.
+- **Deployment System**: Manages the lifecycle of each project deployment, including versioning, status updates, and container management.
+- **Analytics System**: Tracks client-side data like IP addresses, user-agents, and referrers to provide comprehensive analytics for each project.
 
 ---
 
@@ -99,108 +56,51 @@ NGINX (Reverse Proxy)
 
 ### Prerequisites
 
-- Node.js ≥ v14
-- npm ≥ v6
-- Docker & Docker CLI
-- MongoDB Database
-- GitHub OAuth App
+- Node.js (LTS version recommended)
+- npm
 
----
+### Local Setup
 
-### Environment Setup
+To run the Ignitia project locally, you need to clone the repository and set up both the frontend and backend.
 
-Create `.env` in both `backend/` and `frontend/` folders.
+1.  **Clone the repository**:
+    ```sh
+    git clone [https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos.git](https://github.com/KartikeyRaghav/IITISOC_Code_and_Chaos.git)
+    cd IITISOC_Code_and_Chaos
+    ```
+2.  **Set up the frontend**:
+    ```sh
+    cd frontend
+    npm install
+    ```
+3.  **Set up the backend**:
+    ```sh
+    cd ../backend
+    npm install
+    ```
 
-#### `backend/.env`
+### Environment Variables
 
-```env
-PORT=5000
-FRONTEND_URL=http://localhost:4001
-BACKEND_URL=http://localhost:3001
+Both the frontend and backend require a `.env.local` file for configuration. This file is critical for connecting the components and integrating with services like GitHub. Please contact the project authors for this file.
 
-MONGODB_URI=your_mongo_uri
+### Running the Application
 
-ACCESS_TOKEN_SECRET=...
-REFRESH_TOKEN_SECRET=...
-
-GITHUB_OAUTH_CLIENT_ID=...
-GITHUB_OAUTH_CLIENT_SECRET=...
-```
-
-#### `frontend/.env`
-
-```env
-NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
-NEXT_PUBLIC_FRONTEND_URL=http://localhost:4001
-```
-
-### Run Locally
-
-```bash
-# Backend
-cd backend
-npm install
+1.  **Start the backend server**:
+    ```sh
+    cd backend
+    npm run dev
+    ```
+2.  **Start the frontend server**:
+    `sh
+cd ../frontend
 npm run dev
-
-# Frontend
-cd frontend
-npm install
-npm run dev
-```
+`
+    The application will be accessible at `http://localhost:3001` (frontend).
 
 ---
 
-## Tech Stack
+## Future Enhancements
 
-| Layer        | Tech                                                                      |
-| ------------ | ------------------------------------------------------------------------- |
-| Frontend     | React.js (App Router), Tailwind CSS, Framer Motion, ShadCN/UI             |
-| Backend      | Node.js, Express, MongoDB, Mongoose, Multer                               |
-| Auth         | JWT, Refresh Tokens, Cookies                                              |
-| DevOps       | Docker, NGINX, get-port                                                   |
-| Integrations | GitHub OAuth                                                              |
-
----
-
-## Folder Structure
-
-```
-backend/
-├── controllers/
-├── models/
-├── routes/
-├── utils/
-├── temp/
-└── app.js
-
-frontend/
-├── app/ (pages & layouts)
-├── components/
-├── constants/
-├── lib/
-├── utils/
-└── styles/
-```
-
----
-
-## API Routes
-
-For full API docs, see [backend/README.md](backend/README.md)
-
-| Area       | Base Path            | Features                                        |
-| ---------- | -------------------- | ----------------------------------------------- |
-| User       | `/api/v1/user`       | Login, register, logout, token refresh, profile |
-| GitHub     | `/api/v1/github`     | OAuth login, repos, branches                    |
-| Build      | `/api/v1/build`      | Clone repo, detect stack, docker build/run      |
-| Project    | `/api/v1/project`    | CRUD project, check names                       |
-| Deployment | `/api/v1/deployment` | Create, versioning, update status               |
-
----
-
-## TODOS
-
-- [ ] Add domain verification & SSL integration
-- [ ] CI/CD trigger support via Webhooks
-- [ ] Team collaboration & invite support
-- [ ] Add tests (Jest, React Testing Library)
+- **Integration with other Git providers**: Extend the platform to support GitLab, Bitbucket, and other version control systems.
+- **Collaborator Management**: Implement a feature for users to invite collaborators to their projects.
+- **Advanced Analytics**: Enhance the analytics dashboard with more detailed metrics and custom reporting features.
