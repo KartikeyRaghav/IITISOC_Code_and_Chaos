@@ -95,7 +95,7 @@ Both the frontend and backend require a `.env.local` file for configuration. Thi
 cd ../frontend
 npm run dev
 `
-    The application will be accessible at `http://localhost:3001` (frontend).
+    The application will be accessible at `http://localhost:4000` (frontend).
 
 ---
 
