@@ -87,7 +87,7 @@ const ActionPanel = ({
       {/* Action Buttons */}
       <div className="relative z-10 w-full max-w-md space-y-6">
         {/* GitHub OAuth Connection */}
-        <div className="relative">
+        <div className="relative inline-block w-full max-w-sm mx-auto">
           <ButtonWrapper
             onClick={onGetRepos}
             disabled={hasGithubPermission}
@@ -108,7 +108,7 @@ const ActionPanel = ({
           </ButtonWrapper>
 
           {hasGithubPermission && (
-            <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+            <div className="absolute -top-2 -right-3 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
               <CheckCircle className="w-4 h-4 text-white" />
             </div>
           )}
