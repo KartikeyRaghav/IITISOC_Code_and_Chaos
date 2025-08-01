@@ -191,7 +191,7 @@ export const createProjectByZip = asyncHandler(async (req, res) => {
     const framework = await detectTechStackAndReturn(
       unzipPath,
       file.mimetype === "application/zip" || file.originalname.endsWith(".zip")
-        ? file.originalname
+        ? file.originalname.split(".zip")[0]
         : null
     );
     console.log(framework);
