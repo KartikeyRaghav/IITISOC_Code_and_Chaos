@@ -37,8 +37,8 @@ export default function Home() {
       <main className="px-4 py-8">
         <Hero />
         <Grid />
-        <Footer />
       </main>
+      <Footer />
     </div>
   );
 }
