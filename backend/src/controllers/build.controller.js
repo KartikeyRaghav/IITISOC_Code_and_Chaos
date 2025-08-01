@@ -273,7 +273,7 @@ const generateDockerFileAndReturn = async (
     return null;
   }
 
-  const envs = await EnvVar.find({ projectId: project._id });
+  const envs = await EnvVar.find({ projectId });
 
   const envContent = envs.map((env) => `${env.key}=${env.value}`).join("\n");
 
