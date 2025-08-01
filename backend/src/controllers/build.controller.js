@@ -275,7 +275,8 @@ const generateDockerFileAndReturn = async (
   if (!clonedPath || !fs.existsSync(clonedPath) || !techStack) {
     return null;
   }
-
+  console.l(projectId);
+  console.log("called");
   const envs = await EnvVar.find({ projectId });
   console.log(envs);
 
@@ -489,8 +490,8 @@ export const fullBuildHandler = asyncHandler(async (req, res) => {
     }
     console.log("tech stack", techStack);
     const dockerfile = await generateDockerFileAndReturn(
-      clonedPath,
       project._id,
+      clonedPath,
       techStack
     );
     if (dockerfile === null) {
