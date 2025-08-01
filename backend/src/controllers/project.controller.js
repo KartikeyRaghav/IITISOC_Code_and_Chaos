@@ -179,6 +179,7 @@ export const createProjectByZip = asyncHandler(async (req, res) => {
       file.mimetype === "application/zip" ||
       file.originalname.endsWith(".zip")
     ) {
+      console.log(file.originalname);
       await extract(file.path, { dir: unzipPath });
     } else {
       // It's a single HTML file
@@ -190,7 +191,7 @@ export const createProjectByZip = asyncHandler(async (req, res) => {
     const framework = await detectTechStackAndReturn(
       unzipPath,
       file.mimetype === "application/zip" || file.originalname.endsWith(".zip")
-        ? req.body.name
+        ? file.originalname
         : null
     );
     console.log(framework);
