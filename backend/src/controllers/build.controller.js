@@ -355,7 +355,8 @@ export const generateDockerImage = asyncHandler(async (req, res) => {
         res.write(`[ERROR] Step failed with code ${code}\n\n`);
       }
 
-      await rm(project.clonedPath, { recursive: true, force: true });
+      if (project.isGithub)
+        await rm(project.clonedPath, { recursive: true, force: true });
 
       await deployment.save({
         validateBeforeSave: false,
@@ -412,6 +413,8 @@ const generateDockerImageAndReturn = (
           },
           $set: { imageName },
         });
+        if (project.isGithub)
+          await rm(project.clonedPath, { recursive: true, force: true });
         resolve(imageName);
       } else {
         await Deployment.findByIdAndUpdate(deploymentId, {
@@ -427,6 +430,8 @@ const generateDockerImageAndReturn = (
           },
           $set: { status: "failed" },
         });
+        if (project.isGithub)
+          await rm(project.clonedPath, { recursive: true, force: true });
         resolve(null);
       }
     });
