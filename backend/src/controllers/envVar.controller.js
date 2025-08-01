@@ -2,13 +2,7 @@ import { EnvVar } from "../models/envVar.model.js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 
 export const addEnvVar = asyncHandler(async (req, res) => {
-  const {
-    projectId,
-    key,
-    value,
-    isSecret = false,
-    environment = "production",
-  } = req.body;
+  const { projectId, key, value, isSecret = false } = req.body;
 
   if (!projectId || !key || !value) {
     return res.status(400).json({
@@ -22,7 +16,6 @@ export const addEnvVar = asyncHandler(async (req, res) => {
     key,
     value,
     isSecret,
-    environment,
   });
 
   res.status(201).json({ success: true, data: envVar });
@@ -59,8 +52,6 @@ export const updateEnvVar = asyncHandler(async (req, res) => {
   if (updates.key !== undefined) envVar.key = updates.key;
   if (updates.value !== undefined) envVar.value = updates.value;
   if (updates.isSecret !== undefined) envVar.isSecret = updates.isSecret;
-  if (updates.environment !== undefined)
-    envVar.environment = updates.environment;
 
   await envVar.save();
 

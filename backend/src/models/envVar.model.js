@@ -20,11 +20,6 @@ const envVarSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    environment: {
-      type: String,
-      enum: ["production", "preview"],
-      default: "production",
-    },
   },
   {
     timestamps: true,

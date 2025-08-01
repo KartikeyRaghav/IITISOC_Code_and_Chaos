@@ -72,7 +72,6 @@ export const useEnvironmentVariables = () => {
             key: envVar.key,
             value: envVar.value,
             isSecret: envVar.isSecret,
-            environment: envVar.environment,
             projectId: projectId,
           }),
         }

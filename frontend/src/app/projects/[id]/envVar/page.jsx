@@ -26,7 +26,6 @@ const EnvironmentVariables = () => {
     key: "",
     value: "",
     isSecret: false,
-    environment: "production",
   });
   const [showNewVarForm, setShowNewVarForm] = useState(false);
   const [visibleSecrets, setVisibleSecrets] = useState(new Set());
@@ -50,7 +49,6 @@ const EnvironmentVariables = () => {
       icon: Globe,
       color: "text-green-400",
     },
-    { key: "preview", label: "Preview", icon: Eye, color: "text-purple-400" },
   ];
 
   const toggleSecretVisibility = (_id) => {
@@ -64,10 +62,6 @@ const EnvironmentVariables = () => {
       return newSet;
     });
   };
-
-  const filteredEnvVars = envVars.filter(
-    (envVar) => envVar.environment === activeEnvironment
-  );
 
   const EnvVarForm = ({ envVar, onSave, onCancel }) => {
     const [formData, setFormData] = useState(envVar);
@@ -88,28 +82,6 @@ const EnvironmentVariables = () => {
               placeholder="e.g., DATABASE_URL"
               className="w-full px-4 py-3 bg-[#1a1b2e] border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Environment
-            </label>
-            <select
-              value={formData.environment}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  environment: e.target.value,
-                }))
-              }
-              className="w-full px-4 py-3 bg-[#1a1b2e] border border-gray-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-            >
-              {environments.map((env) => (
-                <option key={env.key} value={env.key}>
-                  {env.label}
-                </option>
-              ))}
-            </select>
           </div>
         </div>
 
@@ -213,7 +185,6 @@ const EnvironmentVariables = () => {
                   key: "",
                   value: "",
                   isSecret: false,
-                  environment: activeEnvironment,
                 });
                 setShowNewVarForm(true);
               }}
@@ -249,9 +220,7 @@ const EnvironmentVariables = () => {
                         : "bg-gray-600/50 text-gray-400"
                     }`}
                   >
-                    {isActive
-                      ? filteredEnvVars.length
-                      : envVars.length - filteredEnvVars.length}
+                    {envVars.length}
                   </span>
                 </button>
               );
@@ -273,7 +242,7 @@ const EnvironmentVariables = () => {
 
           {/* Environment Variables List */}
           <div className="space-y-4">
-            {filteredEnvVars.length === 0 ? (
+            {envVars.length === 0 ? (
               <div className="text-center py-12">
                 <Key className="w-12 h-12 text-gray-500 mx-auto mb-4" />
                 <h4 className="text-lg font-medium text-gray-300 mb-2">
@@ -289,7 +258,6 @@ const EnvironmentVariables = () => {
                       key: "",
                       value: "",
                       isSecret: false,
-                      environment: activeEnvironment,
                     });
                     setShowNewVarForm(true);
                   }}
@@ -300,7 +268,7 @@ const EnvironmentVariables = () => {
                 </button>
               </div>
             ) : (
-              filteredEnvVars.map((envVar) => (
+              envVars.map((envVar) => (
                 <div
                   key={envVar._id}
                   className="bg-[#2c2f4a]/50 rounded-2xl p-4 border border-gray-600/20 hover:border-gray-500/30 transition-all duration-300"
