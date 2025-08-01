@@ -3,7 +3,7 @@ import { Sparkles, Rocket, Zap } from "lucide-react";
 
 const AppIntro = () => {
   return (
-    <section className="relative w-full flex flex-col items-center justify-center bg-gradient-to-r from-[#004466]/95 via-[#1a365d]/95 to-[#6a00b3]/95 p-6 sm:p-8 shadow-2xl min-h-[300px] lg:min-h-screen overflow-hidden">
+    <section className="relative w-full flex flex-col items-center justify-center bg-gradient-to-r from-[#004466]/95 via-[#1a365d]/95 to-[#6a00b3]/95 p-6 sm:p-8 shadow-2xl min-h-[300px] lg:min-h-full overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
