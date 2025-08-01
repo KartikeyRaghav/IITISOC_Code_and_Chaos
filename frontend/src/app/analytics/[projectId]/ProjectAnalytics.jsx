@@ -355,9 +355,9 @@ const ProjectAnalytics = () => {
                       key={index}
                       className="bg-[#2c2f4a]/50 rounded-xl p-4 border border-gray-600/20 hover:border-purple-500/30 transition-all duration-300"
                     >
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-full"></div>
+                          <div className="w-3 h-3 hidden sm:block bg-gradient-to-r from-green-400 to-blue-500 rounded-full"></div>
                           <span className="text-white font-medium truncate">
                             {referer._id}
                           </span>

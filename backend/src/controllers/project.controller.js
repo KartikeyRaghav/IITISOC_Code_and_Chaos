@@ -169,7 +169,7 @@ export const createProjectByZip = asyncHandler(async (req, res) => {
     if (!file) {
       return res.status(400).json({ error: "No file uploaded" });
     }
-
+    console.log("file done");
     // 1. Create a unique directory to unzip
     const unzipPath = path.resolve(`./temp/unzipped/${uuidv4()}`);
     fs.mkdirSync(unzipPath, { recursive: true });
@@ -184,10 +184,10 @@ export const createProjectByZip = asyncHandler(async (req, res) => {
       // It's a single HTML file
       fs.copyFileSync(file.path, path.join(unzipPath, "index.html"));
     }
+    console.log("unzip done");
 
     // 3. Detect framework
     const framework = await detectTechStackAndReturn(unzipPath);
-
     // 4. Validate framework
     if (
       !["react", "next", "static", "vue", "angular", "node-api"].includes(
@@ -198,9 +198,11 @@ export const createProjectByZip = asyncHandler(async (req, res) => {
         .status(400)
         .json({ error: `Unsupported tech stack: ${framework}` });
     }
+    console.log("framework done");
 
     const livePort = await getPort();
     const previewPort = await getPort();
+    console.log("port done");
 
     // 5. Create
     const project = await Project.create({

@@ -36,7 +36,7 @@ const ProjectInfo = ({ project, isBuilding }) => {
     <div className="bg-gradient-to-br from-[#23243a] to-[#1a1b2e] rounded-3xl shadow-2xl p-8 border border-purple-500/20 backdrop-blur-sm">
       <div className="flex items-start justify-between mb-6">
         <div className="flex-1">
-          <div className="flex justify-between items-center gap-3 mb-3">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-3">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-gradient-to-br from-[#00aaff] to-[#9a00ff] rounded-xl flex items-center justify-center shadow-lg">
                 <Github className="w-6 h-6 text-white" />
@@ -55,6 +55,7 @@ const ProjectInfo = ({ project, isBuilding }) => {
             </div>
             <button
               onClick={() => router.push(`/projects/${project.name}/envVar`)}
+              className="py-4 px-4 rounded-2xl font-bold text-lg shadow-xl transition-all duration-500 flex items-center justify-center gap-3 bg-gradient-to-r from-[#00aaff] via-[#0099ff] to-[#9a00ff] text-white hover:shadow-2xl hover:shadow-purple-500/30 hover:scale-[1.02] transform"
             >
               Set up Env variables
             </button>
