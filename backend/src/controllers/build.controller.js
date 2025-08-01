@@ -273,14 +273,15 @@ const generateDockerFileAndReturn = async (
     return null;
   }
 
-  const envs = await EnvVar.find({ projectId });
+  const envs = await EnvVar.find({ projectId: project._id });
 
-  const envContent = Object.entries(envs)
-    .map(([key, value]) => `${key}=${value}`)
-    .join("\n");
+  const envContent = envs.map((env) => `${env.key}=${env.value}`).join("\n");
+
+  console.log("Generated .env content:\n", envContent);
 
   // Write to `.env` in the cloned repo directory
-  fs.writeFileSync(path.join(clonedPath, ".env"), envContent);
+  const fileName = techStack === "next" ? ".env.production" : ".env";
+  fs.writeFileSync(path.join(clonedPath, fileName), envContent);
 
   const dockerfileContent = generateDockerfileContent(techStack, projectId);
   const dockerfilePath = path.join(clonedPath, "Dockerfile");
