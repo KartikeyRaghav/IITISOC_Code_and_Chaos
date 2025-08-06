@@ -559,7 +559,7 @@ const CreateProject = () => {
               </div>
 
               {/* Folder */}
-              <div className="space-y-2">
+              {/*<div className="space-y-2">
                 <label className="text-gray-300 font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
                   <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
                   Folder{" "}
@@ -578,7 +578,7 @@ const CreateProject = () => {
                   />
                   <Folder className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 </div>
-              </div>
+              </div>*/}
             </>
           )}
 
