@@ -233,10 +233,7 @@ export const getDeployment = asyncHandler(async (req, res) => {
 const removePreviousDeployment = async (projectName, isLive) => {
   try {
     const project = await Project.findOne({ name: projectName });
-    if (!project) {
-      console.warn(`Project '${projectName}' not found`);
-      return;
-    }
+    if (!project) return;
 
     const port = isLive ? project.livePort : project.previewPort;
     const containerName = execSync(
@@ -245,45 +242,21 @@ const removePreviousDeployment = async (projectName, isLive) => {
       .toString()
       .trim();
 
-    if (!containerName) {
-      console.log("No active container found on port", port);
-      return;
-    }
-
-    console.log("Container name:", containerName);
+    if (!containerName) return;
 
     const imageNameRaw = execSync(
       `docker inspect --format='{{.Config.Image}}' ${containerName}`
     )
       .toString()
       .trim();
-
     const imageName = imageNameRaw.replace(/['"\n]/g, "").trim();
-    console.log("Image name:", imageName);
 
-    // Stop and remove the running container
     execSync(`docker rm -f ${containerName}`);
-    console.log("Container stopped and removed");
 
-    // Update previous deployment record
-    const prevDeployment = await Deployment.findOne({ imageName });
-    if (!prevDeployment) {
-      console.warn("No previous deployment found with imageName:", imageName);
-      return;
-    }
-
-    await Deployment.findByIdAndUpdate(
-      prevDeployment._id,
-      {
-        $set: {
-          endTime: new Date(),
-          status: "in-preview",
-        },
-      },
-      { new: true }
+    await Deployment.findOneAndUpdate(
+      { imageName },
+      { $set: { endTime: new Date(), status: "in-preview" } }
     );
-
-    console.log("Previous deployment updated:", prevDeployment._id);
   } catch (error) {
     console.error("Error removing previous deployment:", error);
   }
@@ -293,100 +266,73 @@ export const deploy = asyncHandler(async (req, res) => {
   const { deploymentId, projectName, isLive } = req.body;
 
   try {
-    const deployment = await Deployment.findOne({ _id: deploymentId });
-    const project = await Project.findOne({ name: projectName });
+    const [deployment, project] = await Promise.all([
+      Deployment.findById(deploymentId),
+      Project.findOne({ name: projectName }),
+    ]);
 
-    if (!deployment) {
-      return res.status(404).json({ message: "Deployment not found" });
+    if (!deployment || !project) {
+      return res
+        .status(404)
+        .json({ message: "Deployment or project not found" });
     }
 
-    if (req.user._id.toString() !== deployment.deployedBy.toString())
+    if (req.user._id.toString() !== deployment.deployedBy.toString()) {
       return res.status(401).json({ message: "Not authorized" });
+    }
 
     await removePreviousDeployment(projectName, isLive);
 
     const containerName = `container-${projectName}-${Date.now()}`;
+    const portMapping =
+      project.framework === "next"
+        ? `${isLive ? project.livePort : project.previewPort}:3000`
+        : `${isLive ? project.livePort : project.previewPort}:80`;
 
     const run = spawn("docker", [
       "run",
       "-p",
-      project.framework === "next"
-        ? `${isLive ? project.livePort : project.previewPort}:3000`
-        : `${isLive ? project.livePort : project.previewPort}:80`,
+      portMapping,
       "--name",
       containerName,
       deployment.imageName,
     ]);
 
-    run.stdout.on("data", async (data) => {
-      await Deployment.findByIdAndUpdate(
-        deploymentId,
-        {
-          $push: { logs: { log: data.toString(), timestamp: new Date() } },
-        },
-        { new: true }
-      );
-    });
+    const logToDB = async (log, extra = {}) => {
+      await Deployment.findByIdAndUpdate(deploymentId, {
+        $push: { logs: { log, timestamp: new Date() } },
+        ...extra,
+      });
+    };
 
-    run.stderr.on("data", async (data) => {
-      await Deployment.findByIdAndUpdate(
-        deploymentId,
-        {
-          $push: { logs: { log: data.toString(), timestamp: new Date() } },
-        },
-        { new: true }
-      );
+    run.stdout.on("data", (data) => logToDB(data.toString()));
+    run.stderr.on("data", (data) => logToDB(data.toString()));
+
+    run.on("error", (err) => {
+      logToDB(`[ERROR] Docker failed: ${err.message}`, {
+        $set: { status: "failed" },
+      });
     });
 
     run.on("close", async (code) => {
-      await Deployment.findByIdAndUpdate(
-        deploymentId,
-        {
-          $push: {
-            logs: {
-              log: `Docker container run exited with code ${code}\n\n`,
-              timestamp: new Date(),
-            },
-          },
-        },
-        { new: true }
-      );
+      await logToDB(`Docker container run exited with code ${code}\n\n`);
       if (code === 0) {
-        await Deployment.findByIdAndUpdate(
-          deploymentId,
-          {
-            $push: {
-              logs: {
-                log: `[RUN_COMPLETE] ${containerName}\n\n`,
-                timestamp: new Date(),
-              },
-            },
-          },
-          { new: true }
-        );
+        await logToDB(`[RUN_COMPLETE] ${containerName}\n\n`, {
+          $set: { status: "deployed" },
+        });
       } else {
-        await Deployment.findByIdAndUpdate(
-          deploymentId,
-          {
-            $push: {
-              logs: {
-                log: `[ERROR] Step failed with code ${code}\n\n`,
-                timestamp: new Date(),
-              },
-            },
-            $set: { status: "failed" },
-          },
-          { new: true }
-        );
+        await logToDB(`[ERROR] Step failed with code ${code}\n\n`, {
+          $set: { status: "failed" },
+        });
       }
     });
-    project.isLive = true;
-    await project.save({
-      validateBeforeSave: false,
-      optimisticConcurrency: false,
-    });
-    res.status(200).json({ message: "complete" });
+
+    // Mark project as live
+    await Project.updateOne({ _id: project._id }, { $set: { isLive } });
+
+    res.status(200).json({ message: "Deployment started" });
   } catch (error) {
+    console.error("Deployment error:", error);
     res.status(400).json({ message: "Error while deploying" });
   }
 });
