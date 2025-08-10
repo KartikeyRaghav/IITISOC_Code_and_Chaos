@@ -339,32 +339,46 @@ export const deploy = asyncHandler(async (req, res) => {
     });
 
     run.on("close", async (code) => {
-      deployment.logs = [
-        ...deployment.logs,
+      await Deployment.findByIdAndUpdate(
+        deploymentId,
         {
-          log: `Docker container run exited with code ${code}\n\n`,
-          timestamp: new Date(),
-        },
-      ];
-      if (code === 0) {
-        deployment.logs = [
-          ...deployment.logs,
-          { log: `[RUN_COMPLETE] ${containerName}\n\n`, timestamp: new Date() },
-        ];
-      } else {
-        deployment.logs = [
-          ...deployment.logs,
-          {
-            log: `[ERROR] Step failed with code ${code}\n\n`,
-            timestamp: new Date(),
+          $push: {
+            logs: {
+              log: `Docker container run exited with code ${code}\n\n`,
+              timestamp: new Date(),
+            },
           },
-        ];
-        deployment.status = "failed";
+        },
+        { new: true }
+      );
+      if (code === 0) {
+        await Deployment.findByIdAndUpdate(
+          deploymentId,
+          {
+            $push: {
+              logs: {
+                log: `[RUN_COMPLETE] ${containerName}\n\n`,
+                timestamp: new Date(),
+              },
+            },
+          },
+          { new: true }
+        );
+      } else {
+        await Deployment.findByIdAndUpdate(
+          deploymentId,
+          {
+            $push: {
+              logs: {
+                log: `[ERROR] Step failed with code ${code}\n\n`,
+                timestamp: new Date(),
+              },
+            },
+            $set: { status: "failed" },
+          },
+          { new: true }
+        );
       }
-      await deployment.save({
-        validateBeforeSave: false,
-        optimisticConcurrency: false,
-      });
     });
     project.isLive = true;
     await project.save({
@@ -410,37 +424,63 @@ export const deployAndReturn = async (deploymentId, projectName) => {
 
     const run = spawn("docker", args);
 
-    run.stdout.on("data", (data) => {
-      deployment.logs.push({
-        log: data.toString(),
-        timestamp: new Date(),
-      });
+    run.stdout.on("data", async (data) => {
+      await Deployment.findByIdAndUpdate(
+        deploymentId,
+        {
+          $push: { logs: { log: data.toString(), timestamp: new Date() } },
+        },
+        { new: true }
+      );
     });
 
-    run.stderr.on("data", (data) => {
-      deployment.logs.push({
-        log: data.toString(),
-        timestamp: new Date(),
-      });
+    run.stderr.on("data", async (data) => {
+      await Deployment.findByIdAndUpdate(
+        deploymentId,
+        {
+          $push: { logs: { log: data.toString(), timestamp: new Date() } },
+        },
+        { new: true }
+      );
     });
 
-    run.on("error", (err) => {
+    run.on("error", async (err) => {
       console.error("Docker run error:", err);
-      deployment.logs.push({
-        log: `[ERROR] Docker failed: ${err.message}`,
-        timestamp: new Date(),
-      });
-      deployment.status = "failed";
+      await Deployment.findByIdAndUpdate(
+        deploymentId,
+        {
+          $push: {
+            logs: {
+              log: `[ERROR] Docker failed: ${err.message}`,
+              timestamp: new Date(),
+            },
+          },
+          $set: {
+            status: "failed",
+          },
+        },
+        { new: true }
+      );
     });
 
     run.on("close", async (code) => {
       if (code === 0) {
-        deployment.logs.push({
-          log: `[RUN_STARTED] ${containerName}`,
-          timestamp: new Date(),
-        });
-        deployment.startTime = new Date();
-        deployment.status = "deployed";
+        await Deployment.findByIdAndUpdate(
+          deploymentId,
+          {
+            $push: {
+              logs: {
+                log: `[RUN_STARTED] ${containerName}`,
+                timestamp: new Date(),
+              },
+            },
+            $set: {
+              status: "deployed",
+              startTime: new Date(),
+            },
+          },
+          { new: true }
+        );
         project.isLive = true;
 
         // Save updates
@@ -448,20 +488,22 @@ export const deployAndReturn = async (deploymentId, projectName) => {
           validateBeforeSave: false,
           optimisticConcurrency: false,
         });
-        await deployment.save({
-          validateBeforeSave: false,
-          optimisticConcurrency: false,
-        });
       } else {
-        deployment.logs.push({
-          log: `[ERROR] Docker run exited with code ${code}`,
-          timestamp: new Date(),
-        });
-        deployment.status = "failed";
-        await deployment.save({
-          validateBeforeSave: false,
-          optimisticConcurrency: false,
-        });
+        await Deployment.findByIdAndUpdate(
+          deploymentId,
+          {
+            $push: {
+              logs: {
+                log: `[ERROR] Docker run exited with code ${code}`,
+                timestamp: new Date(),
+              },
+            },
+            $set: {
+              status: "failed",
+            },
+          },
+          { new: true }
+        );
       }
     });
 
