@@ -264,7 +264,9 @@ const removePreviousDeployment = async (projectName, isLive) => {
 
 export const deploy = asyncHandler(async (req, res) => {
   const { deploymentId, projectName, isLive } = req.body;
-
+  console.log(isLive);
+  console.log(typeof isLive);
+  if (isLive) console.log("Helloooooooooo");
   try {
     const [deployment, project] = await Promise.all([
       Deployment.findById(deploymentId),
