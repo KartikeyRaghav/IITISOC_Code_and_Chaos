@@ -322,9 +322,13 @@ export const deploy = asyncHandler(async (req, res) => {
         await logToDB(`[RUN_COMPLETE] ${containerName}\n\n`, {
           $set: { status: "deployed" },
         });
-      } else {
+      } else if (code !== 137) {
         await logToDB(`[ERROR] Step failed with code ${code}\n\n`, {
           $set: { status: "failed" },
+        });
+      } else {
+        await logToDB(`Docker container stopped\n\n`, {
+          $set: { status: "in-preview" },
         });
       }
     });
@@ -372,63 +376,33 @@ export const deployAndReturn = async (deploymentId, projectName) => {
 
     const run = spawn("docker", args);
 
-    run.stdout.on("data", async (data) => {
-      await Deployment.findByIdAndUpdate(
-        deploymentId,
-        {
-          $push: { logs: { log: data.toString(), timestamp: new Date() } },
-        },
-        { new: true }
-      );
-    });
+    const logToDB = async (log, extra = {}) => {
+      await Deployment.findByIdAndUpdate(deploymentId, {
+        $push: { logs: { log, timestamp: new Date() } },
+        ...extra,
+      });
+    };
 
-    run.stderr.on("data", async (data) => {
-      await Deployment.findByIdAndUpdate(
-        deploymentId,
-        {
-          $push: { logs: { log: data.toString(), timestamp: new Date() } },
-        },
-        { new: true }
-      );
-    });
+    run.stdout.on("data", (data) => logToDB(data.toString()));
+    run.stderr.on("data", (data) => logToDB(data.toString()));
 
     run.on("error", async (err) => {
       console.error("Docker run error:", err);
-      await Deployment.findByIdAndUpdate(
-        deploymentId,
-        {
-          $push: {
-            logs: {
-              log: `[ERROR] Docker failed: ${err.message}`,
-              timestamp: new Date(),
-            },
-          },
-          $set: {
-            status: "failed",
-          },
+      await logToDB(`[ERROR] Docker failed: ${err.message}`, {
+        $set: {
+          status: "failed",
         },
-        { new: true }
-      );
+      });
     });
 
     run.on("close", async (code) => {
       if (code === 0) {
-        await Deployment.findByIdAndUpdate(
-          deploymentId,
-          {
-            $push: {
-              logs: {
-                log: `[RUN_STARTED] ${containerName}`,
-                timestamp: new Date(),
-              },
-            },
-            $set: {
-              status: "deployed",
-              startTime: new Date(),
-            },
+        await logToDB(`[RUN_STARTED] ${containerName}`, {
+          $set: {
+            status: "deployed",
+            startTime: new Date(),
           },
-          { new: true }
-        );
+        });
         project.isLive = true;
 
         // Save updates
@@ -436,22 +410,14 @@ export const deployAndReturn = async (deploymentId, projectName) => {
           validateBeforeSave: false,
           optimisticConcurrency: false,
         });
+      } else if (code !== 137) {
+        await logToDB(`[ERROR] Step failed with code ${code}\n\n`, {
+          $set: { status: "failed" },
+        });
       } else {
-        await Deployment.findByIdAndUpdate(
-          deploymentId,
-          {
-            $push: {
-              logs: {
-                log: `[ERROR] Docker run exited with code ${code}`,
-                timestamp: new Date(),
-              },
-            },
-            $set: {
-              status: "failed",
-            },
-          },
-          { new: true }
-        );
+        await logToDB(`Docker container stopped\n\n`, {
+          $set: { status: "in-preview" },
+        });
       }
     });
 
