@@ -318,18 +318,24 @@ export const deploy = asyncHandler(async (req, res) => {
       deployment.imageName,
     ]);
 
-    run.stdout.on("data", (data) => {
-      deployment.logs = [
-        ...deployment.logs,
-        { log: data.toString(), timestamp: new Date() },
-      ];
+    run.stdout.on("data", async (data) => {
+      await Deployment.findByIdAndUpdate(
+        deploymentId,
+        {
+          $push: { logs: { log: data.toString(), timestamp: new Date() } },
+        },
+        { new: true }
+      );
     });
 
-    run.stderr.on("data", (data) => {
-      deployment.logs = [
-        ...deployment.logs,
-        { log: data.toString(), timestamp: new Date() },
-      ];
+    run.stderr.on("data", async (data) => {
+      await Deployment.findByIdAndUpdate(
+        deploymentId,
+        {
+          $push: { logs: { log: data.toString(), timestamp: new Date() } },
+        },
+        { new: true }
+      );
     });
 
     run.on("close", async (code) => {

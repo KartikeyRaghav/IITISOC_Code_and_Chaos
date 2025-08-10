@@ -259,14 +259,6 @@ const Project = () => {
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-400 mb-2">
-                    {projects.filter((p) => p.isLive === true).length}
-                  </div>
-                  <div className="text-gray-400 text-sm uppercase tracking-wide">
-                    Active
-                  </div>
-                </div>
-                <div className="text-center">
                   <div className="text-3xl font-bold text-yellow-400 mb-2">
                     {projects.filter((p) => p.status === "building").length}
                   </div>
